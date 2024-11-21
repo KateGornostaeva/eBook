@@ -5,6 +5,7 @@ import javafx.application.Preloader;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import ru.kate.ebook.controllers.MainWindowController;
 
 import java.util.ResourceBundle;
 
@@ -25,7 +26,7 @@ public class EBookMain extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         this.notifyPreloader(new Preloader.StateChangeNotification(null));
 
         ResourceBundle mainWindowBundle = ResourceBundle.getBundle("bundles.MainWindow", ctx.getLocale());
@@ -34,6 +35,9 @@ public class EBookMain extends Application {
         ctx.setMainScene(new Scene(fxmlLoader.load(), ctx.getGc().getScreenWidth(), ctx.getGc().getScreenHeight()));
         stage.setTitle(mainWindowBundle.getString("title"));
         stage.setScene(ctx.getMainScene());
+        MainWindowController mainWindowController = fxmlLoader.getController();
+        mainWindowController.setCtx(ctx);
+
         stage.show();
 
     }

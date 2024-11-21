@@ -1,6 +1,10 @@
 module ru.kate.ebook.ebook {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.base;
+    requires javafx.graphics;
+    requires javafx.media;
+    requires javafx.web;
     requires org.slf4j;
     requires static lombok;
     requires com.fasterxml.jackson.databind;
