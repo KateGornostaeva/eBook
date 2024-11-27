@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import ru.kate.ebook.controllers.MainWindowController;
 
+import java.io.File;
 import java.util.ResourceBundle;
 
 public class EBookMain extends Application {
@@ -39,6 +40,10 @@ public class EBookMain extends Application {
         mainWindowController.setCtx(ctx);
 
         stage.show();
+
+    }
+
+    public void showBook(File file) {
 
     }
 }
