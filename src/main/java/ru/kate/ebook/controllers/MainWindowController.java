@@ -11,9 +11,13 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import lombok.Setter;
+import org.xml.sax.SAXException;
 import ru.kate.ebook.Context;
+import ru.kate.ebook.ConverterBook;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -67,7 +71,7 @@ public class MainWindowController implements Initializable {
     }
 
     @FXML
-    private void handleOpenFile(ActionEvent event) {
+    private void handleOpenFile(ActionEvent event) throws ParserConfigurationException, IOException, SAXException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Открыть файл");
         fileChooser.getExtensionFilters().addAll(
@@ -76,8 +80,10 @@ public class MainWindowController implements Initializable {
                 new FileChooser.ExtensionFilter("Веб страницы", "*.htm", "*.html")
         );
         File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
+        ConverterBook converterBook = new ConverterBook(ctx);
+        String html = converterBook.convertFromFB2(file);
         WebEngine webEngine = webView.getEngine();
-        webEngine.load(file.toURI().toString());
+        webEngine.loadContent(html);
     }
 
     @FXML

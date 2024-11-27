@@ -17,5 +17,8 @@ public class MainConfig {
     @Builder.Default
     private Boolean autoLogin = true;
 
+    @Builder.Default
+    private String tempDir = System.getProperty("java.io.tmpdir");
+
 
 }

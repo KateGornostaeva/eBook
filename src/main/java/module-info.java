@@ -9,6 +9,7 @@ module ru.kate.ebook.ebook {
     requires static lombok;
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.datatype.jsr310;
+    requires fb2parser;
 
 
     opens ru.kate.ebook to javafx.fxml;
