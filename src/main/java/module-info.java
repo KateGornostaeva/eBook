@@ -10,6 +10,9 @@ module ru.kate.ebook.ebook {
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.datatype.jsr310;
     requires fb2parser;
+    requires java.sql;
+    requires org.xerial.sqlitejdbc;
+    requires org.jsoup;
 
 
     opens ru.kate.ebook to javafx.fxml;

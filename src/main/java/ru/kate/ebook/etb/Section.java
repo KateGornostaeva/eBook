@@ -1,4 +1,4 @@
-package ru.kate.ebook.entity;
+package ru.kate.ebook.etb;
 
 import java.util.List;
 import java.util.UUID;

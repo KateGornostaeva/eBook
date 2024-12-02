@@ -23,10 +23,12 @@
         <SplitPane dividerPositions="0.2, 0.8" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0"
                    VBox.vgrow="ALWAYS">
             <items>
+                <TreeView fx:id="treeView" prefHeight="-1.0" prefWidth="-1.0"/>
+                <WebView fx:id="webView" prefHeight="-1.0" prefWidth="-1.0"/>
                 <AnchorPane>
                     <children>
-                        <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" minWidth="60.0" prefWidth="-1.0"
-                               style="&#10;" text="Master" textAlignment="CENTER" wrapText="false">
+                        <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" style="&#10;" text="Details"
+                               textAlignment="CENTER" wrapText="false">
                             <font>
                                 <Font size="18.0" fx:id="x1"/>
                             </font>
@@ -34,13 +36,6 @@
                                 <Color red="0.624" green="0.624" blue="0.624" fx:id="x2"/>
                             </textFill>
                         </Label>
-                    </children>
-                </AnchorPane>
-                <WebView fx:id="webView" prefHeight="-1.0" prefWidth="-1.0"/>
-                <AnchorPane>
-                    <children>
-                        <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Details"
-                               textAlignment="CENTER" textFill="$x2" wrapText="false"/>
                     </children>
                 </AnchorPane>
             </items>

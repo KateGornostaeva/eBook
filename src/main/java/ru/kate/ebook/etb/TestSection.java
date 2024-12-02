@@ -1,4 +1,4 @@
-package ru.kate.ebook.entity;
+package ru.kate.ebook.etb;
 
 public class TestSection {
 }

@@ -15,13 +15,17 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @Slf4j
-public class ConverterBook {
+public class ProcessBook {
 
     private final Context ctx;
 
-    public ConverterBook(Context ctx) {
+    public ProcessBook(Context ctx) {
         this.ctx = ctx;
     }
 
@@ -64,15 +68,28 @@ public class ConverterBook {
         return html + sb;
     }
 
-    public void checkExt(File file) throws IOException, NotSupportedExtension, WrongFileFormat {
+    public String processEtb(File file) throws SQLException {
+        Connection connection = DriverManager.getConnection("jdbc:sqlite:" + file.getAbsolutePath());
+        ctx.setStatementBook(connection.createStatement());
+        ResultSet rs = ctx.getStatementBook().executeQuery("select * from content where name='html';");
+        String html = "";
+        while (rs.next()) {
+            html = rs.getString("body");
+        }
+        rs.close();
+        return html;
+    }
+
+    public String checkExtAndProcess(File file) throws IOException, NotSupportedExtension, WrongFileFormat, SQLException {
         int indexOf = file.getName().lastIndexOf(".");
         if (indexOf >= 0) {
             String ext = file.getName().substring(indexOf).toLowerCase();
             switch (ext) {
-                case "etb":
+                case ".etb":
                     if (!checkEtb(file)) throw new WrongFileFormat();
-                    break;
-                case "fb2":
+                    return processEtb(file);
+
+                case ".fb2":
                     if (!checkFb2(file)) throw new WrongFileFormat();
                     break;
 
@@ -83,9 +100,10 @@ public class ConverterBook {
             throw new IOException("Aren't extension for file: " + file.getName());
 
         }
+        return "";
     }
 
-    private boolean checkEtb(File file) throws IOException, NotSupportedExtension {
+    private boolean checkEtb(File file) {
         return true;
     }
 

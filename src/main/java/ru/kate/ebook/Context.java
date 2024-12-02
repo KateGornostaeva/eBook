@@ -7,12 +7,14 @@ import ru.kate.ebook.configuration.GraphicsConfig;
 import ru.kate.ebook.configuration.MainConfig;
 import ru.kate.ebook.configuration.NetworkConfig;
 
+import java.sql.Statement;
 import java.util.Locale;
 
 @Data
 public class Context {
 
     private final EBookMain eBookMain;
+    private Statement statementBook;
 
     private Scene mainScene;
     //private JcModal mainDialog;
