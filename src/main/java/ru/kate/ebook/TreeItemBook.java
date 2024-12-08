@@ -8,6 +8,7 @@ import lombok.Data;
 public class TreeItemBook {
     private String text;
     private String link;
+    private String parent;
 
     @Override
     public String toString() {

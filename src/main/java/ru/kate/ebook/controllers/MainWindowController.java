@@ -15,7 +15,8 @@ import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.xml.sax.SAXException;
+import netscape.javascript.JSException;
+import netscape.javascript.JSObject;
 import ru.kate.ebook.Context;
 import ru.kate.ebook.ProcessBook;
 import ru.kate.ebook.ProcessBookTree;
@@ -23,7 +24,6 @@ import ru.kate.ebook.TreeItemBook;
 import ru.kate.ebook.exceptions.NotSupportedExtension;
 import ru.kate.ebook.exceptions.WrongFileFormat;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -82,14 +82,23 @@ public class MainWindowController implements Initializable {
         btnSettings.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("setting.png"))));
         btnSettings.setContentDisplay(ContentDisplay.TOP);
 
+
         treeView.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            TreeItem<TreeItemBook> selectedItem = treeView.getSelectionModel().getSelectedItem();
-            log.info(selectedItem.toString());
+            TreeItem<TreeItemBook> selectedItem = treeView.getFocusModel().getFocusedItem();
+            String link = selectedItem.getValue().getLink();
+            if (link != null && !link.isEmpty()) {
+                try {
+                    JSObject window = (JSObject) webView.getEngine().executeScript("window");
+                    window.call("jump", link);
+                } catch (JSException e) {
+                    log.error(e.getMessage());
+                }
+            }
         });
     }
 
     @FXML
-    private void handleOpenFile(ActionEvent event) throws ParserConfigurationException, IOException, SAXException {
+    private void handleOpenFile(ActionEvent event) throws IOException {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Открыть файл");
