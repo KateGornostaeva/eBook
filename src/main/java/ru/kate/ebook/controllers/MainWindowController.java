@@ -19,7 +19,6 @@ import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 import ru.kate.ebook.Context;
 import ru.kate.ebook.ProcessBook;
-import ru.kate.ebook.ProcessBookTree;
 import ru.kate.ebook.TreeItemBook;
 import ru.kate.ebook.exceptions.NotSupportedExtension;
 import ru.kate.ebook.exceptions.WrongFileFormat;
@@ -61,6 +60,12 @@ public class MainWindowController implements Initializable {
     @FXML
     private Button btnSettings;
 
+    @FXML
+    private Button btnTest;
+
+    @FXML
+    private Button btnMarker;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -82,6 +87,11 @@ public class MainWindowController implements Initializable {
         btnSettings.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("setting.png"))));
         btnSettings.setContentDisplay(ContentDisplay.TOP);
 
+        btnTest.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("test.png"))));
+        btnTest.setContentDisplay(ContentDisplay.TOP);
+
+        btnMarker.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("marker.png"))));
+        btnMarker.setContentDisplay(ContentDisplay.TOP);
 
         treeView.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             TreeItem<TreeItemBook> selectedItem = treeView.getFocusModel().getFocusedItem();
@@ -99,7 +109,8 @@ public class MainWindowController implements Initializable {
 
     @FXML
     private void handleOpenFile(ActionEvent event) throws IOException {
-
+        // проверить, были ли изменения в текущей книге и если что, сохранить
+        //сбросить состояния связанные с книгой
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Открыть файл");
         fileChooser.getExtensionFilters().addAll(
@@ -111,8 +122,10 @@ public class MainWindowController implements Initializable {
 
         ProcessBook converterBook = new ProcessBook(ctx);
         try {
-            String html = converterBook.checkExtAndProcess(file);
-            ProcessBookTree.processBookTree(treeView, html);
+            String html = converterBook.checkExtAndGetHtml(file);
+            if (ctx.getEbook() != null) {
+                treeView.setRoot(ctx.getEbook().getTreeRoot());
+            }
             WebEngine webEngine = webView.getEngine();
             webEngine.loadContent(html);
         } catch (NotSupportedExtension | WrongFileFormat e) {
@@ -122,6 +135,18 @@ public class MainWindowController implements Initializable {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @FXML
+    private void handleTest(ActionEvent event) {
+        ctx.getEbook();
+    }
+
+    @FXML
+    //скорее всего это не нужно
+    private void handleMarker(ActionEvent event) {
+        JSObject window = (JSObject) webView.getEngine().executeScript("window");
+        Object selected = window.call("getSelected");
     }
 
     @FXML

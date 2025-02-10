@@ -3,6 +3,7 @@ package ru.kate.ebook;
 import com.kursx.parser.fb2.*;
 import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.SAXException;
+import ru.kate.ebook.etb.Ebook;
 import ru.kate.ebook.exceptions.NotSupportedExtension;
 import ru.kate.ebook.exceptions.WrongFileFormat;
 
@@ -15,9 +16,6 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Slf4j
@@ -29,7 +27,7 @@ public class ProcessBook {
         this.ctx = ctx;
     }
 
-    public String convertFromFB2(File file) throws ParserConfigurationException, IOException, SAXException {
+    public String processFb2(File file) throws ParserConfigurationException, IOException, SAXException {
 
         FictionBook fb = new FictionBook(file);
         Description description = fb.getDescription();
@@ -69,18 +67,12 @@ public class ProcessBook {
     }
 
     public String processEtb(File file) throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:sqlite:" + file.getAbsolutePath());
-        ctx.setStatementBook(connection.createStatement());
-        ResultSet rs = ctx.getStatementBook().executeQuery("select * from content where name='html';");
-        String html = "";
-        while (rs.next()) {
-            html = rs.getString("body");
-        }
-        rs.close();
-        return html;
+        Ebook ebook = new Ebook(file);
+        ctx.setEbook(ebook);
+        return ebook.getHtml();
     }
 
-    public String checkExtAndProcess(File file) throws IOException, NotSupportedExtension, WrongFileFormat, SQLException {
+    public String checkExtAndGetHtml(File file) throws IOException, NotSupportedExtension, WrongFileFormat, SQLException {
         int indexOf = file.getName().lastIndexOf(".");
         if (indexOf >= 0) {
             String ext = file.getName().substring(indexOf).toLowerCase();
@@ -91,6 +83,13 @@ public class ProcessBook {
 
                 case ".fb2":
                     if (!checkFb2(file)) throw new WrongFileFormat();
+                    try {
+                        return processFb2(file);
+                    } catch (ParserConfigurationException | SAXException | IOException e) {
+                        throw new WrongFileFormat();
+                    }
+
+                case ".epub":
                     break;
 
                 default:

@@ -15,6 +15,8 @@
                 <Button fx:id="btnServ" mnemonicParsing="false" onAction="#handleOpenServ" text="Онлайн ..."/>
                 <Button fx:id="btnList" mnemonicParsing="false" onAction="#handleOpenList" text="Списком"/>
                 <Button fx:id="btnGrid" mnemonicParsing="false" onAction="#handleOpenGrid" text="Плиткой"/>
+                <Button fx:id="btnTest" mnemonicParsing="false" onAction="#handleTest" text="Тесты"/>
+                <Button fx:id="btnMarker" mnemonicParsing="false" onAction="#handleMarker" text="Маркер"/>
 
                 <Button fx:id="btnUser" mnemonicParsing="false" onAction="#handleOpenUser" text="Профиль"/>
                 <Button fx:id="btnSettings" mnemonicParsing="false" onAction="#handleOpenSettings" text="Настройки"/>

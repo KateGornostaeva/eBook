@@ -6,15 +6,15 @@ import ru.kate.ebook.configuration.Configurator;
 import ru.kate.ebook.configuration.GraphicsConfig;
 import ru.kate.ebook.configuration.MainConfig;
 import ru.kate.ebook.configuration.NetworkConfig;
+import ru.kate.ebook.etb.Ebook;
 
-import java.sql.Statement;
 import java.util.Locale;
 
 @Data
 public class Context {
 
     private final EBookMain eBookMain;
-    private Statement statementBook;
+    private Ebook ebook;
 
     private Scene mainScene;
     //private JcModal mainDialog;
