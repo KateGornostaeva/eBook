@@ -125,6 +125,8 @@ public class MainWindowController implements Initializable {
             String html = converterBook.checkExtAndGetHtml(file);
             if (ctx.getEbook() != null) {
                 treeView.setRoot(ctx.getEbook().getTreeRoot());
+            } else {
+                treeView.setRoot(null);
             }
             WebEngine webEngine = webView.getEngine();
             webEngine.loadContent(html);

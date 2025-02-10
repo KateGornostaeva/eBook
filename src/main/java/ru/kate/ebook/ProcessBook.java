@@ -7,16 +7,20 @@ import ru.kate.ebook.etb.Ebook;
 import ru.kate.ebook.exceptions.NotSupportedExtension;
 import ru.kate.ebook.exceptions.WrongFileFormat;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.math.BigInteger;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Map;
 
 @Slf4j
 public class ProcessBook {
@@ -30,6 +34,10 @@ public class ProcessBook {
     public String processFb2(File file) throws ParserConfigurationException, IOException, SAXException {
 
         FictionBook fb = new FictionBook(file);
+
+        Path tempDir = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "ebookTemp");
+        extractImgFromFb2(tempDir, fb);
+
         Description description = fb.getDescription();
         String lang = ctx.getLocale().getLanguage();
         String title = "No Title";
@@ -37,6 +45,7 @@ public class ProcessBook {
             lang = description.getTitleInfo().getLang();
             title = description.getTitleInfo().getBookTitle();
         }
+
         String html = getHtmlHead(lang, title);
         StringBuilder sb = new StringBuilder();
         sb.append("<H3>").append(title).append("</H3>");
@@ -53,9 +62,19 @@ public class ProcessBook {
             for (Section section : body.getSections()) {
                 sb.append("<p>");
                 for (Element element : section.getElements()) {
-                    sb.append("<p>");
-                    sb.append(element.getText()).append("\n");
-                    sb.append("</p>");
+                    if (element instanceof P) {
+                        ArrayList<Image> images = ((P) element).getImages();
+                        if (images != null) {
+                            for (Image image : images) {
+                                String name = image.getValue().replace("#", "");
+                                sb.append("<img src=\"file:" + File.separator + File.separator + tempDir.toString() + File.separator + name + "\">");
+                            }
+                        } else {
+                            sb.append("<p>");
+                            sb.append(element.getText()).append("\n");
+                            sb.append("</p>");
+                        }
+                    }
                 }
                 sb.append("</p>");
 
@@ -64,6 +83,33 @@ public class ProcessBook {
 
         sb.append("</body></html>");
         return html + sb;
+    }
+
+    private void extractImgFromFb2(Path tempDir, FictionBook fb) {
+
+        Base64.Decoder decoder = Base64.getMimeDecoder();
+        Map<String, Binary> binaryMap = fb.getBinaries();
+        binaryMap.forEach((key, value) -> {
+            byte[] decodedBytes = decoder.decode(value.getBinary());
+            try {
+                BufferedImage img = ImageIO.read(new ByteArrayInputStream(decodedBytes));
+                File outputfile = new File(tempDir + File.separator + key);
+                switch (value.getContentType()) {
+                    case "image/png":
+                        ImageIO.write(img, "png", outputfile);
+                        break;
+                    case "image/jpeg":
+                        ImageIO.write(img, "jpg", outputfile);
+                        break;
+                    case "image/gif":
+                        ImageIO.write(img, "gif", outputfile);
+                        break;
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
     }
 
     public String processEtb(File file) throws SQLException {
@@ -75,6 +121,8 @@ public class ProcessBook {
     public String checkExtAndGetHtml(File file) throws IOException, NotSupportedExtension, WrongFileFormat, SQLException {
         int indexOf = file.getName().lastIndexOf(".");
         if (indexOf >= 0) {
+
+            ctx.setEbook(null);
             String ext = file.getName().substring(indexOf).toLowerCase();
             switch (ext) {
                 case ".etb":

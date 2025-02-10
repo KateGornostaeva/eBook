@@ -14,6 +14,7 @@ module ru.kate.ebook.ebook {
     requires org.xerial.sqlitejdbc;
     requires org.jsoup;
     requires jdk.jsobject;
+    requires java.desktop;
 
 
     opens ru.kate.ebook to javafx.fxml;
