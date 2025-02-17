@@ -140,6 +140,9 @@ public class ProcessBook {
                 case ".epub":
                     break;
 
+                case ".pdf":
+                    break;
+
                 default:
                     throw new NotSupportedExtension(file.getName());
             }
