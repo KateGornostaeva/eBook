@@ -6,6 +6,7 @@ import org.xml.sax.SAXException;
 import ru.kate.ebook.etb.Ebook;
 import ru.kate.ebook.exceptions.NotSupportedExtension;
 import ru.kate.ebook.exceptions.WrongFileFormat;
+import ru.kate.ebook.pdfdisplayer.PDFDisplayer;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.ParserConfigurationException;
@@ -31,7 +32,11 @@ public class ProcessBook {
         this.ctx = ctx;
     }
 
-    public String processFb2(File file) throws ParserConfigurationException, IOException, SAXException {
+    public void process(File file) throws NotSupportedExtension, SQLException, IOException, WrongFileFormat {
+        checkExtAndGetHtml(file);
+    }
+
+    public void processFb2(File file) throws ParserConfigurationException, IOException, SAXException {
 
         FictionBook fb = new FictionBook(file);
 
@@ -82,7 +87,7 @@ public class ProcessBook {
         }
 
         sb.append("</body></html>");
-        return html + sb;
+        ctx.getWebView().getEngine().loadContent(html + sb);
     }
 
     private void extractImgFromFb2(Path tempDir, FictionBook fb) {
@@ -112,13 +117,22 @@ public class ProcessBook {
 
     }
 
-    public String processEtb(File file) throws SQLException {
+    public void processEtb(File file) throws SQLException {
         Ebook ebook = new Ebook(file);
+        ctx.getTreeView().setRoot(ebook.getTreeRoot());
+        ctx.getWebView().getEngine().loadContent(ebook.getHtml());
         ctx.setEbook(ebook);
-        return ebook.getHtml();
     }
 
-    public String checkExtAndGetHtml(File file) throws IOException, NotSupportedExtension, WrongFileFormat, SQLException {
+    private void processPdf(File file) throws IOException {
+        ctx.getTreeView().setMaxWidth(0);
+        ctx.getTreeView().setPrefWidth(0);
+        ctx.getTreeView().setMinWidth(0);
+        PDFDisplayer displayer = new PDFDisplayer(file);
+        displayer.createWebView(ctx.getWebView());
+    }
+
+    public void checkExtAndGetHtml(File file) throws IOException, NotSupportedExtension, WrongFileFormat, SQLException {
         int indexOf = file.getName().lastIndexOf(".");
         if (indexOf >= 0) {
 
@@ -127,12 +141,14 @@ public class ProcessBook {
             switch (ext) {
                 case ".etb":
                     if (!checkEtb(file)) throw new WrongFileFormat();
-                    return processEtb(file);
+                    processEtb(file);
+                    break;
 
                 case ".fb2":
                     if (!checkFb2(file)) throw new WrongFileFormat();
                     try {
-                        return processFb2(file);
+                        processFb2(file);
+                        break;
                     } catch (ParserConfigurationException | SAXException | IOException e) {
                         throw new WrongFileFormat();
                     }
@@ -141,6 +157,7 @@ public class ProcessBook {
                     break;
 
                 case ".pdf":
+                    processPdf(file);
                     break;
 
                 default:
@@ -148,9 +165,7 @@ public class ProcessBook {
             }
         } else {
             throw new IOException("Aren't extension for file: " + file.getName());
-
         }
-        return "";
     }
 
     private boolean checkEtb(File file) {

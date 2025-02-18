@@ -1,6 +1,8 @@
 package ru.kate.ebook;
 
 import javafx.scene.Scene;
+import javafx.scene.control.TreeView;
+import javafx.scene.web.WebView;
 import lombok.Data;
 import ru.kate.ebook.configuration.Configurator;
 import ru.kate.ebook.configuration.GraphicsConfig;
@@ -17,7 +19,8 @@ public class Context {
     private Ebook ebook;
 
     private Scene mainScene;
-    //private JcModal mainDialog;
+    private WebView webView;
+    private TreeView<TreeItemBook> treeView;
 
     private final Configurator configurator;
     //private Network network;

@@ -15,6 +15,7 @@ module ru.kate.ebook.ebook {
     requires org.jsoup;
     requires jdk.jsobject;
     requires java.desktop;
+    requires PDFViewerFX;
 
 
     opens ru.kate.ebook to javafx.fxml;

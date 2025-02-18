@@ -10,7 +10,6 @@ import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import lombok.Setter;
@@ -120,23 +119,18 @@ public class MainWindowController implements Initializable {
         );
         File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
 
-        ProcessBook converterBook = new ProcessBook(ctx);
+        ctx.setWebView(webView);
+        ctx.setTreeView(treeView);
+        ProcessBook processBook = new ProcessBook(ctx);
         try {
-            String html = converterBook.checkExtAndGetHtml(file);
-            if (ctx.getEbook() != null) {
-                treeView.setRoot(ctx.getEbook().getTreeRoot());
-            } else {
-                treeView.setRoot(null);
-            }
-            WebEngine webEngine = webView.getEngine();
-            webEngine.loadContent(html);
-        } catch (NotSupportedExtension | WrongFileFormat e) {
-            //show Allert
+            processBook.process(file);
+        } catch (NotSupportedExtension e) {
             throw new RuntimeException(e);
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } catch (WrongFileFormat e) {
+            throw new RuntimeException(e);
         }
-
     }
 
     @FXML
