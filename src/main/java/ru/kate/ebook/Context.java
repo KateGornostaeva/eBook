@@ -23,7 +23,7 @@ public class Context {
     private TreeView<TreeItemBook> treeView;
 
     private final Configurator configurator;
-    //private Network network;
+    private Network network;
     private Locale locale;
     private MainConfig mc;
     private NetworkConfig nc;
@@ -37,7 +37,7 @@ public class Context {
         mc = configurator.getMainConfig();
         nc = configurator.getNetworkConfig();
         gc = configurator.getGraphicsConfig();
-        //network = new Network(nc);
+        network = new Network(nc);
         locale = Locale.of(mc.getLocale());
     }
 }

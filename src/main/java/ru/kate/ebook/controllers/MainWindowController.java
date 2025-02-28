@@ -24,6 +24,7 @@ import ru.kate.ebook.exceptions.WrongFileFormat;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
@@ -146,8 +147,8 @@ public class MainWindowController implements Initializable {
     }
 
     @FXML
-    private void handleOpenServ(ActionEvent event) {
-
+    private void handleOpenServ(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
+        ctx.getNetwork().getBooks();
     }
 
     @FXML
@@ -161,8 +162,9 @@ public class MainWindowController implements Initializable {
     }
 
     @FXML
-    private void handleOpenUser(ActionEvent event) {
+    private void handleOpenUser(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
 
+        ctx.getNetwork().signUp();
     }
 
     @FXML

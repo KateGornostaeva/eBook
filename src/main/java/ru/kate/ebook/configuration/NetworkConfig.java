@@ -11,10 +11,10 @@ public class NetworkConfig {
     private String port = "8080";
 
     @Builder.Default
-    private String username = "Jonson";
+    private String username = "guest";
 
     @Builder.Default
-    private String password = "my_1secret1_password";
+    private String password = "nopassword";
 
     @Builder.Default
     private String host = "http://localhost";

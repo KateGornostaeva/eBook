@@ -16,6 +16,7 @@ module ru.kate.ebook.ebook {
     requires jdk.jsobject;
     requires java.desktop;
     requires PDFViewerFX;
+    requires java.net.http;
 
 
     opens ru.kate.ebook to javafx.fxml;
