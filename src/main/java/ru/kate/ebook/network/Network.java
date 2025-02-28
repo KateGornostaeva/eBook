@@ -1,4 +1,4 @@
-package ru.kate.ebook;
+package ru.kate.ebook.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -45,9 +45,20 @@ public class Network {
         dto.setUsername(nc.getUsername());
         dto.setPassword(nc.getPassword());
         dto.setEmail("kate@gmail.com");
-        HttpRequest postRequest = getPostRequest("/auth/sign-up", mapper.writeValueAsString(dto));
+
+        HttpRequest postRequest = HttpRequest.newBuilder()
+                .uri(new URI(nc.getHost() + ":" + nc.getPort() + "/auth/sign-up"))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .timeout(Duration.ofSeconds(TIMEOUT))
+                .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(dto)))
+                .build();
         HttpResponse<String> httpResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
         log.info(httpResponse.body());
+
+    }
+
+    public void upLoadBook() throws URISyntaxException, IOException, InterruptedException {
 
     }
 

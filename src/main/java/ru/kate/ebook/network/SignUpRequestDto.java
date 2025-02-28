@@ -1,4 +1,4 @@
-package ru.kate.ebook;
+package ru.kate.ebook.network;
 
 import lombok.Data;
 

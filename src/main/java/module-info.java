@@ -21,4 +21,6 @@ module ru.kate.ebook.ebook {
 
     opens ru.kate.ebook to javafx.fxml;
     exports ru.kate.ebook;
+    exports ru.kate.ebook.network;
+    opens ru.kate.ebook.network to javafx.fxml;
 }
