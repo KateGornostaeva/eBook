@@ -9,6 +9,7 @@ import ru.kate.ebook.configuration.GraphicsConfig;
 import ru.kate.ebook.configuration.MainConfig;
 import ru.kate.ebook.configuration.NetworkConfig;
 import ru.kate.ebook.etb.Ebook;
+import ru.kate.ebook.localStore.LocalStore;
 import ru.kate.ebook.network.Network;
 
 import java.util.Locale;
@@ -18,6 +19,8 @@ public class Context {
 
     private final EBookMain eBookMain;
     private Ebook ebook;
+
+    private LocalStore localStore;
 
     private Scene mainScene;
     private WebView webView;
@@ -40,5 +43,6 @@ public class Context {
         gc = configurator.getGraphicsConfig();
         network = new Network(nc);
         locale = Locale.of(mc.getLocale());
+        localStore = new LocalStore();
     }
 }

@@ -1,13 +1,18 @@
 package ru.kate.ebook.zipBook;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.scene.image.Image;
+import ru.kate.ebook.localStore.BookMeta;
+
+import java.io.*;
+import java.util.Collections;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 public class ZipBook {
+
+    private final static ObjectMapper mapper = new ObjectMapper();
 
     public static File addBook(File bookFile) throws IOException {
 
@@ -32,11 +37,35 @@ public class ZipBook {
         return outFile;
     }
 
-    private File addTest(File zipBookFile, File testFile) {
+    public File addTest(File zipBookFile, File testFile) {
         return null;
     }
 
-    private File addBookAndTest(File bookFile, File testFile) throws IOException {
+    public File addBookAndTest(File bookFile, File testFile) throws IOException {
         return addTest(addBook(bookFile), testFile);
+    }
+
+    public static BookMeta getBookMeta(File zipBookFile) throws IOException {
+
+        BookMeta bookMeta = new BookMeta();
+
+        try (ZipFile zipFile = new ZipFile(zipBookFile)) {
+
+            for (ZipEntry entry : Collections.list(zipFile.entries())) {
+                if (!entry.isDirectory() && entry.getName().equals(BookMeta.META_NAME)) {
+                    InputStream inputStream = zipFile.getInputStream(entry);
+                    BookMeta rawMeta = mapper.readValue(inputStream, BookMeta.class);
+                    bookMeta.setAuthor(rawMeta.getAuthor());
+                    bookMeta.setTitle(rawMeta.getTitle());
+                    bookMeta.setFileName(rawMeta.getFileName());
+                    bookMeta.setIsTestIn(rawMeta.getIsTestIn());
+                }
+                if (!entry.isDirectory() && entry.getName().equals(BookMeta.COVER_NAME)) {
+                    InputStream inputStream = zipFile.getInputStream(entry);
+                    bookMeta.setCover(new Image(inputStream));
+                }
+            }
+        }
+        return bookMeta;
     }
 }
