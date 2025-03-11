@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javafx.scene.image.Image;
 import lombok.Data;
 
+import java.nio.file.Path;
+
 @Data
 public class BookMeta {
 
@@ -16,6 +18,9 @@ public class BookMeta {
 
     @JsonIgnore
     private Image cover;
+
+    @JsonIgnore
+    private Path path;
 
     private Boolean isTestIn;
 }

@@ -4,10 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.TreeView;
 import javafx.scene.web.WebView;
 import lombok.Data;
-import ru.kate.ebook.configuration.Configurator;
-import ru.kate.ebook.configuration.GraphicsConfig;
-import ru.kate.ebook.configuration.MainConfig;
-import ru.kate.ebook.configuration.NetworkConfig;
+import ru.kate.ebook.configuration.*;
 import ru.kate.ebook.etb.Ebook;
 import ru.kate.ebook.localStore.LocalStore;
 import ru.kate.ebook.network.Network;
@@ -21,6 +18,7 @@ public class Context {
     private Ebook ebook;
 
     private LocalStore localStore;
+    private Role role = Role.ROLE_GUEST;
 
     private Scene mainScene;
     private WebView webView;

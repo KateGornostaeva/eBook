@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      prefHeight="300.0" prefWidth="250.0" spacing="15.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kate.ebook.controllers.AuthDialogController">
+    <children>
+        <Label text="ВХОД"/>
+        <TextField fx:id="txtUserName" alignment="CENTER" promptText="логин">
+        </TextField>
+        <TextField fx:id="txtPassword" alignment="CENTER" promptText="пароль">
+        </TextField>
+        <Button mnemonicParsing="false" onAction="#handleBtnEnter" text="ВОЙТИ"/>
+        <Button fx:id="exitButton" mnemonicParsing="false" onAction="#handleBtnReg" text="РЕГИСТРАЦИЯ"/>
+    </children>
+    <padding>
+        <Insets left="30.0" right="30.0"/>
+    </padding>
+</VBox>

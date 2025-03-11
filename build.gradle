@@ -16,6 +16,7 @@ repositories {
 
 ext {
     junitVersion = '5.10.2'
+    platform = 'win64'
 }
 
 sourceCompatibility = '21'
@@ -34,6 +35,16 @@ javafx {
     version = '21'
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.web']
 }
+
+configurations
+        .matching(it -> it.name.contains("downloadSources"))
+        .configureEach {
+            attributes {
+                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+                //attribute(OperatingSystemFamily.OPERATING_SYSTEM_ATTRIBUTE, objects.named(OperatingSystemFamily, platform.osFamily))
+                //attribute(MachineArchitecture.ARCHITECTURE_ATTRIBUTE, objects.named(MachineArchitecture, platform.arch))
+            }
+        }
 
 dependencies {
 

@@ -33,7 +33,7 @@ public class ProcessBook {
     }
 
     public void process(File file) throws NotSupportedExtension, SQLException, IOException, WrongFileFormat {
-        checkExtAndGetHtml(file);
+        checkExtAndProcess(file);
     }
 
     public void processFb2(File file) throws ParserConfigurationException, IOException, SAXException {
@@ -125,14 +125,14 @@ public class ProcessBook {
     }
 
     private void processPdf(File file) throws IOException {
-        ctx.getTreeView().setMaxWidth(0);
-        ctx.getTreeView().setPrefWidth(0);
-        ctx.getTreeView().setMinWidth(0);
+        //ctx.getTreeView().setMaxWidth(0);
+        //ctx.getTreeView().setPrefWidth(0);
+        //ctx.getTreeView().setMinWidth(0);
         PDFDisplayer displayer = new PDFDisplayer(file);
         displayer.createWebView(ctx.getWebView());
     }
 
-    public void checkExtAndGetHtml(File file) throws IOException, NotSupportedExtension, WrongFileFormat, SQLException {
+    public void checkExtAndProcess(File file) throws IOException, NotSupportedExtension, WrongFileFormat, SQLException {
         int indexOf = file.getName().lastIndexOf(".");
         if (indexOf >= 0) {
 
@@ -172,7 +172,7 @@ public class ProcessBook {
         return true;
     }
 
-    private boolean checkFb2(File file) throws IOException, NotSupportedExtension, WrongFileFormat {
+    private boolean checkFb2(File file) {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line = br.readLine().trim();
             if (!line.startsWith("<")) {

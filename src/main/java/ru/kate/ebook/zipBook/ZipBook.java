@@ -5,6 +5,10 @@ import javafx.scene.image.Image;
 import ru.kate.ebook.localStore.BookMeta;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -48,6 +52,7 @@ public class ZipBook {
     public static BookMeta getBookMeta(File zipBookFile) throws IOException {
 
         BookMeta bookMeta = new BookMeta();
+        bookMeta.setPath(zipBookFile.toPath());
 
         try (ZipFile zipFile = new ZipFile(zipBookFile)) {
 
@@ -67,5 +72,20 @@ public class ZipBook {
             }
         }
         return bookMeta;
+    }
+
+    public static File getBookFile(BookMeta bookMeta) throws IOException {
+        File outputFile = null;
+        try (ZipFile zipFile = new ZipFile(String.valueOf(bookMeta.getPath()))) {
+            for (ZipEntry entry : Collections.list(zipFile.entries())) {
+                if (!entry.isDirectory() && entry.getName().equals(bookMeta.getFileName())) {
+                    InputStream inputStream = zipFile.getInputStream(entry);
+                    Path tempDir = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "ebookTemp");
+                    outputFile = new File(tempDir + "/" + bookMeta.getFileName());
+                    Files.copy(inputStream, outputFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+        }
+        return outputFile;
     }
 }

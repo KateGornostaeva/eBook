@@ -10,6 +10,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.Context;
@@ -17,6 +20,10 @@ import ru.kate.ebook.ProcessBook;
 import ru.kate.ebook.exceptions.NotSupportedExtension;
 import ru.kate.ebook.exceptions.WrongFileFormat;
 import ru.kate.ebook.localStore.BookMeta;
+import ru.kate.ebook.nodes.AddTail;
+import ru.kate.ebook.nodes.EbModal;
+import ru.kate.ebook.nodes.Tail;
+import ru.kate.ebook.zipBook.ZipBook;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +37,9 @@ import java.util.ResourceBundle;
 public class MainWindowController implements Initializable {
 
     protected Context ctx;
+
+    @FXML
+    private VBox mainVBox;
 
     @FXML
     private Button btnOpen;
@@ -46,8 +56,8 @@ public class MainWindowController implements Initializable {
     @FXML
     private Button btnSettings;
 
-    @FXML
     private ScrollPane sPane;
+    private WebView webView;
 
     public void setCtx(Context ctx) {
         this.ctx = ctx;
@@ -66,9 +76,6 @@ public class MainWindowController implements Initializable {
         btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("list.png"))));
         btnListOrGrid.setContentDisplay(ContentDisplay.TOP);
 
-        btnUser.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("user.png"))));
-        btnUser.setContentDisplay(ContentDisplay.TOP);
-
         btnSettings.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("setting.png"))));
         btnSettings.setContentDisplay(ContentDisplay.TOP);
 
@@ -86,49 +93,85 @@ public class MainWindowController implements Initializable {
 //        });
     }
 
-    private void setUpMainPane() {
+    public void setUpMainPane() {
+
+        sPane = new ScrollPane();
+        sPane.setPrefWidth(900.0);
+        mainVBox.getChildren().add(sPane);
+        VBox.setVgrow(sPane, Priority.ALWAYS);
+
         FlowPane flowPane = new FlowPane();
         flowPane.setOrientation(Orientation.VERTICAL);
         flowPane.setVgap(10);
         flowPane.setHgap(10);
-        List<BookMeta> books = ctx.getLocalStore().getBooks();
+        flowPane.setPrefWidth(sPane.getWidth());
+        flowPane.setPrefHeight(sPane.getHeight());
+
+        AddTail addTail = new AddTail();
+        addTail.setText("Добавить учебник");
+        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
+        iv.setPreserveRatio(true);
+        iv.setFitHeight(200);
+        addTail.setGraphic(iv);
+        addTail.setContentDisplay(ContentDisplay.TOP);
+        flowPane.getChildren().add(addTail);
+
+        List<BookMeta> books = List.of();
+        if (ctx.isConnected()) {
+            //books = ctx.getNetwork().getBooks();
+        } else {
+            books = ctx.getLocalStore().getBooks();
+        }
         books.forEach(book -> {
             ImageView imageView = new ImageView(book.getCover());
             imageView.setPreserveRatio(true);
             imageView.setFitHeight(200);
-            Button btn = new Button();
-            btn.setGraphic(imageView);
-            btn.setContentDisplay(ContentDisplay.TOP);
-            btn.setText(book.getTitle());
-            flowPane.getChildren().add(btn);
+            Tail tail = new Tail(book);
+            tail.setGraphic(imageView);
+            tail.setContentDisplay(ContentDisplay.TOP);
+            tail.setText(book.getTitle());
+            tail.setOnMouseClicked(event -> {
+                try {
+                    BookMeta meta = ((Tail) event.getTarget()).getMeta();
+                    File bookFile = ZipBook.getBookFile(meta);
+                    mainVBox.getChildren().remove(sPane);
+                    webView = new WebView();
+                    mainVBox.getChildren().add(webView);
+                    VBox.setVgrow(webView, Priority.ALWAYS);
+                    ctx.setWebView(webView);
+                    ProcessBook processBook = new ProcessBook(ctx);
+                    processBook.process(bookFile);
+                } catch (IOException | NotSupportedExtension | SQLException | WrongFileFormat e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            flowPane.getChildren().add(tail);
         });
-
         sPane.setContent(flowPane);
     }
 
     @FXML
     private void handleOpenFile(ActionEvent event) throws IOException {
-        // проверить, были ли изменения в текущей книге и если что, сохранить
-        //сбросить состояния связанные с книгой
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Открыть файл");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Электронный учебник", "*.etb"),
-                new FileChooser.ExtensionFilter("Электронные книги", "*.pdf", "*.fb2"),
-                new FileChooser.ExtensionFilter("Веб страницы", "*.htm", "*.html")
+                //new FileChooser.ExtensionFilter("Электронный учебник", "*.etb"),
+                new FileChooser.ExtensionFilter("Электронные книги", "*.pdf", "*.fb2")
+                //new FileChooser.ExtensionFilter("Веб страницы", "*.htm", "*.html")
         );
         File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
 
-        //ctx.setWebView(webView);
-        //ctx.setTreeView(treeView);
-        ProcessBook processBook = new ProcessBook(ctx);
+
         try {
+            mainVBox.getChildren().remove(sPane);
+            webView = new WebView();
+            mainVBox.getChildren().add(webView);
+            VBox.setVgrow(webView, Priority.ALWAYS);
+            ctx.setWebView(webView);
+            ProcessBook processBook = new ProcessBook(ctx);
             processBook.process(file);
-        } catch (NotSupportedExtension e) {
-            throw new RuntimeException(e);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (WrongFileFormat e) {
+        } catch (NotSupportedExtension | SQLException | WrongFileFormat e) {
             throw new RuntimeException(e);
         }
     }
@@ -145,8 +188,8 @@ public class MainWindowController implements Initializable {
 
     @FXML
     private void handleOpenUser(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
-
-        ctx.getNetwork().signUp();
+        EbModal authDialog = new EbModal(null, "auth-dialog", ctx);
+        authDialog.show();
     }
 
     @FXML

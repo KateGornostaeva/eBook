@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.configuration.NetworkConfig;
+import ru.kate.ebook.configuration.Role;
 
 import java.io.IOException;
 import java.net.URI;
@@ -40,12 +41,7 @@ public class Network {
         login();
     }
 
-    public void signUp() throws URISyntaxException, IOException, InterruptedException {
-        SignUpRequestDto dto = new SignUpRequestDto();
-        dto.setUsername(nc.getUsername());
-        dto.setPassword(nc.getPassword());
-        dto.setEmail("kate@gmail.com");
-
+    public void signUp(SignUpRequestDto dto) throws URISyntaxException, IOException, InterruptedException {
         HttpRequest postRequest = HttpRequest.newBuilder()
                 .uri(new URI(nc.getHost() + ":" + nc.getPort() + "/auth/sign-up"))
                 .header("Content-Type", "application/json")
@@ -55,7 +51,13 @@ public class Network {
                 .build();
         HttpResponse<String> httpResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
         log.info(httpResponse.body());
+    }
 
+    public Role getRole() throws URISyntaxException, IOException, InterruptedException {
+        HttpRequest httpRequest = getGetRequest("/user/role", "");
+        HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        String body = httpResponse.body();
+        return Role.valueOf(body);
     }
 
     public void upLoadBook() throws URISyntaxException, IOException, InterruptedException {
@@ -68,7 +70,7 @@ public class Network {
         }
         HttpRequest httpRequest = getGetRequest("/books/list", "page=0&size=10");
         HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-        httpResponse.body();
+        //httpResponse.body();
         return mapper.readValue(httpResponse.body(), List.class);
     }
 
