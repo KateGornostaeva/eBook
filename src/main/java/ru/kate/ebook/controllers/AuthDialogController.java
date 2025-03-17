@@ -44,10 +44,16 @@ public class AuthDialogController extends EbController {
             }
             ctx.setConnected(true);
             ctx.setRole(ctx.getNetwork().getRole());
+
             Button btnUser = (Button) ctx.getMainScene().lookup("#btnUser");
             btnUser.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("user.png"))));
             btnUser.setText("");
             btnUser.setContentDisplay(ContentDisplay.TOP);
+            Button btnServ = (Button) ctx.getMainScene().lookup("#btnServ");
+            btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("map.png"))));
+            btnServ.setContentDisplay(ContentDisplay.TOP);
+            btnServ.setDisable(false);
+
             exitButton.getScene().getWindow().hide();
         } catch (URISyntaxException | IOException | InterruptedException e) {
             log.error(e.getLocalizedMessage());

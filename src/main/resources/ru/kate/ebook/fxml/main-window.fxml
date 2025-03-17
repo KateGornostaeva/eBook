@@ -12,6 +12,8 @@
             <items>
                 <Button fx:id="btnOpen" minHeight="32.0" mnemonicParsing="false" onAction="#handleOpenFile"
                         text="Открыть"/>
+                <Button fx:id="btnBack" minHeight="32.0" mnemonicParsing="false" onAction="#handleBack" prefWidth="0.0"
+                        visible="false"/>
                 <Button fx:id="btnServ" mnemonicParsing="false" onAction="#handleOpenServ"/>
                 <Button fx:id="btnListOrGrid" mnemonicParsing="false" onAction="#handleSwitchList"/>
                 <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true"/>

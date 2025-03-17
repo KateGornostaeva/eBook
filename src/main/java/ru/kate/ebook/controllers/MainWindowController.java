@@ -10,6 +10,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
@@ -45,6 +46,9 @@ public class MainWindowController implements Initializable {
     private Button btnOpen;
 
     @FXML
+    private Button btnBack;
+
+    @FXML
     private Button btnServ;
 
     @FXML
@@ -58,6 +62,7 @@ public class MainWindowController implements Initializable {
 
     private ScrollPane sPane;
     private WebView webView;
+    private boolean grid = true;
 
     public void setCtx(Context ctx) {
         this.ctx = ctx;
@@ -67,17 +72,11 @@ public class MainWindowController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        //btnOpen.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("open.png"))));
-        //btnOpen.setContentDisplay(ContentDisplay.TOP);
-
-        btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("map.png"))));
-        btnServ.setContentDisplay(ContentDisplay.TOP);
-
-        btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("list.png"))));
-        btnListOrGrid.setContentDisplay(ContentDisplay.TOP);
-
         btnSettings.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("setting.png"))));
         btnSettings.setContentDisplay(ContentDisplay.TOP);
+
+        btnBack.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("back.png"))));
+        btnBack.setContentDisplay(ContentDisplay.TOP);
 
 //        treeView.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 //            TreeItem<TreeItemBook> selectedItem = treeView.getFocusModel().getFocusedItem();
@@ -95,26 +94,62 @@ public class MainWindowController implements Initializable {
 
     public void setUpMainPane() {
 
+        if (ctx.isConnected()) {
+            btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("map.png"))));
+            btnServ.setContentDisplay(ContentDisplay.TOP);
+            btnServ.setDisable(false);
+        } else {
+            btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("no-wifi.png"))));
+            btnServ.setContentDisplay(ContentDisplay.TOP);
+            btnServ.setDisable(true);
+        }
+        mainVBox.getChildren().remove(sPane);
         sPane = new ScrollPane();
         sPane.setPrefWidth(900.0);
         mainVBox.getChildren().add(sPane);
         VBox.setVgrow(sPane, Priority.ALWAYS);
 
-        FlowPane flowPane = new FlowPane();
-        flowPane.setOrientation(Orientation.VERTICAL);
-        flowPane.setVgap(10);
-        flowPane.setHgap(10);
-        flowPane.setPrefWidth(sPane.getWidth());
-        flowPane.setPrefHeight(sPane.getHeight());
+        if (grid) {
+            FlowPane flowPane = new FlowPane();
+            flowPane.setOrientation(Orientation.VERTICAL);
+            flowPane.setVgap(10);
+            flowPane.setHgap(10);
+            flowPane.setPrefWidth(sPane.getWidth());
+            flowPane.setPrefHeight(sPane.getHeight());
+            addBookToPane(flowPane);
+            sPane.setContent(flowPane);
+            btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("list.png"))));
+            btnListOrGrid.setContentDisplay(ContentDisplay.TOP);
+        } else {
+            VBox vBox = new VBox();
+            vBox.setPrefWidth(sPane.getWidth());
+            vBox.setPrefHeight(sPane.getHeight());
+            addBookToPane(vBox);
+            sPane.setContent(vBox);
+            btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("tile.png"))));
+            btnListOrGrid.setContentDisplay(ContentDisplay.TOP);
 
+            log.info(sPane.widthProperty().toString() + " " + sPane.heightProperty().toString());
+        }
+    }
+
+    private void addBookToPane(Pane pane) {
         AddTail addTail = new AddTail();
         addTail.setText("Добавить учебник");
         ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
         iv.setPreserveRatio(true);
-        iv.setFitHeight(200);
+        if (grid) {
+            iv.setFitHeight(200);
+            addTail.setContentDisplay(ContentDisplay.TOP);
+        } else {
+            iv.setFitHeight(32);
+            addTail.setContentDisplay(ContentDisplay.LEFT);
+        }
         addTail.setGraphic(iv);
-        addTail.setContentDisplay(ContentDisplay.TOP);
-        flowPane.getChildren().add(addTail);
+        pane.getChildren().add(addTail);
+        if (!grid) {
+            VBox.setVgrow(addTail, Priority.ALWAYS);
+        }
 
         List<BookMeta> books = List.of();
         if (ctx.isConnected()) {
@@ -125,29 +160,30 @@ public class MainWindowController implements Initializable {
         books.forEach(book -> {
             ImageView imageView = new ImageView(book.getCover());
             imageView.setPreserveRatio(true);
-            imageView.setFitHeight(200);
+            if (grid) {
+                imageView.setFitHeight(200);
+            } else {
+                imageView.setFitHeight(32);
+            }
             Tail tail = new Tail(book);
             tail.setGraphic(imageView);
-            tail.setContentDisplay(ContentDisplay.TOP);
+            if (grid) {
+                tail.setContentDisplay(ContentDisplay.TOP);
+            } else {
+                tail.setContentDisplay(ContentDisplay.LEFT);
+            }
             tail.setText(book.getTitle());
             tail.setOnMouseClicked(event -> {
                 try {
                     BookMeta meta = ((Tail) event.getTarget()).getMeta();
                     File bookFile = ZipBook.getBookFile(meta);
-                    mainVBox.getChildren().remove(sPane);
-                    webView = new WebView();
-                    mainVBox.getChildren().add(webView);
-                    VBox.setVgrow(webView, Priority.ALWAYS);
-                    ctx.setWebView(webView);
-                    ProcessBook processBook = new ProcessBook(ctx);
-                    processBook.process(bookFile);
-                } catch (IOException | NotSupportedExtension | SQLException | WrongFileFormat e) {
+                    showFile(bookFile);
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             });
-            flowPane.getChildren().add(tail);
+            pane.getChildren().add(tail);
         });
-        sPane.setContent(flowPane);
     }
 
     @FXML
@@ -161,19 +197,41 @@ public class MainWindowController implements Initializable {
                 //new FileChooser.ExtensionFilter("Веб страницы", "*.htm", "*.html")
         );
         File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
+        if (file != null) {
+            showFile(file);
+        }
+    }
 
-
+    private void showFile(File file) {
         try {
+            btnOpen.setPrefWidth(0);
+            btnOpen.setVisible(false);
+            btnBack.setVisible(true);
+            btnBack.setPrefWidth(-1.0);
+            btnListOrGrid.setDisable(true);
             mainVBox.getChildren().remove(sPane);
+            mainVBox.getChildren().remove(webView);
             webView = new WebView();
             mainVBox.getChildren().add(webView);
             VBox.setVgrow(webView, Priority.ALWAYS);
             ctx.setWebView(webView);
             ProcessBook processBook = new ProcessBook(ctx);
             processBook.process(file);
-        } catch (NotSupportedExtension | SQLException | WrongFileFormat e) {
+        } catch (NotSupportedExtension | SQLException | WrongFileFormat | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @FXML
+    public void handleBack(ActionEvent actionEvent) {
+        btnBack.setVisible(false);
+        btnBack.setPrefWidth(0);
+        btnOpen.setVisible(true);
+        btnOpen.setPrefWidth(-1.0);
+        btnListOrGrid.setDisable(false);
+        mainVBox.getChildren().remove(sPane);
+        mainVBox.getChildren().remove(webView);
+        setUpMainPane();
     }
 
     @FXML
@@ -183,7 +241,8 @@ public class MainWindowController implements Initializable {
 
     @FXML
     private void handleSwitchList(ActionEvent event) {
-
+        grid = !grid;
+        setUpMainPane();
     }
 
     @FXML
