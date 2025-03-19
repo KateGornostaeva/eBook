@@ -102,7 +102,7 @@ public class Ebook {
             while (rs.next()) {
                 TestSection testSection = new TestSection();
                 testSection.setId(rs.getInt("id"));
-                testSection.setTestId(test.getId());
+                //testSection.setTestId(test.getId());
                 testSection.setQuestion(rs.getString("question"));
                 testSection.setMinValue(rs.getInt("min_value"));
                 String correctResponses = rs.getString("correct_responses");
@@ -115,7 +115,7 @@ public class Ebook {
                 while (rs2.next()) {
                     Answer answer = new Answer();
                     answer.setId(rs2.getInt("id"));
-                    answer.setTestSectionId(testSection.getId());
+                    //answer.setTestSectionId(testSection.getId());
                     answer.setAnswer(rs2.getString("answer"));
                     answer.setWeight(rs2.getInt("weight"));
                     answers.add(answer);

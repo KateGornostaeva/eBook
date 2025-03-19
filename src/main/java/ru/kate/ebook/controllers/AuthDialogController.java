@@ -53,8 +53,8 @@ public class AuthDialogController extends EbController {
             btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("map.png"))));
             btnServ.setContentDisplay(ContentDisplay.TOP);
             btnServ.setDisable(false);
-
             exitButton.getScene().getWindow().hide();
+            ctx.getMainWindowController().setUpMainPane();
         } catch (URISyntaxException | IOException | InterruptedException e) {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();

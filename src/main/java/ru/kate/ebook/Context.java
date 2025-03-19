@@ -5,6 +5,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.web.WebView;
 import lombok.Data;
 import ru.kate.ebook.configuration.*;
+import ru.kate.ebook.controllers.MainWindowController;
 import ru.kate.ebook.etb.Ebook;
 import ru.kate.ebook.localStore.LocalStore;
 import ru.kate.ebook.network.Network;
@@ -18,9 +19,10 @@ public class Context {
     private Ebook ebook;
 
     private LocalStore localStore;
-    private Role role = Role.ROLE_GUEST;
+    private Role role = Role.ROLE_TEACHER;
 
     private Scene mainScene;
+    private MainWindowController mainWindowController;
     private WebView webView;
     private TreeView<TreeItemBook> treeView;
 

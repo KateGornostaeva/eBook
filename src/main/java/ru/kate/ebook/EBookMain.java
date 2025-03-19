@@ -37,6 +37,7 @@ public class EBookMain extends Application {
         stage.setTitle(mainWindowBundle.getString("title"));
         stage.setScene(ctx.getMainScene());
         MainWindowController mainWindowController = fxmlLoader.getController();
+        ctx.setMainWindowController(mainWindowController);
         mainWindowController.setCtx(ctx);
 
         stage.show();

@@ -4,25 +4,23 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Orientation;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.ScrollPane;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.Context;
 import ru.kate.ebook.ProcessBook;
+import ru.kate.ebook.configuration.Role;
 import ru.kate.ebook.exceptions.NotSupportedExtension;
 import ru.kate.ebook.exceptions.WrongFileFormat;
 import ru.kate.ebook.localStore.BookMeta;
-import ru.kate.ebook.nodes.AddTail;
+import ru.kate.ebook.nodes.AddBookButton;
 import ru.kate.ebook.nodes.EbModal;
+import ru.kate.ebook.nodes.EditableTestSection;
 import ru.kate.ebook.nodes.Tail;
 import ru.kate.ebook.zipBook.ZipBook;
 
@@ -60,6 +58,7 @@ public class MainWindowController implements Initializable {
     @FXML
     private Button btnSettings;
 
+    private SplitPane splitPane;
     private ScrollPane sPane;
     private WebView webView;
     private boolean grid = true;
@@ -92,100 +91,6 @@ public class MainWindowController implements Initializable {
 //        });
     }
 
-    public void setUpMainPane() {
-
-        if (ctx.isConnected()) {
-            btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("map.png"))));
-            btnServ.setContentDisplay(ContentDisplay.TOP);
-            btnServ.setDisable(false);
-        } else {
-            btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("no-wifi.png"))));
-            btnServ.setContentDisplay(ContentDisplay.TOP);
-            btnServ.setDisable(true);
-        }
-        mainVBox.getChildren().remove(sPane);
-        sPane = new ScrollPane();
-        sPane.setPrefWidth(900.0);
-        mainVBox.getChildren().add(sPane);
-        VBox.setVgrow(sPane, Priority.ALWAYS);
-
-        if (grid) {
-            FlowPane flowPane = new FlowPane();
-            flowPane.setOrientation(Orientation.VERTICAL);
-            flowPane.setVgap(10);
-            flowPane.setHgap(10);
-            flowPane.setPrefWidth(sPane.getWidth());
-            flowPane.setPrefHeight(sPane.getHeight());
-            addBookToPane(flowPane);
-            sPane.setContent(flowPane);
-            btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("list.png"))));
-            btnListOrGrid.setContentDisplay(ContentDisplay.TOP);
-        } else {
-            VBox vBox = new VBox();
-            vBox.setPrefWidth(sPane.getWidth());
-            vBox.setPrefHeight(sPane.getHeight());
-            addBookToPane(vBox);
-            sPane.setContent(vBox);
-            btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("tile.png"))));
-            btnListOrGrid.setContentDisplay(ContentDisplay.TOP);
-
-            log.info(sPane.widthProperty().toString() + " " + sPane.heightProperty().toString());
-        }
-    }
-
-    private void addBookToPane(Pane pane) {
-        AddTail addTail = new AddTail();
-        addTail.setText("Добавить учебник");
-        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
-        iv.setPreserveRatio(true);
-        if (grid) {
-            iv.setFitHeight(200);
-            addTail.setContentDisplay(ContentDisplay.TOP);
-        } else {
-            iv.setFitHeight(32);
-            addTail.setContentDisplay(ContentDisplay.LEFT);
-        }
-        addTail.setGraphic(iv);
-        pane.getChildren().add(addTail);
-        if (!grid) {
-            VBox.setVgrow(addTail, Priority.ALWAYS);
-        }
-
-        List<BookMeta> books = List.of();
-        if (ctx.isConnected()) {
-            //books = ctx.getNetwork().getBooks();
-        } else {
-            books = ctx.getLocalStore().getBooks();
-        }
-        books.forEach(book -> {
-            ImageView imageView = new ImageView(book.getCover());
-            imageView.setPreserveRatio(true);
-            if (grid) {
-                imageView.setFitHeight(200);
-            } else {
-                imageView.setFitHeight(32);
-            }
-            Tail tail = new Tail(book);
-            tail.setGraphic(imageView);
-            if (grid) {
-                tail.setContentDisplay(ContentDisplay.TOP);
-            } else {
-                tail.setContentDisplay(ContentDisplay.LEFT);
-            }
-            tail.setText(book.getTitle());
-            tail.setOnMouseClicked(event -> {
-                try {
-                    BookMeta meta = ((Tail) event.getTarget()).getMeta();
-                    File bookFile = ZipBook.getBookFile(meta);
-                    showFile(bookFile);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            pane.getChildren().add(tail);
-        });
-    }
-
     @FXML
     private void handleOpenFile(ActionEvent event) throws IOException {
 
@@ -199,26 +104,6 @@ public class MainWindowController implements Initializable {
         File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
         if (file != null) {
             showFile(file);
-        }
-    }
-
-    private void showFile(File file) {
-        try {
-            btnOpen.setPrefWidth(0);
-            btnOpen.setVisible(false);
-            btnBack.setVisible(true);
-            btnBack.setPrefWidth(-1.0);
-            btnListOrGrid.setDisable(true);
-            mainVBox.getChildren().remove(sPane);
-            mainVBox.getChildren().remove(webView);
-            webView = new WebView();
-            mainVBox.getChildren().add(webView);
-            VBox.setVgrow(webView, Priority.ALWAYS);
-            ctx.setWebView(webView);
-            ProcessBook processBook = new ProcessBook(ctx);
-            processBook.process(file);
-        } catch (NotSupportedExtension | SQLException | WrongFileFormat | IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -254,5 +139,191 @@ public class MainWindowController implements Initializable {
     @FXML
     private void handleOpenSettings(ActionEvent event) {
 
+    }
+
+    private void showFile(File file) {
+        try {
+            btnOpen.setPrefWidth(0);
+            btnOpen.setVisible(false);
+            btnBack.setVisible(true);
+            btnBack.setPrefWidth(-1.0);
+            btnListOrGrid.setDisable(true);
+            mainVBox.getChildren().remove(splitPane);
+            mainVBox.getChildren().remove(sPane);
+            mainVBox.getChildren().remove(webView);
+            webView = new WebView();
+            mainVBox.getChildren().add(webView);
+            VBox.setVgrow(webView, Priority.ALWAYS);
+            ctx.setWebView(webView);
+            ProcessBook processBook = new ProcessBook(ctx);
+            processBook.process(file);
+        } catch (NotSupportedExtension | SQLException | WrongFileFormat | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setUpMainPane() {
+
+        if (ctx.isConnected()) {
+            btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("map.png"))));
+            btnServ.setContentDisplay(ContentDisplay.TOP);
+            btnServ.setDisable(false);
+        } else {
+            btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("no-wifi.png"))));
+            btnServ.setContentDisplay(ContentDisplay.TOP);
+            btnServ.setDisable(true);
+        }
+        mainVBox.getChildren().remove(splitPane);
+        mainVBox.getChildren().remove(sPane);
+        sPane = new ScrollPane();
+        sPane.setPrefWidth(mainVBox.getWidth());
+        mainVBox.getChildren().add(sPane);
+        VBox.setVgrow(sPane, Priority.ALWAYS);
+
+        if (grid) {
+            FlowPane flowPane = new FlowPane();
+            flowPane.setOrientation(Orientation.VERTICAL);
+            flowPane.setVgap(10);
+            flowPane.setHgap(10);
+            flowPane.setPrefWidth(sPane.getWidth());
+            flowPane.setPrefHeight(sPane.getHeight());
+            addBookToPane(flowPane);
+            sPane.setContent(flowPane);
+            btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("list.png"))));
+            btnListOrGrid.setContentDisplay(ContentDisplay.TOP);
+        } else {
+            VBox vBox = new VBox();
+            vBox.setPrefWidth(sPane.getScene().getWidth());
+            vBox.setPrefHeight(sPane.getHeight());
+            addBookToPane(vBox);
+            sPane.setContent(vBox);
+            btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("tile.png"))));
+            btnListOrGrid.setContentDisplay(ContentDisplay.TOP);
+
+            log.info(sPane.widthProperty().toString() + " " + sPane.heightProperty().toString());
+        }
+    }
+
+    private void addBookToPane(Pane pane) {
+
+        if (ctx.getRole().equals(Role.ROLE_TEACHER)) {
+            addAddTail(pane);
+        }
+
+        List<BookMeta> books = List.of();
+        if (ctx.isConnected()) {
+            //books = ctx.getNetwork().getBooks();
+        } else {
+            books = ctx.getLocalStore().getBooks();
+        }
+        books.forEach(book -> {
+            ImageView imageView = new ImageView(book.getCover());
+            imageView.setPreserveRatio(true);
+            if (grid) {
+                imageView.setFitHeight(200);
+            } else {
+                imageView.setFitHeight(32);
+            }
+            Tail tail = new Tail(book);
+            tail.setGraphic(imageView);
+            if (grid) {
+                tail.setContentDisplay(ContentDisplay.TOP);
+            } else {
+                tail.setContentDisplay(ContentDisplay.LEFT);
+            }
+            tail.setText(book.getTitle());
+            tail.setOnMouseClicked(event -> {
+                try {
+                    BookMeta meta = ((Tail) event.getSource()).getMeta();
+                    File bookFile = ZipBook.getBookFile(meta);
+                    showFile(bookFile);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            pane.getChildren().add(tail);
+        });
+    }
+
+    private void addAddTail(Pane pane) {
+        AddBookButton addTail = new AddBookButton();
+        addTail.setText("Добавить учебник");
+        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
+        iv.setPreserveRatio(true);
+        if (grid) {
+            iv.setFitHeight(200);
+            addTail.setContentDisplay(ContentDisplay.TOP);
+        } else {
+            iv.setFitHeight(32);
+            addTail.setContentDisplay(ContentDisplay.LEFT);
+        }
+        addTail.setGraphic(iv);
+        pane.getChildren().add(addTail);
+        if (!grid) {
+
+            VBox.setVgrow(addTail, Priority.ALWAYS);
+        }
+        addTail.setOnMouseClicked(event -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Открыть файл");
+            fileChooser.getExtensionFilters().addAll(
+                    //new FileChooser.ExtensionFilter("Электронный учебник", "*.etb"),
+                    new FileChooser.ExtensionFilter("Электронные книги", "*.pdf", "*.fb2")
+                    //new FileChooser.ExtensionFilter("Веб страницы", "*.htm", "*.html")
+            );
+            File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
+            if (file != null) {
+                mainVBox.getChildren().remove(sPane);
+                splitPane = new SplitPane();
+                splitPane.setOrientation(Orientation.HORIZONTAL);
+                splitPane.setDividerPosition(0, 0.5);
+                mainVBox.getChildren().add(splitPane);
+                VBox.setVgrow(splitPane, Priority.ALWAYS);
+                ScrollPane leftPane = new ScrollPane();
+                ScrollPane rightPane = new ScrollPane();
+                splitPane.getItems().add(leftPane);
+                splitPane.getItems().add(rightPane);
+
+                WebView webView = new WebView();
+                leftPane.setContent(webView);
+                leftPane.setFitToHeight(true);
+                leftPane.setFitToWidth(true);
+                ctx.setWebView(webView);
+                ProcessBook processBook = new ProcessBook(ctx);
+                try {
+                    processBook.process(file);
+                } catch (NotSupportedExtension | WrongFileFormat | IOException | SQLException e) {
+                    throw new RuntimeException(e);
+                }
+
+                Button addTest = new Button("Создать тест");
+                StackPane stackPane = new StackPane();
+                stackPane.setAlignment(Pos.CENTER); // Центрируем содержимое
+                stackPane.getChildren().add(addTest);
+                rightPane.setContent(stackPane);
+                rightPane.setFitToWidth(true);
+                rightPane.setFitToHeight(true);
+                editTest(addTest, rightPane);
+
+            }
+        });
+    }
+
+    private void editTest(Button button, ScrollPane rightPane) {
+        button.setOnAction(event -> {
+            VBox vBox = new VBox();
+            vBox.setFillWidth(true);
+            vBox.setSpacing(15);
+            rightPane.setContent(vBox);
+            rightPane.setFitToWidth(true);
+            rightPane.setFitToHeight(true);
+            Label label = new Label("Создание теста");
+            label.setStyle("-fx-font-weight: bold");
+            label.setStyle("-fx-font-size: 32px;");
+            vBox.getChildren().add(label);
+            vBox.getChildren().add(new EditableTestSection());
+            //vBox.getChildren().add(new AddQuestionButton());
+
+        });
     }
 }
