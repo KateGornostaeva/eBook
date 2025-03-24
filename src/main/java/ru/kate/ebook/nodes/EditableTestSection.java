@@ -49,6 +49,17 @@ public class EditableTestSection extends VBox {
         VBox.setVgrow(hBox, Priority.ALWAYS);
 
         getChildren().add(getVBoxAnswers());
+        Label label = new Label("Отметьте правильный(ые) вариант(ы) ответа(ов)");
+        Pane pane1 = new Pane();
+        HBox.setHgrow(pane1, Priority.ALWAYS);
+        Button delButton = new Button();
+        ImageView imageView2 = new ImageView(new Image(getClass().getResourceAsStream("garbage-can.png")));
+        imageView2.setPreserveRatio(true);
+        imageView2.setFitHeight(16);
+        delButton.setGraphic(imageView2);
+        HBox bottomBox = new HBox();
+        bottomBox.getChildren().addAll(label, pane1, delButton);
+        getChildren().add(bottomBox);
     }
 
     private VBox getVBoxAnswers() {

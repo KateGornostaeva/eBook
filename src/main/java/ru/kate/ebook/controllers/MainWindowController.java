@@ -322,7 +322,20 @@ public class MainWindowController implements Initializable {
             label.setStyle("-fx-font-size: 32px;");
             vBox.getChildren().add(label);
             vBox.getChildren().add(new EditableTestSection());
-            //vBox.getChildren().add(new AddQuestionButton());
+
+            ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
+            imageView.setPreserveRatio(true);
+            imageView.setFitHeight(32);
+            Button newQuestionButton = new Button("Добавить вопрос");
+            newQuestionButton.setContentDisplay(ContentDisplay.LEFT);
+            newQuestionButton.setGraphic(imageView);
+            newQuestionButton.setOnAction(event1 -> {
+                vBox.getChildren().remove(newQuestionButton);
+                vBox.getChildren().add(new EditableTestSection());
+                vBox.getChildren().add(newQuestionButton);
+            });
+
+            vBox.getChildren().add(newQuestionButton);
 
         });
     }
