@@ -7,8 +7,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class EditableTestSection extends VBox {
+
+    private final VBox parentVBox;
 
     private TextField txtQuestion;
     private VBox vBoxAnswers;
@@ -16,8 +20,9 @@ public class EditableTestSection extends VBox {
     private boolean oneIs = true;
     ToggleGroup group;
 
-    public EditableTestSection() {
+    public EditableTestSection(VBox parentVBox) {
         super();
+        this.parentVBox = parentVBox;
         setStyle("-fx-background-color: #888; -fx-padding: 15; -fx-spacing: 15;");
 
         txtQuestion = new TextField();
@@ -104,13 +109,6 @@ public class EditableTestSection extends VBox {
             getChildren().add(getVBoxAnswers());
             getChildren().add(bottomBox);
         });
-        //oneIs = !oneIs;
-        //по хорошему надо сохранить введённые варианты
-        //getChildren().remove(vBoxAnswers);
-        //getChildren().remove(bottomBox);
-        //а тут их восстановить
-        //getChildren().add(getVBoxAnswers());
-        //getChildren().add(bottomBox);
     }
 
     private HBox getBottomBox() {
@@ -122,6 +120,9 @@ public class EditableTestSection extends VBox {
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(16);
         delButton.setGraphic(imageView);
+        delButton.setOnAction(event -> {
+            parentVBox.getChildren().remove(this);
+        });
         bottomBox = new HBox();
         bottomBox.getChildren().addAll(label, pane, delButton);
         return bottomBox;
@@ -150,6 +151,7 @@ public class EditableTestSection extends VBox {
                 vBoxAnswers.getChildren().add(newButton);
             });
         }
+        //hideShowDelRowButton();
         return vBoxAnswers;
     }
 
@@ -192,8 +194,27 @@ public class EditableTestSection extends VBox {
         Button delButton = new Button();
         delButton.setGraphic(imageView);
         delButton.setOnAction(e -> {
-            vBoxAnswers.getChildren().remove(hBox);
+            if (vBoxAnswers.getChildren().size() > 2) {
+                vBoxAnswers.getChildren().remove(hBox);
+                //hideShowDelRowButton();
+            }
         });
         return delButton;
+    }
+
+    private void hideShowDelRowButton() {
+        if (vBoxAnswers.getChildren().size() > 2) {
+            vBoxAnswers.getChildren().stream().filter(obj -> obj instanceof HBox)
+                    .map(obj -> (HBox) obj).forEach(hBox1 -> {
+                        hBox1.getChildren().stream().filter(obj -> obj instanceof Button)
+                                .map(obj -> (Button) obj).forEach(b -> b.setVisible(true));
+                    });
+        } else {
+            vBoxAnswers.getChildren().stream().filter(obj -> obj instanceof HBox)
+                    .map(obj -> (HBox) obj).forEach(hBox1 -> {
+                        hBox1.getChildren().stream().filter(obj -> obj instanceof Button)
+                                .map(obj -> (Button) obj).forEach(b -> b.setVisible(false));
+                    });
+        }
     }
 }

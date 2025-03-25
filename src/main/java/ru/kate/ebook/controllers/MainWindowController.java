@@ -321,7 +321,7 @@ public class MainWindowController implements Initializable {
             label.setStyle("-fx-font-weight: bold");
             label.setStyle("-fx-font-size: 32px;");
             vBox.getChildren().add(label);
-            vBox.getChildren().add(new EditableTestSection());
+            vBox.getChildren().add(new EditableTestSection(vBox));
 
             ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
             imageView.setPreserveRatio(true);
@@ -331,7 +331,7 @@ public class MainWindowController implements Initializable {
             newQuestionButton.setGraphic(imageView);
             newQuestionButton.setOnAction(event1 -> {
                 vBox.getChildren().remove(newQuestionButton);
-                vBox.getChildren().add(new EditableTestSection());
+                vBox.getChildren().add(new EditableTestSection(vBox));
                 vBox.getChildren().add(newQuestionButton);
             });
 
