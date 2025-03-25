@@ -12,6 +12,7 @@ public class EditableTestSection extends VBox {
 
     private TextField txtQuestion;
     private VBox vBoxAnswers;
+    private HBox bottomBox;
     private boolean oneIs = true;
     ToggleGroup group;
 
@@ -28,12 +29,9 @@ public class EditableTestSection extends VBox {
         imageView.setFitHeight(16);
         editButton.setGraphic(imageView);
         editButton.setContentDisplay(ContentDisplay.LEFT);
-        editButton.setOnAction(e -> {
-            oneIs = !oneIs;
-            //по хорошему надо сохранить введённые варианты
-            getChildren().remove(vBoxAnswers);
-            //а тут их восстановить
-            getChildren().add(getVBoxAnswers());
+        editButton.setTooltip(new Tooltip("Один из списка\nИли несколько из списка"));
+        editButton.setOnMouseClicked(e -> {
+            showEditPopup(e.getScreenX(), e.getScreenY());
         });
 
         HBox hBox = new HBox();
@@ -49,73 +47,153 @@ public class EditableTestSection extends VBox {
         VBox.setVgrow(hBox, Priority.ALWAYS);
 
         getChildren().add(getVBoxAnswers());
+        getChildren().add(getBottomBox());
+
+    }
+
+    private void showEditPopup(double x, double y) {
+        PopupControl popupControl = new PopupControl();
+        popupControl.setAutoHide(true);
+        popupControl.setAutoFix(true);
+        popupControl.setX(x - 150);
+        popupControl.setY(y);
+
+
+        VBox vBox = new VBox();
+        vBox.setSpacing(10);
+        vBox.setStyle("-fx-background-color: #666;" +
+                "-fx-padding: 15;" +
+                "-fx-border-width: 0");
+
+        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("radio-button.png")));
+        imageView.setPreserveRatio(true);
+        imageView.setFitHeight(16);
+        Button btnRadio = new Button("Один из списка         ");
+        btnRadio.setGraphic(imageView);
+        btnRadio.setContentDisplay(ContentDisplay.LEFT);
+        VBox.setVgrow(btnRadio, Priority.ALWAYS);
+        vBox.getChildren().add(btnRadio);
+
+        ImageView imageView1 = new ImageView(new Image(getClass().getResourceAsStream("checkbox.png")));
+        imageView1.setPreserveRatio(true);
+        imageView1.setFitHeight(16);
+        Button btnCheck = new Button("Несколько из списка");
+        btnCheck.setGraphic(imageView1);
+        btnCheck.setContentDisplay(ContentDisplay.LEFT);
+        VBox.setVgrow(btnCheck, Priority.ALWAYS);
+        vBox.getChildren().add(btnCheck);
+
+        popupControl.getScene().setRoot(vBox);
+        popupControl.show(this.getScene().getWindow());
+
+        btnCheck.setOnAction(e -> {
+            oneIs = false;
+            //по хорошему надо сохранить введённые варианты
+            getChildren().remove(vBoxAnswers);
+            getChildren().remove(bottomBox);
+            //а тут их восстановить
+            getChildren().add(getVBoxAnswers());
+            getChildren().add(bottomBox);
+        });
+        btnRadio.setOnAction(e -> {
+            oneIs = true;
+            //по хорошему надо сохранить введённые варианты
+            getChildren().remove(vBoxAnswers);
+            getChildren().remove(bottomBox);
+            //а тут их восстановить
+            getChildren().add(getVBoxAnswers());
+            getChildren().add(bottomBox);
+        });
+        //oneIs = !oneIs;
+        //по хорошему надо сохранить введённые варианты
+        //getChildren().remove(vBoxAnswers);
+        //getChildren().remove(bottomBox);
+        //а тут их восстановить
+        //getChildren().add(getVBoxAnswers());
+        //getChildren().add(bottomBox);
+    }
+
+    private HBox getBottomBox() {
         Label label = new Label("Отметьте правильный(ые) вариант(ы) ответа(ов)");
-        Pane pane1 = new Pane();
-        HBox.setHgrow(pane1, Priority.ALWAYS);
+        Pane pane = new Pane();
+        HBox.setHgrow(pane, Priority.ALWAYS);
         Button delButton = new Button();
-        ImageView imageView2 = new ImageView(new Image(getClass().getResourceAsStream("garbage-can.png")));
-        imageView2.setPreserveRatio(true);
-        imageView2.setFitHeight(16);
-        delButton.setGraphic(imageView2);
-        HBox bottomBox = new HBox();
-        bottomBox.getChildren().addAll(label, pane1, delButton);
-        getChildren().add(bottomBox);
+        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("garbage-can.png")));
+        imageView.setPreserveRatio(true);
+        imageView.setFitHeight(16);
+        delButton.setGraphic(imageView);
+        bottomBox = new HBox();
+        bottomBox.getChildren().addAll(label, pane, delButton);
+        return bottomBox;
     }
 
     private VBox getVBoxAnswers() {
         vBoxAnswers = new VBox();
         vBoxAnswers.setStyle("-fx-background-color: #aaa; -fx-padding: 15; -fx-spacing: 15;");
         if (oneIs) {
-            group = new ToggleGroup();
-            RadioButton radioButton = new RadioButton();
-            radioButton.setToggleGroup(group);
-            TextField textField = new TextField();
-            textField.setPromptText("Вариант ответа");
+            vBoxAnswers.getChildren().add(getRadioRow());
             Button newButton = new Button("Добавить вариант");
-            HBox hBox = new HBox();
-            hBox.setSpacing(10);
-            hBox.getChildren().add(radioButton);
-            hBox.getChildren().add(textField);
-            vBoxAnswers.getChildren().add(hBox);
             vBoxAnswers.getChildren().add(newButton);
 
             newButton.setOnAction(e -> {
-                RadioButton radioButton1 = new RadioButton();
-                radioButton1.setToggleGroup(group);
-                TextField textField1 = new TextField();
-                textField1.setPromptText("Вариант ответа");
-                HBox hBox1 = new HBox();
-                hBox1.setSpacing(10);
-                hBox1.getChildren().add(radioButton1);
-                hBox1.getChildren().add(textField1);
                 vBoxAnswers.getChildren().remove(newButton);
-                vBoxAnswers.getChildren().add(hBox1);
+                vBoxAnswers.getChildren().add(getRadioRow());
                 vBoxAnswers.getChildren().add(newButton);
             });
         } else {
-            CheckBox checkBox = new CheckBox();
-            TextField textField = new TextField();
-            textField.setPromptText("Вариант ответа");
+            vBoxAnswers.getChildren().add(getCheckRow());
             Button newButton = new Button("Добавить вариант");
-            HBox hBox = new HBox();
-            hBox.setSpacing(10);
-            hBox.getChildren().add(checkBox);
-            hBox.getChildren().add(textField);
-            vBoxAnswers.getChildren().add(hBox);
             vBoxAnswers.getChildren().add(newButton);
             newButton.setOnAction(e -> {
-                CheckBox checkBox1 = new CheckBox();
-                TextField textField1 = new TextField();
-                textField1.setPromptText("Вариант ответа");
-                HBox hBox1 = new HBox();
-                hBox1.setSpacing(10);
-                hBox1.getChildren().add(checkBox1);
-                hBox1.getChildren().add(textField1);
                 vBoxAnswers.getChildren().remove(newButton);
-                vBoxAnswers.getChildren().add(hBox1);
+                vBoxAnswers.getChildren().add(getCheckRow());
                 vBoxAnswers.getChildren().add(newButton);
             });
         }
         return vBoxAnswers;
+    }
+
+    private HBox getRadioRow() {
+        HBox hBox = new HBox();
+        hBox.setSpacing(10);
+
+        group = new ToggleGroup();
+        RadioButton radioButton = new RadioButton();
+        radioButton.setToggleGroup(group);
+        hBox.getChildren().add(radioButton);
+
+        TextField textField = new TextField();
+        textField.setPromptText("Вариант ответа");
+        hBox.getChildren().add(textField);
+
+        hBox.getChildren().add(getDelRowButton(hBox));
+        return hBox;
+    }
+
+    private HBox getCheckRow() {
+        HBox hBox = new HBox();
+        hBox.setSpacing(10);
+
+        CheckBox checkBox = new CheckBox();
+        hBox.getChildren().add(checkBox);
+
+        TextField textField = new TextField();
+        textField.setPromptText("Вариант ответа");
+        hBox.getChildren().add(textField);
+
+        hBox.getChildren().add(getDelRowButton(hBox));
+        return hBox;
+    }
+
+    private Button getDelRowButton(HBox hBox) {
+        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("garbage-can.png")));
+        imageView.setPreserveRatio(true);
+        imageView.setFitHeight(16);
+        Button delButton = new Button();
+        delButton.setGraphic(imageView);
+        delButton.setOnAction(e -> {
+            vBoxAnswers.getChildren().remove(hBox);
+        });
+        return delButton;
     }
 }
