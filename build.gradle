@@ -62,6 +62,11 @@ dependencies {
     implementation files('src/main/libs/fb2parser.jar')
     implementation 'com.github.Dansoftowner:PDFViewerFX:0.8'
 
+    //compileOnly 'org.openjfx:javafx-controls:21.0.5'
+    //compileOnly 'org.openjfx:javafx-graphics:21.0.5'
+    //compileOnly 'org.openjfx:javafx-fxml:21.0.5'
+    //compileOnly 'org.openjfx:javafx-web:21.0.5'
+
     testImplementation 'org.slf4j:slf4j-reload4j:2.0.13'
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
