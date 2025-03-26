@@ -8,6 +8,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.extern.slf4j.Slf4j;
+import ru.kate.ebook.etb.Answer;
+import ru.kate.ebook.etb.TestSection;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 public class EditableTestSection extends VBox {
@@ -15,10 +20,8 @@ public class EditableTestSection extends VBox {
     private final VBox parentVBox;
 
     private TextField txtQuestion;
-    private VBox vBoxAnswers;
+    private AnswersBox answersBox;
     private HBox bottomBox;
-    private boolean oneIs = true;
-    ToggleGroup group;
 
     public EditableTestSection(VBox parentVBox) {
         super();
@@ -51,9 +54,18 @@ public class EditableTestSection extends VBox {
         getChildren().add(hBox);
         VBox.setVgrow(hBox, Priority.ALWAYS);
 
-        getChildren().add(getVBoxAnswers());
+        answersBox = new AnswersBox();
+        getChildren().add(answersBox);
         getChildren().add(getBottomBox());
 
+    }
+
+    public TestSection getTestSection() {
+        TestSection testSection = new TestSection();
+        testSection.setQuestion(txtQuestion.getText());
+        List<Answer> answers = new ArrayList<>();
+        //
+        return testSection;
     }
 
     private void showEditPopup(double x, double y) {
@@ -97,7 +109,7 @@ public class EditableTestSection extends VBox {
             getChildren().remove(vBoxAnswers);
             getChildren().remove(bottomBox);
             //а тут их восстановить
-            getChildren().add(getVBoxAnswers());
+            getChildren().add(new AnswersBox(oneIs));
             getChildren().add(bottomBox);
         });
         btnRadio.setOnAction(e -> {
@@ -106,7 +118,7 @@ public class EditableTestSection extends VBox {
             getChildren().remove(vBoxAnswers);
             getChildren().remove(bottomBox);
             //а тут их восстановить
-            getChildren().add(getVBoxAnswers());
+            getChildren().add(new AnswersBox(oneIs));
             getChildren().add(bottomBox);
         });
     }
@@ -126,80 +138,6 @@ public class EditableTestSection extends VBox {
         bottomBox = new HBox();
         bottomBox.getChildren().addAll(label, pane, delButton);
         return bottomBox;
-    }
-
-    private VBox getVBoxAnswers() {
-        vBoxAnswers = new VBox();
-        vBoxAnswers.setStyle("-fx-background-color: #aaa; -fx-padding: 15; -fx-spacing: 15;");
-        if (oneIs) {
-            vBoxAnswers.getChildren().add(getRadioRow());
-            Button newButton = new Button("Добавить вариант");
-            vBoxAnswers.getChildren().add(newButton);
-
-            newButton.setOnAction(e -> {
-                vBoxAnswers.getChildren().remove(newButton);
-                vBoxAnswers.getChildren().add(getRadioRow());
-                vBoxAnswers.getChildren().add(newButton);
-            });
-        } else {
-            vBoxAnswers.getChildren().add(getCheckRow());
-            Button newButton = new Button("Добавить вариант");
-            vBoxAnswers.getChildren().add(newButton);
-            newButton.setOnAction(e -> {
-                vBoxAnswers.getChildren().remove(newButton);
-                vBoxAnswers.getChildren().add(getCheckRow());
-                vBoxAnswers.getChildren().add(newButton);
-            });
-        }
-        //hideShowDelRowButton();
-        return vBoxAnswers;
-    }
-
-    private HBox getRadioRow() {
-        HBox hBox = new HBox();
-        hBox.setSpacing(10);
-
-        group = new ToggleGroup();
-        RadioButton radioButton = new RadioButton();
-        radioButton.setToggleGroup(group);
-        hBox.getChildren().add(radioButton);
-
-        TextField textField = new TextField();
-        textField.setPromptText("Вариант ответа");
-        hBox.getChildren().add(textField);
-
-        hBox.getChildren().add(getDelRowButton(hBox));
-        return hBox;
-    }
-
-    private HBox getCheckRow() {
-        HBox hBox = new HBox();
-        hBox.setSpacing(10);
-
-        CheckBox checkBox = new CheckBox();
-        hBox.getChildren().add(checkBox);
-
-        TextField textField = new TextField();
-        textField.setPromptText("Вариант ответа");
-        hBox.getChildren().add(textField);
-
-        hBox.getChildren().add(getDelRowButton(hBox));
-        return hBox;
-    }
-
-    private Button getDelRowButton(HBox hBox) {
-        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("garbage-can.png")));
-        imageView.setPreserveRatio(true);
-        imageView.setFitHeight(16);
-        Button delButton = new Button();
-        delButton.setGraphic(imageView);
-        delButton.setOnAction(e -> {
-            if (vBoxAnswers.getChildren().size() > 2) {
-                vBoxAnswers.getChildren().remove(hBox);
-                //hideShowDelRowButton();
-            }
-        });
-        return delButton;
     }
 
     private void hideShowDelRowButton() {

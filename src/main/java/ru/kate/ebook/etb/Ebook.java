@@ -114,7 +114,7 @@ public class Ebook {
                 ResultSet rs2 = statement.executeQuery("select * from answer where test_section_id = '" + testSection.getId() + "'");
                 while (rs2.next()) {
                     Answer answer = new Answer();
-                    answer.setId(rs2.getInt("id"));
+                    //answer.setId(rs2.getInt("id"));
                     //answer.setTestSectionId(testSection.getId());
                     answer.setAnswer(rs2.getString("answer"));
                     answer.setWeight(rs2.getInt("weight"));
