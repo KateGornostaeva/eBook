@@ -35,10 +35,14 @@ import java.util.ResourceBundle;
 @Slf4j
 public class MainWindowController implements Initializable {
 
+
     protected Context ctx;
 
     @FXML
     private VBox mainVBox;
+
+    @FXML
+    public ToolBar toolBar;
 
     @FXML
     private Button btnOpen;
@@ -273,6 +277,9 @@ public class MainWindowController implements Initializable {
             );
             File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
             if (file != null) {
+                mainVBox.getChildren().remove(toolBar);
+                mainVBox.getChildren().add(editTestToolBar());
+
                 mainVBox.getChildren().remove(sPane);
                 splitPane = new SplitPane();
                 splitPane.setOrientation(Orientation.HORIZONTAL);
@@ -307,6 +314,36 @@ public class MainWindowController implements Initializable {
 
             }
         });
+    }
+
+    private ToolBar editTestToolBar() {
+        ToolBar toolBar = new ToolBar();
+        Button localSaveButton = new Button("Сохранить\nлокально");
+        localSaveButton.setOnAction(event -> {
+            //save in local storage
+        });
+        toolBar.getItems().add(localSaveButton);
+
+        Button serverSaveButton = new Button("Сохранить и\nопубликовать");
+        serverSaveButton.setOnAction(event -> {
+
+        });
+        toolBar.getItems().add(serverSaveButton);
+
+        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("back.png")));
+        iv.setPreserveRatio(true);
+        Button backButton = new Button();
+        backButton.setGraphic(iv);
+        backButton.setOnAction(event -> {
+            mainVBox.getChildren().remove(toolBar);
+            mainVBox.getChildren().remove(splitPane);
+            mainVBox.getChildren().add(this.toolBar);
+            mainVBox.getChildren().add(sPane);
+        });
+        toolBar.getItems().add(backButton);
+
+
+        return toolBar;
     }
 
     private void editTest(Button button, ScrollPane rightPane) {
