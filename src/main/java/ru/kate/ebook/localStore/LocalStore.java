@@ -9,7 +9,7 @@ import java.util.List;
 
 public class LocalStore {
 
-    private final static String PATH = "." + File.separator + "localStore" + File.separator;
+    public final static String PATH = "." + File.separator + "localStore" + File.separator;
     private File dir;
 
     public LocalStore() {

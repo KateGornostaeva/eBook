@@ -47,13 +47,14 @@ public class ZipBook {
         return outFile;
     }
 
+
     //добавить файл в zip архив
-    public static File addFile(File zipBookFile, File file) {
+    public static File addFile(File zipBookFile, File file, String filename) throws IOException {
         Map<String, String> env = Map.of("create", "true");
         Path path = Paths.get(zipBookFile.getAbsolutePath());
         URI uri = URI.create("jar:" + path.toUri());
         try (FileSystem fs = FileSystems.newFileSystem(uri, env)) {
-            Path nf = fs.getPath(file.getName());
+            Path nf = fs.getPath(filename);
             Files.write(nf, Files.readAllBytes(Paths.get(file.getAbsolutePath())), StandardOpenOption.CREATE);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -63,7 +64,7 @@ public class ZipBook {
 
     //создать zip архив и положить в него книгу и файл с тестами
     public static File addBookAndTest(File bookFile, File testFile) throws IOException {
-        return addFile(addBook(bookFile), testFile);
+        return addFile(addBook(bookFile), testFile, BookMeta.TEST_NAME);
     }
 
     //получить метаданные книги из zip архива

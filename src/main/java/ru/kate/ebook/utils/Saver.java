@@ -5,11 +5,15 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import ru.kate.ebook.Context;
 import ru.kate.ebook.localStore.BookMeta;
+import ru.kate.ebook.localStore.LocalStore;
 import ru.kate.ebook.nodes.TestSectionVBox;
 import ru.kate.ebook.test.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
 public class Saver {
@@ -19,6 +23,8 @@ public class Saver {
      **/
     public static void localSaveAction(File file, Context ctx, VBox testsBox) {
 
+        BookMeta meta = new BookMeta();
+
         //формирование объекта с тестами
         Test test = new Test();
         testsBox.getChildren().stream().filter(TestSectionVBox.class::isInstance).map(TestSectionVBox.class::cast)
@@ -26,7 +32,11 @@ public class Saver {
                     test.getSections().add(editTestSection.getTestSection());
                 });
 
-        BookMeta meta = new BookMeta();
+        if (test.getSections().isEmpty()) {
+            meta.setIsTestIn(Boolean.FALSE);
+        } else {
+            meta.setIsTestIn(Boolean.TRUE);
+        }
 
         TextInputDialog textInputDialog = new TextInputDialog("Название черновика");
         textInputDialog.setHeaderText("Для сохранения черновика\nвведите название");
@@ -40,7 +50,7 @@ public class Saver {
         textInputDialog1.getEditor().setPrefWidth(300);
         Optional<String> result1 = textInputDialog1.showAndWait();
         if (result1.isPresent()) {
-
+            meta.setDescription(result1.get());
         }
 
         FileChooser fileChooser = new FileChooser();
@@ -49,7 +59,11 @@ public class Saver {
         File fileCover = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
 
         try {
-            ZipBook.addBookAndTest(file, test.getFile());
+            File bookAndTest = ZipBook.addBookAndTest(file, test.getFile());
+            ZipBook.addFile(bookAndTest, fileCover, BookMeta.COVER_NAME);
+            Path path = Files.move(bookAndTest.toPath(), Path.of(LocalStore.PATH + bookAndTest.getName()), StandardCopyOption.REPLACE_EXISTING);
+            meta.setBookFileName(file.getName());
+            ZipBook.addFile(path.toFile(), meta.getFile(), BookMeta.META_NAME);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
