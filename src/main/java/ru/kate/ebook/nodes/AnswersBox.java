@@ -15,8 +15,12 @@ public class AnswersBox extends VBox {
 
     }
 
-    public void toggleType() {
-        oneIs = !oneIs;
+    public void setType(boolean oneIs) {
+        this.oneIs = oneIs;
+        getChildren().stream().filter(AnswerRow.class::isInstance).map(AnswerRow.class::cast)
+                .forEach(row -> {
+                    row.setType(this.oneIs);
+                });
     }
 
     private void init() {

@@ -1,6 +1,6 @@
 package ru.kate.ebook.localStore;
 
-import ru.kate.ebook.zipBook.ZipBook;
+import ru.kate.ebook.utils.ZipBook;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.util.List;
 
 public class LocalStore {
 
-    private final static String PATH = "./localStore/";
+    private final static String PATH = "." + File.separator + "localStore" + File.separator;
     private File dir;
 
     public LocalStore() {
@@ -20,7 +20,7 @@ public class LocalStore {
     }
 
     public List<BookMeta> getBooks() {
-        List<BookMeta> books = new ArrayList<BookMeta>();
+        List<BookMeta> books = new ArrayList<>();
         File[] files = dir.listFiles();
         for (File file : files) {
             try {

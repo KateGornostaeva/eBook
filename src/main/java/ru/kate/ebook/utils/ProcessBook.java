@@ -1,9 +1,9 @@
-package ru.kate.ebook;
+package ru.kate.ebook.utils;
 
 import com.kursx.parser.fb2.*;
 import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.SAXException;
-import ru.kate.ebook.etb.Ebook;
+import ru.kate.ebook.Context;
 import ru.kate.ebook.exceptions.NotSupportedExtension;
 import ru.kate.ebook.exceptions.WrongFileFormat;
 import ru.kate.ebook.pdfdisplayer.PDFDisplayer;
@@ -30,10 +30,6 @@ public class ProcessBook {
 
     public ProcessBook(Context ctx) {
         this.ctx = ctx;
-    }
-
-    public void process(File file) throws NotSupportedExtension, SQLException, IOException, WrongFileFormat {
-        checkExtAndProcess(file);
     }
 
     public void processFb2(File file) throws ParserConfigurationException, IOException, SAXException {
@@ -117,17 +113,7 @@ public class ProcessBook {
 
     }
 
-    public void processEtb(File file) throws SQLException {
-        Ebook ebook = new Ebook(file);
-        ctx.getTreeView().setRoot(ebook.getTreeRoot());
-        ctx.getWebView().getEngine().loadContent(ebook.getHtml());
-        ctx.setEbook(ebook);
-    }
-
     private void processPdf(File file) throws IOException {
-        //ctx.getTreeView().setMaxWidth(0);
-        //ctx.getTreeView().setPrefWidth(0);
-        //ctx.getTreeView().setMinWidth(0);
         PDFDisplayer displayer = new PDFDisplayer(file);
         displayer.createWebView(ctx.getWebView());
     }
@@ -136,14 +122,8 @@ public class ProcessBook {
         int indexOf = file.getName().lastIndexOf(".");
         if (indexOf >= 0) {
 
-            ctx.setEbook(null);
             String ext = file.getName().substring(indexOf).toLowerCase();
             switch (ext) {
-                case ".etb":
-                    if (!checkEtb(file)) throw new WrongFileFormat();
-                    processEtb(file);
-                    break;
-
                 case ".fb2":
                     if (!checkFb2(file)) throw new WrongFileFormat();
                     try {
@@ -166,10 +146,6 @@ public class ProcessBook {
         } else {
             throw new IOException("Aren't extension for file: " + file.getName());
         }
-    }
-
-    private boolean checkEtb(File file) {
-        return true;
     }
 
     private boolean checkFb2(File file) {
@@ -197,10 +173,6 @@ public class ProcessBook {
         byte[] data = Files.readAllBytes(file.toPath());
         byte[] hash = MessageDigest.getInstance("SHA-512").digest(data);
         return new BigInteger(1, hash).toString(16);
-    }
-
-    private String buildDirPath(File file) throws IOException, NoSuchAlgorithmException {
-        return ctx.getMc().getTempDir() + "/" + hashFile(file);
     }
 
     private String getHtmlHead(String lang, String title) {

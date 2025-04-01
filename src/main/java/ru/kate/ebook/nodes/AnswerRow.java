@@ -4,7 +4,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import ru.kate.ebook.etb.Answer;
+import ru.kate.ebook.test.Answer;
 
 import java.util.UUID;
 
@@ -14,23 +14,23 @@ public class AnswerRow extends HBox {
     CheckBox checkBox = new CheckBox();
     private final AnswersBox answersBox;
     private final ToggleGroup group;
-    private boolean isOne;
+    private boolean oneIs;
     private UUID uuid = UUID.randomUUID();
     private TextField textField;
 
-    public AnswerRow(AnswersBox answersBox, ToggleGroup group, boolean isOne) {
+    public AnswerRow(AnswersBox answersBox, ToggleGroup group, boolean oneIs) {
 
         super();
         this.answersBox = answersBox;
         this.group = group;
-        this.isOne = isOne;
+        this.oneIs = oneIs;
 
         init();
     }
 
-    public void switchType() {
-        isOne = !isOne;
-        setType();
+    public void setType(boolean isOne) {
+        this.oneIs = isOne;
+        toggleType();
     }
 
     public void setAnswer(Answer answer) {
@@ -38,7 +38,7 @@ public class AnswerRow extends HBox {
         uuid = answer.getUuid();
         textField.setText(answer.getAnswer());
         if (answer.getWeight() > 0) {
-            if (isOne) {
+            if (oneIs) {
                 radioButton.setSelected(true);
             } else {
                 checkBox.setSelected(true);
@@ -65,7 +65,7 @@ public class AnswerRow extends HBox {
 
         setSpacing(10);
 
-        setType();
+        toggleType();
 
         radioButton.setToggleGroup(group);
         getChildren().add(radioButton);
@@ -77,14 +77,13 @@ public class AnswerRow extends HBox {
         getChildren().add(getDelRowButton());
     }
 
-    private void setType() {
-        if (isOne) {
+    private void toggleType() {
+        if (oneIs) {
             radioButton.setVisible(true);
             checkBox.setVisible(false);
         } else {
             checkBox.setVisible(true);
             radioButton.setVisible(false);
-            getChildren().add(checkBox);
         }
     }
 

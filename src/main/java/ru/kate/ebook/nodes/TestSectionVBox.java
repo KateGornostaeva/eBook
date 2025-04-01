@@ -8,14 +8,15 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.extern.slf4j.Slf4j;
-import ru.kate.ebook.etb.Answer;
-import ru.kate.ebook.etb.TestSection;
+import ru.kate.ebook.test.Answer;
+import ru.kate.ebook.test.TestSection;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
-public class EditableTestSection extends VBox {
+public class TestSectionVBox extends VBox {
 
     private final VBox parentVBox;
 
@@ -23,7 +24,7 @@ public class EditableTestSection extends VBox {
     private AnswersBox answersBox;
     private HBox bottomBox;
 
-    public EditableTestSection(VBox parentVBox) {
+    public TestSectionVBox(VBox parentVBox) {
         super();
         this.parentVBox = parentVBox;
         setStyle("-fx-background-color: #888; -fx-padding: 15; -fx-spacing: 15;");
@@ -64,7 +65,21 @@ public class EditableTestSection extends VBox {
         TestSection testSection = new TestSection();
         testSection.setQuestion(txtQuestion.getText());
         List<Answer> answers = new ArrayList<>();
-        //
+        List<UUID> correctResponses = new ArrayList<>();
+        answersBox.getChildren().stream().filter(AnswersBox.class::isInstance).map(AnswersBox.class::cast)
+                .forEach(answerBox -> {
+                    answerBox.getChildren().stream().filter(AnswerRow.class::isInstance).map(AnswerRow.class::cast)
+                            .forEach(row -> {
+                                Answer answer = row.getAnswer();
+                                answers.add(answer);
+                                if (answer.getWeight() > 0) {
+                                    correctResponses.add(answer.getUuid());
+                                }
+                            });
+                });
+        testSection.setAnswers(answers);
+        testSection.setCorrectResponses(correctResponses);
+        testSection.setMinValue(correctResponses.size());
         return testSection;
     }
 
@@ -104,22 +119,10 @@ public class EditableTestSection extends VBox {
         popupControl.show(this.getScene().getWindow());
 
         btnCheck.setOnAction(e -> {
-            oneIs = false;
-            //по хорошему надо сохранить введённые варианты
-            getChildren().remove(vBoxAnswers);
-            getChildren().remove(bottomBox);
-            //а тут их восстановить
-            getChildren().add(new AnswersBox(oneIs));
-            getChildren().add(bottomBox);
+            answersBox.setType(false);
         });
         btnRadio.setOnAction(e -> {
-            oneIs = true;
-            //по хорошему надо сохранить введённые варианты
-            getChildren().remove(vBoxAnswers);
-            getChildren().remove(bottomBox);
-            //а тут их восстановить
-            getChildren().add(new AnswersBox(oneIs));
-            getChildren().add(bottomBox);
+            answersBox.setType(true);
         });
     }
 
@@ -138,21 +141,5 @@ public class EditableTestSection extends VBox {
         bottomBox = new HBox();
         bottomBox.getChildren().addAll(label, pane, delButton);
         return bottomBox;
-    }
-
-    private void hideShowDelRowButton() {
-        if (vBoxAnswers.getChildren().size() > 2) {
-            vBoxAnswers.getChildren().stream().filter(obj -> obj instanceof HBox)
-                    .map(obj -> (HBox) obj).forEach(hBox1 -> {
-                        hBox1.getChildren().stream().filter(obj -> obj instanceof Button)
-                                .map(obj -> (Button) obj).forEach(b -> b.setVisible(true));
-                    });
-        } else {
-            vBoxAnswers.getChildren().stream().filter(obj -> obj instanceof HBox)
-                    .map(obj -> (HBox) obj).forEach(hBox1 -> {
-                        hBox1.getChildren().stream().filter(obj -> obj instanceof Button)
-                                .map(obj -> (Button) obj).forEach(b -> b.setVisible(false));
-                    });
-        }
     }
 }

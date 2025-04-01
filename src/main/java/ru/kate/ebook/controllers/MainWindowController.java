@@ -13,16 +13,16 @@ import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.Context;
-import ru.kate.ebook.ProcessBook;
 import ru.kate.ebook.configuration.Role;
 import ru.kate.ebook.exceptions.NotSupportedExtension;
 import ru.kate.ebook.exceptions.WrongFileFormat;
 import ru.kate.ebook.localStore.BookMeta;
 import ru.kate.ebook.nodes.AddBookButton;
 import ru.kate.ebook.nodes.EbModal;
-import ru.kate.ebook.nodes.EditableTestSection;
 import ru.kate.ebook.nodes.Tail;
-import ru.kate.ebook.zipBook.ZipBook;
+import ru.kate.ebook.nodes.TestSectionVBox;
+import ru.kate.ebook.utils.ProcessBook;
+import ru.kate.ebook.utils.ZipBook;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +31,8 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import static ru.kate.ebook.utils.Saver.localSaveAction;
 
 @Slf4j
 public class MainWindowController implements Initializable {
@@ -65,6 +67,7 @@ public class MainWindowController implements Initializable {
     private SplitPane splitPane;
     private ScrollPane sPane;
     private WebView webView;
+    private VBox testsBox;
     private boolean grid = true;
 
     public void setCtx(Context ctx) {
@@ -75,6 +78,7 @@ public class MainWindowController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+        //навешиваем изображения на кнопки
         btnSettings.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("setting.png"))));
         btnSettings.setContentDisplay(ContentDisplay.TOP);
 
@@ -96,6 +100,7 @@ public class MainWindowController implements Initializable {
     }
 
     @FXML
+    //действие на кнопку открытия файла (на локальном компе)
     private void handleOpenFile(ActionEvent event) throws IOException {
 
         FileChooser fileChooser = new FileChooser();
@@ -112,6 +117,7 @@ public class MainWindowController implements Initializable {
     }
 
     @FXML
+    //действие на кнопку возврата из режима чтения учебника
     public void handleBack(ActionEvent actionEvent) {
         btnBack.setVisible(false);
         btnBack.setPrefWidth(0);
@@ -129,12 +135,14 @@ public class MainWindowController implements Initializable {
     }
 
     @FXML
+    //переключение вида плитки / строчки
     private void handleSwitchList(ActionEvent event) {
         grid = !grid;
         setUpMainPane();
     }
 
     @FXML
+    //авторизация пользователя через сервер
     private void handleOpenUser(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
         EbModal authDialog = new EbModal(null, "auth-dialog", ctx);
         authDialog.show();
@@ -145,6 +153,7 @@ public class MainWindowController implements Initializable {
 
     }
 
+    //отображение файла (переход в режим чтения)
     private void showFile(File file) {
         try {
             btnOpen.setPrefWidth(0);
@@ -160,12 +169,13 @@ public class MainWindowController implements Initializable {
             VBox.setVgrow(webView, Priority.ALWAYS);
             ctx.setWebView(webView);
             ProcessBook processBook = new ProcessBook(ctx);
-            processBook.process(file);
+            processBook.checkExtAndProcess(file);
         } catch (NotSupportedExtension | SQLException | WrongFileFormat | IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    //перерисовка главного окна в зависимости от состояния приложения
     public void setUpMainPane() {
 
         if (ctx.isConnected()) {
@@ -208,6 +218,7 @@ public class MainWindowController implements Initializable {
         }
     }
 
+    //добавление кнопок книг на панель (режим отображения списка книг)
     private void addBookToPane(Pane pane) {
 
         if (ctx.getRole().equals(Role.ROLE_TEACHER)) {
@@ -249,6 +260,7 @@ public class MainWindowController implements Initializable {
         });
     }
 
+    //добавление кнопки "Добавление книги"
     private void addAddTail(Pane pane) {
         AddBookButton addTail = new AddBookButton();
         addTail.setText("Добавить учебник");
@@ -271,14 +283,13 @@ public class MainWindowController implements Initializable {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Открыть файл");
             fileChooser.getExtensionFilters().addAll(
-                    //new FileChooser.ExtensionFilter("Электронный учебник", "*.etb"),
                     new FileChooser.ExtensionFilter("Электронные книги", "*.pdf", "*.fb2")
                     //new FileChooser.ExtensionFilter("Веб страницы", "*.htm", "*.html")
             );
             File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
             if (file != null) {
                 mainVBox.getChildren().remove(toolBar);
-                mainVBox.getChildren().add(editTestToolBar());
+                mainVBox.getChildren().add(editTestToolBar(file));
 
                 mainVBox.getChildren().remove(sPane);
                 splitPane = new SplitPane();
@@ -298,7 +309,7 @@ public class MainWindowController implements Initializable {
                 ctx.setWebView(webView);
                 ProcessBook processBook = new ProcessBook(ctx);
                 try {
-                    processBook.process(file);
+                    processBook.checkExtAndProcess(file);
                 } catch (NotSupportedExtension | WrongFileFormat | IOException | SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -316,11 +327,12 @@ public class MainWindowController implements Initializable {
         });
     }
 
-    private ToolBar editTestToolBar() {
+    //рисование главного меню в режиме редактирования тестов
+    private ToolBar editTestToolBar(File file) {
         ToolBar toolBar = new ToolBar();
         Button localSaveButton = new Button("Сохранить\nлокально");
         localSaveButton.setOnAction(event -> {
-            //save in local storage
+            localSaveAction(file, ctx, testsBox);
         });
         toolBar.getItems().add(localSaveButton);
 
@@ -346,19 +358,22 @@ public class MainWindowController implements Initializable {
         return toolBar;
     }
 
+    //навешивание действия на кнопку "начать редактировать тесты"
     private void editTest(Button button, ScrollPane rightPane) {
         button.setOnAction(event -> {
-            VBox vBox = new VBox();
-            vBox.setFillWidth(true);
-            vBox.setSpacing(15);
-            rightPane.setContent(vBox);
+            testsBox = new VBox();
+            testsBox.setFillWidth(true);
+            testsBox.setSpacing(15);
+
+            rightPane.setContent(testsBox);
             rightPane.setFitToWidth(true);
             rightPane.setFitToHeight(true);
+
             Label label = new Label("Создание теста");
             label.setStyle("-fx-font-weight: bold");
             label.setStyle("-fx-font-size: 32px;");
-            vBox.getChildren().add(label);
-            vBox.getChildren().add(new EditableTestSection(vBox));
+            testsBox.getChildren().add(label);
+            testsBox.getChildren().add(new TestSectionVBox(testsBox));
 
             ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
             imageView.setPreserveRatio(true);
@@ -367,13 +382,12 @@ public class MainWindowController implements Initializable {
             newQuestionButton.setContentDisplay(ContentDisplay.LEFT);
             newQuestionButton.setGraphic(imageView);
             newQuestionButton.setOnAction(event1 -> {
-                vBox.getChildren().remove(newQuestionButton);
-                vBox.getChildren().add(new EditableTestSection(vBox));
-                vBox.getChildren().add(newQuestionButton);
+                testsBox.getChildren().remove(newQuestionButton);
+                testsBox.getChildren().add(new TestSectionVBox(testsBox));
+                testsBox.getChildren().add(newQuestionButton);
             });
 
-            vBox.getChildren().add(newQuestionButton);
-
+            testsBox.getChildren().add(newQuestionButton);
         });
     }
 }
