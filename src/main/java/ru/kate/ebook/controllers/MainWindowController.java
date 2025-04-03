@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import static ru.kate.ebook.utils.Saver.localSaveAction;
+import static ru.kate.ebook.utils.Saver.serverSaveAction;
 
 @Slf4j
 public class MainWindowController implements Initializable {
@@ -338,8 +339,13 @@ public class MainWindowController implements Initializable {
 
         Button serverSaveButton = new Button("Сохранить и\nопубликовать");
         serverSaveButton.setOnAction(event -> {
-
+            serverSaveAction(file, ctx, testsBox);
         });
+        if (ctx.isConnected()) {
+            serverSaveButton.setDisable(false);
+        } else {
+            serverSaveButton.setDisable(true);
+        }
         toolBar.getItems().add(serverSaveButton);
 
         ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("back.png")));

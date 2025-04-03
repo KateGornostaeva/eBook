@@ -18,7 +18,7 @@ public class BookMeta {
     public final static String TEST_NAME = "test.json";
     private final static ObjectMapper mapper = new ObjectMapper();
 
-    //название учебника
+    //название учебника или черновика отображается на плитках
     private String title;
 
     //автор учебника (берётся из кредов пользователя)
@@ -39,6 +39,9 @@ public class BookMeta {
 
     //Краткое описание учебника
     private String description;
+
+    //признак черновика
+    private Boolean isDraft;
 
     @JsonIgnore
     public File getFile() {

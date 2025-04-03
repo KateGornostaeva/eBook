@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.configuration.NetworkConfig;
 import ru.kate.ebook.configuration.Role;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -60,14 +61,24 @@ public class Network {
         return Role.valueOf(body);
     }
 
-    public void upLoadBook() throws URISyntaxException, IOException, InterruptedException {
+    public void upLoadBook(String endpoint, File file) throws URISyntaxException, IOException, InterruptedException {
 
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(new URI(nc.getHost() + ":" + nc.getPort() + endpoint))
+                .header("Content-Type", "application/octet-stream")
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + jwt)
+                .timeout(Duration.ofSeconds(TIMEOUT))
+                .POST(HttpRequest.BodyPublishers.ofFile(file.toPath()))
+                .build();
+        HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        log.info(response.body());
     }
 
     public List<String> getBooks() throws URISyntaxException, IOException, InterruptedException {
-        if (jwt == null) {
-            login();
-        }
+//        if (jwt == null) {
+//            login();
+//        }
         HttpRequest httpRequest = getGetRequest("/books/list", "page=0&size=10");
         HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
         //httpResponse.body();
