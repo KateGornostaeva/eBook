@@ -15,7 +15,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.List;
 
 @Slf4j
 public class Network {
@@ -75,14 +74,10 @@ public class Network {
         log.info(response.body());
     }
 
-    public List<String> getBooks() throws URISyntaxException, IOException, InterruptedException {
-//        if (jwt == null) {
-//            login();
-//        }
-        HttpRequest httpRequest = getGetRequest("/books/list", "page=0&size=10");
+    public Page getBooks() throws URISyntaxException, IOException, InterruptedException {
+        HttpRequest httpRequest = getGetRequest("/books/list", "page=0&size=100");
         HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-        //httpResponse.body();
-        return mapper.readValue(httpResponse.body(), List.class);
+        return mapper.readValue(httpResponse.body(), Page.class);
     }
 
     private String getToken() throws URISyntaxException, IOException, InterruptedException {

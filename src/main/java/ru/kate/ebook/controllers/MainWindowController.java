@@ -17,6 +17,7 @@ import ru.kate.ebook.configuration.Role;
 import ru.kate.ebook.exceptions.NotSupportedExtension;
 import ru.kate.ebook.exceptions.WrongFileFormat;
 import ru.kate.ebook.localStore.BookMeta;
+import ru.kate.ebook.network.Page;
 import ru.kate.ebook.nodes.AddBookButton;
 import ru.kate.ebook.nodes.EbModal;
 import ru.kate.ebook.nodes.Tail;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -73,7 +75,11 @@ public class MainWindowController implements Initializable {
 
     public void setCtx(Context ctx) {
         this.ctx = ctx;
-        setUpMainPane();
+        try {
+            setUpMainPane();
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -119,7 +125,7 @@ public class MainWindowController implements Initializable {
 
     @FXML
     //действие на кнопку возврата из режима чтения учебника
-    public void handleBack(ActionEvent actionEvent) {
+    public void handleBack(ActionEvent actionEvent) throws URISyntaxException, IOException, InterruptedException {
         btnBack.setVisible(false);
         btnBack.setPrefWidth(0);
         btnOpen.setVisible(true);
@@ -137,7 +143,7 @@ public class MainWindowController implements Initializable {
 
     @FXML
     //переключение вида плитки / строчки
-    private void handleSwitchList(ActionEvent event) {
+    private void handleSwitchList(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
         grid = !grid;
         setUpMainPane();
     }
@@ -177,7 +183,7 @@ public class MainWindowController implements Initializable {
     }
 
     //перерисовка главного окна в зависимости от состояния приложения
-    public void setUpMainPane() {
+    public void setUpMainPane() throws URISyntaxException, IOException, InterruptedException {
 
         if (ctx.isConnected()) {
             btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("map.png"))));
@@ -220,15 +226,20 @@ public class MainWindowController implements Initializable {
     }
 
     //добавление кнопок книг на панель (режим отображения списка книг)
-    private void addBookToPane(Pane pane) {
+    private void addBookToPane(Pane pane) throws URISyntaxException, IOException, InterruptedException {
 
         if (ctx.getRole().equals(Role.ROLE_TEACHER)) {
             addAddTail(pane);
         }
 
-        List<BookMeta> books = List.of();
+        List<BookMeta> books;
         if (ctx.isConnected()) {
-            //books = ctx.getNetwork().getBooks();
+            books = new ArrayList<>();
+            Page page = ctx.getNetwork().getBooks();
+            page.getContent().forEach(dto -> {
+                BookMeta bookMeta = new BookMeta(dto);
+                books.add(bookMeta);
+            });
         } else {
             books = ctx.getLocalStore().getBooks();
         }
