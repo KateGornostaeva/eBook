@@ -59,6 +59,7 @@ public class TestSectionVBox extends VBox {
 
         if (testSection != null) {
             answersBox = new AnswersBox(testSection.getAnswers());
+            answersBox.setType(testSection.getOneIs());
         } else {
             answersBox = new AnswersBox(null);
         }
@@ -86,6 +87,7 @@ public class TestSectionVBox extends VBox {
         testSection.setAnswers(answers);
         testSection.setCorrectResponses(correctResponses);
         testSection.setMinValue(correctResponses.size());
+        testSection.setOneIs(answersBox.getType());
         return testSection;
     }
 

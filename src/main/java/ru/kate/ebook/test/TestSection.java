@@ -9,7 +9,8 @@ import java.util.UUID;
 public class TestSection {
     private UUID id = UUID.randomUUID();
     private String question;
-    private int minValue;
+    private Integer minValue;
+    private Boolean oneIs;
     private List<UUID> correctResponses;
     private List<Answer> answers;
 }

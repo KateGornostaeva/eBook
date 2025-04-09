@@ -7,6 +7,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
+import ru.kate.ebook.configuration.Role;
 import ru.kate.ebook.controllers.MainWindowController;
 import ru.kate.ebook.localStore.BookMeta;
 import ru.kate.ebook.utils.ZipBook;
@@ -56,25 +57,27 @@ public class TailBook extends Button {
         VBox vBox = new VBox();
         vBox.setStyle("-fx-border-width: 3");
 
-        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("edit.png")));
-        imageView.setPreserveRatio(true);
-        imageView.setFitHeight(16);
-        Button btnEdit = new Button("Редактировать");
-        btnEdit.setGraphic(imageView);
-        btnEdit.setContentDisplay(ContentDisplay.LEFT);
-        VBox.setVgrow(btnEdit, Priority.ALWAYS);
-        vBox.getChildren().add(btnEdit);
+        if (controller.getCtx().getRole().equals(Role.ROLE_TEACHER)) {
+            ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("edit.png")));
+            imageView.setPreserveRatio(true);
+            imageView.setFitHeight(16);
+            Button btnEdit = new Button("Редактировать");
+            btnEdit.setGraphic(imageView);
+            btnEdit.setContentDisplay(ContentDisplay.LEFT);
+            VBox.setVgrow(btnEdit, Priority.ALWAYS);
+            vBox.getChildren().add(btnEdit);
 
-        btnEdit.setOnAction(e -> {
-            try {
-                File bookFile = ZipBook.getBookFile(meta);
-                controller.editMode(bookFile);
-                popupControl.hide();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            btnEdit.setOnAction(e -> {
+                try {
+                    File bookFile = ZipBook.getBookFile(meta);
+                    controller.editMode(bookFile, meta);
+                    popupControl.hide();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
 
-        });
+            });
+        }
 
         if (meta.getIsDraft() != null && meta.getIsDraft()) {
             ImageView imageView1 = new ImageView(new Image(getClass().getResourceAsStream("garbage-can.png")));

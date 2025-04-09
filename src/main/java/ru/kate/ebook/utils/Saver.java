@@ -32,6 +32,7 @@ public class Saver {
 
         //запись имени файла учебника для последующего извлечения из архива
         meta.setBookFileName(file.getName());
+        meta.setIsDraft(true);
 
         Test test = getTest(testsBox);
         //запись признака наличия тестов в zip архиве
@@ -60,6 +61,7 @@ public class Saver {
     public static void serverSaveAction(File file, Context ctx, VBox testsBox) {
         BookMeta meta = new BookMeta();
         meta.setBookFileName(file.getName());
+        meta.setIsDraft(false);
 
         Test test = getTest(testsBox);
         if (test.getSections().isEmpty()) {

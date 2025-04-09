@@ -17,6 +17,7 @@ public class Context {
 
     private LocalStore localStore;
     private Role role = Role.ROLE_TEACHER;
+    //private Role role = Role.ROLE_STUDENT;
 
     private Scene mainScene;
     private MainWindowController mainWindowController;

@@ -36,11 +36,8 @@ public class AnswerRow extends HBox {
         uuid = answer.getUuid();
         textField.setText(answer.getAnswer());
         if (answer.getWeight() > 0) {
-            if (oneIs) {
-                radioButton.setSelected(true);
-            } else {
-                checkBox.setSelected(true);
-            }
+            radioButton.setSelected(true);
+            checkBox.setSelected(true);
         }
     }
 

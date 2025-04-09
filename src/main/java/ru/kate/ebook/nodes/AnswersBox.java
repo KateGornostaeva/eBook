@@ -26,6 +26,10 @@ public class AnswersBox extends VBox {
                 });
     }
 
+    public Boolean getType() {
+        return this.oneIs;
+    }
+
     private void init(List<Answer> answers) {
 
         setStyle("-fx-background-color: #aaa; -fx-padding: 15; -fx-spacing: 15;");

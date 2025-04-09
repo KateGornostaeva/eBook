@@ -1,0 +1,60 @@
+{
+  "id": "18b877d3-17f7-473a-ad42-419f30f5df01",
+  "name": null,
+  "description": null,
+  "sections": [
+    {
+      "id": "922da853-8004-4063-8c0a-d039acea19c5",
+      "question": "Кто автор учебника?",
+      "minValue": 1,
+      "oneIs": true,
+      "correctResponses": [
+        "d35635d2-f4a2-4731-9826-254177ce2f52"
+      ],
+      "answers": [
+        {
+          "uuid": "5ef5ff38-e59d-48b8-bc2c-449a970c34ff",
+          "answer": "Преподаватель",
+          "weight": 0
+        },
+        {
+          "uuid": "d35635d2-f4a2-4731-9826-254177ce2f52",
+          "answer": "Ян Агеенко",
+          "weight": 1
+        },
+        {
+          "uuid": "5ebb1b5c-4550-467e-806a-ede001d4da34",
+          "answer": "Пушкин А.С.",
+          "weight": 0
+        }
+      ]
+    },
+    {
+      "id": "2a0d2535-83b6-4955-9cc1-377eaefcc40c",
+      "question": "Кто такой дизайнер?",
+      "minValue": 2,
+      "oneIs": false,
+      "correctResponses": [
+        "95fae0f6-ce6c-4dbb-afaa-c68b6167a4fc",
+        "fbfcc35e-c47e-43f0-bc1b-a9c0d42669d8"
+      ],
+      "answers": [
+        {
+          "uuid": "aa724114-0d2e-46bf-b43b-f876aed14a0b",
+          "answer": "Художник",
+          "weight": 0
+        },
+        {
+          "uuid": "95fae0f6-ce6c-4dbb-afaa-c68b6167a4fc",
+          "answer": "Офисный работник",
+          "weight": 1
+        },
+        {
+          "uuid": "fbfcc35e-c47e-43f0-bc1b-a9c0d42669d8",
+          "answer": "Проектировщик",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

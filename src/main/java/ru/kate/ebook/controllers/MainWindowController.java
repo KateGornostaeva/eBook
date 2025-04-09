@@ -45,8 +45,8 @@ import static ru.kate.ebook.utils.Saver.serverSaveAction;
 @Slf4j
 public class MainWindowController implements Initializable {
 
-
-    protected Context ctx;
+    @Getter
+    private Context ctx;
 
     @FXML
     private VBox mainVBox;
@@ -97,19 +97,6 @@ public class MainWindowController implements Initializable {
 
         btnBack.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("back.png"))));
         btnBack.setContentDisplay(ContentDisplay.TOP);
-
-//        treeView.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-//            TreeItem<TreeItemBook> selectedItem = treeView.getFocusModel().getFocusedItem();
-//            String link = selectedItem.getValue().getLink();
-//            if (link != null && !link.isEmpty()) {
-//                try {
-//                    JSObject window = (JSObject) webView.getEngine().executeScript("window");
-//                    window.call("jump", link);
-//                } catch (JSException e) {
-//                    log.error(e.getMessage());
-//                }
-//            }
-//        });
     }
 
     @FXML
@@ -305,12 +292,12 @@ public class MainWindowController implements Initializable {
             );
             File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
             if (file != null) {
-                editMode(file);
+                editMode(file, null);
             }
         });
     }
 
-    public void editMode(File file) {
+    public void editMode(File file, BookMeta meta) {
         mainVBox.getChildren().remove(toolBar);
         mainVBox.getChildren().add(editTestToolBar(file));
 
@@ -337,7 +324,7 @@ public class MainWindowController implements Initializable {
             throw new RuntimeException(e);
         }
 
-        editTestPane(rightPane, file);
+        editTestPane(rightPane, file, meta);
     }
 
     //рисование главного меню в режиме редактирования тестов
@@ -368,7 +355,11 @@ public class MainWindowController implements Initializable {
             mainVBox.getChildren().remove(toolBar);
             mainVBox.getChildren().remove(splitPane);
             mainVBox.getChildren().add(this.toolBar);
-            mainVBox.getChildren().add(sPane);
+            try {
+                setUpMainPane();
+            } catch (URISyntaxException | InterruptedException | IOException e) {
+                throw new RuntimeException(e);
+            }
         });
         toolBar.getItems().add(backButton);
 
@@ -379,16 +370,11 @@ public class MainWindowController implements Initializable {
     /**
      * Создание панели редактирования тестов
      */
-    private void editTestPane(ScrollPane rightPane, File file) {
-        BookMeta bookMeta = null;
-        try {
-            bookMeta = ZipBook.getBookMeta(file);
-        } catch (IOException e) {
-            log.info("Not zip file");
-        }
-        if (bookMeta != null && bookMeta.getIsTestIn()) {
+    private void editTestPane(ScrollPane rightPane, File file, BookMeta meta) {
+        if (meta != null && meta.getIsTestIn()) {
             try {
-                Optional<Test> optional = ZipBook.getTest(bookMeta);
+                Optional<Test> optional = ZipBook.getTest(meta);
+                drawEditTestPane(rightPane, optional.get());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
