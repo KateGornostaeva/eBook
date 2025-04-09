@@ -3,6 +3,7 @@ package ru.kate.ebook.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.scene.image.Image;
 import ru.kate.ebook.localStore.BookMeta;
+import ru.kate.ebook.test.Test;
 
 import java.io.*;
 import java.net.URI;
@@ -10,6 +11,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -83,6 +85,7 @@ public class ZipBook {
                     bookMeta.setTitle(rawMeta.getTitle());
                     bookMeta.setBookFileName(rawMeta.getBookFileName());
                     bookMeta.setIsTestIn(rawMeta.getIsTestIn());
+                    bookMeta.setIsDraft(rawMeta.getIsDraft());
                 }
                 if (!entry.isDirectory() && entry.getName().equals(BookMeta.COVER_NAME)) {
                     InputStream inputStream = zipFile.getInputStream(entry);
@@ -107,5 +110,18 @@ public class ZipBook {
             }
         }
         return outputFile;
+    }
+
+    public static Optional<Test> getTest(BookMeta bookMeta) throws IOException {
+        Test test = null;
+        try (ZipFile zipFile = new ZipFile(String.valueOf(bookMeta.getPath()))) {
+            for (ZipEntry entry : Collections.list(zipFile.entries())) {
+                if (!entry.isDirectory() && entry.getName().equals(BookMeta.TEST_NAME)) {
+                    InputStream inputStream = zipFile.getInputStream(entry);
+                    test = mapper.readValue(inputStream, Test.class);
+                }
+            }
+        }
+        return Optional.ofNullable(test);
     }
 }

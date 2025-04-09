@@ -12,16 +12,14 @@ public class AnswerRow extends HBox {
 
     RadioButton radioButton = new RadioButton();
     CheckBox checkBox = new CheckBox();
-    private final AnswersBox answersBox;
     private final ToggleGroup group;
     private boolean oneIs;
     private UUID uuid = UUID.randomUUID();
     private TextField textField;
 
-    public AnswerRow(AnswersBox answersBox, ToggleGroup group, boolean oneIs) {
+    public AnswerRow(ToggleGroup group, boolean oneIs) {
 
         super();
-        this.answersBox = answersBox;
         this.group = group;
         this.oneIs = oneIs;
 
@@ -74,7 +72,7 @@ public class AnswerRow extends HBox {
         textField = new TextField();
         textField.setPromptText("Вариант ответа");
         getChildren().add(textField);
-        getChildren().add(getDelRowButton());
+        getChildren().add(buildDelRowButton());
     }
 
     private void toggleType() {
@@ -87,15 +85,16 @@ public class AnswerRow extends HBox {
         }
     }
 
-    private Button getDelRowButton() {
+    private Button buildDelRowButton() {
         ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("garbage-can.png")));
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(16);
         Button delButton = new Button();
         delButton.setGraphic(imageView);
         delButton.setOnAction(e -> {
-            if (answersBox.getChildren().size() > 2) {
-                answersBox.getChildren().remove(this);
+            AnswersBox parent = (AnswersBox) getParent();
+            if (parent.getChildren().size() > 2) {
+                parent.getChildren().remove(this);
                 group.getToggles().remove(radioButton);
             }
         });

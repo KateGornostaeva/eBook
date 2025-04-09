@@ -8,9 +8,11 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.Context;
 import ru.kate.ebook.configuration.Role;
@@ -20,8 +22,10 @@ import ru.kate.ebook.localStore.BookMeta;
 import ru.kate.ebook.network.Page;
 import ru.kate.ebook.nodes.AddBookButton;
 import ru.kate.ebook.nodes.EbModal;
-import ru.kate.ebook.nodes.Tail;
+import ru.kate.ebook.nodes.TailBook;
 import ru.kate.ebook.nodes.TestSectionVBox;
+import ru.kate.ebook.test.Test;
+import ru.kate.ebook.test.TestSection;
 import ru.kate.ebook.utils.ProcessBook;
 import ru.kate.ebook.utils.ZipBook;
 
@@ -32,6 +36,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static ru.kate.ebook.utils.Saver.localSaveAction;
@@ -71,6 +76,7 @@ public class MainWindowController implements Initializable {
     private ScrollPane sPane;
     private WebView webView;
     private VBox testsBox;
+    @Getter
     private boolean grid = true;
 
     public void setCtx(Context ctx) {
@@ -161,7 +167,7 @@ public class MainWindowController implements Initializable {
     }
 
     //отображение файла (переход в режим чтения)
-    private void showFile(File file) {
+    public void showFile(File file) {
         try {
             btnOpen.setPrefWidth(0);
             btnOpen.setVisible(false);
@@ -234,7 +240,9 @@ public class MainWindowController implements Initializable {
 
         List<BookMeta> books;
         if (ctx.isConnected()) {
+            List<BookMeta> draftBooks = ctx.getLocalStore().getBooks().stream().filter(BookMeta::getIsDraft).toList();
             books = new ArrayList<>();
+            books.addAll(draftBooks);
             Page page = ctx.getNetwork().getBooks();
             page.getContent().forEach(dto -> {
                 BookMeta bookMeta = new BookMeta(dto);
@@ -243,36 +251,33 @@ public class MainWindowController implements Initializable {
         } else {
             books = ctx.getLocalStore().getBooks();
         }
+
+        List<BookMeta> publishedBooks = new ArrayList<>();
         books.forEach(book -> {
-            ImageView imageView = new ImageView(book.getCover());
-            imageView.setPreserveRatio(true);
-            if (grid) {
-                imageView.setFitHeight(200);
-            } else {
-                imageView.setFitHeight(32);
-            }
-            Tail tail = new Tail(book);
-            tail.setGraphic(imageView);
-            if (grid) {
-                tail.setContentDisplay(ContentDisplay.TOP);
-            } else {
-                tail.setContentDisplay(ContentDisplay.LEFT);
-            }
-            tail.setText(book.getTitle());
-            tail.setOnMouseClicked(event -> {
+            TailBook tailBook = new TailBook(book, this);
+            tailBook.setOnMouseClicked(event -> {
                 try {
-                    BookMeta meta = ((Tail) event.getSource()).getMeta();
-                    File bookFile = ZipBook.getBookFile(meta);
-                    showFile(bookFile);
+                    TailBook t = (TailBook) event.getSource();
+                    BookMeta meta = t.getMeta();
+                    if (event.getButton() == MouseButton.PRIMARY) {
+                        File bookFile = ZipBook.getBookFile(meta);
+                        showFile(bookFile);
+                    } else {
+                        t.showPopup(event.getScreenX(), event.getScreenY());
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             });
-            pane.getChildren().add(tail);
+            pane.getChildren().add(tailBook);
         });
     }
 
-    //добавление кнопки "Добавление книги"
+    /**
+     * Добавление кнопки "Добавление книги"
+     *
+     * @param pane
+     */
     private void addAddTail(Pane pane) {
         AddBookButton addTail = new AddBookButton();
         addTail.setText("Добавить учебник");
@@ -300,43 +305,39 @@ public class MainWindowController implements Initializable {
             );
             File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
             if (file != null) {
-                mainVBox.getChildren().remove(toolBar);
-                mainVBox.getChildren().add(editTestToolBar(file));
-
-                mainVBox.getChildren().remove(sPane);
-                splitPane = new SplitPane();
-                splitPane.setOrientation(Orientation.HORIZONTAL);
-                splitPane.setDividerPosition(0, 0.5);
-                mainVBox.getChildren().add(splitPane);
-                VBox.setVgrow(splitPane, Priority.ALWAYS);
-                ScrollPane leftPane = new ScrollPane();
-                ScrollPane rightPane = new ScrollPane();
-                splitPane.getItems().add(leftPane);
-                splitPane.getItems().add(rightPane);
-
-                WebView webView = new WebView();
-                leftPane.setContent(webView);
-                leftPane.setFitToHeight(true);
-                leftPane.setFitToWidth(true);
-                ctx.setWebView(webView);
-                ProcessBook processBook = new ProcessBook(ctx);
-                try {
-                    processBook.checkExtAndProcess(file);
-                } catch (NotSupportedExtension | WrongFileFormat | IOException | SQLException e) {
-                    throw new RuntimeException(e);
-                }
-
-                Button addTest = new Button("Создать тест");
-                StackPane stackPane = new StackPane();
-                stackPane.setAlignment(Pos.CENTER); // Центрируем содержимое
-                stackPane.getChildren().add(addTest);
-                rightPane.setContent(stackPane);
-                rightPane.setFitToWidth(true);
-                rightPane.setFitToHeight(true);
-                editTest(addTest, rightPane);
-
+                editMode(file);
             }
         });
+    }
+
+    public void editMode(File file) {
+        mainVBox.getChildren().remove(toolBar);
+        mainVBox.getChildren().add(editTestToolBar(file));
+
+        mainVBox.getChildren().remove(sPane);
+        splitPane = new SplitPane();
+        splitPane.setOrientation(Orientation.HORIZONTAL);
+        splitPane.setDividerPosition(0, 0.5);
+        mainVBox.getChildren().add(splitPane);
+        VBox.setVgrow(splitPane, Priority.ALWAYS);
+        ScrollPane leftPane = new ScrollPane();
+        ScrollPane rightPane = new ScrollPane();
+        splitPane.getItems().add(leftPane);
+        splitPane.getItems().add(rightPane);
+
+        WebView webView = new WebView();
+        leftPane.setContent(webView);
+        leftPane.setFitToHeight(true);
+        leftPane.setFitToWidth(true);
+        ctx.setWebView(webView);
+        ProcessBook processBook = new ProcessBook(ctx);
+        try {
+            processBook.checkExtAndProcess(file);
+        } catch (NotSupportedExtension | WrongFileFormat | IOException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        editTestPane(rightPane, file);
     }
 
     //рисование главного меню в режиме редактирования тестов
@@ -375,36 +376,72 @@ public class MainWindowController implements Initializable {
         return toolBar;
     }
 
-    //навешивание действия на кнопку "начать редактировать тесты"
-    private void editTest(Button button, ScrollPane rightPane) {
-        button.setOnAction(event -> {
-            testsBox = new VBox();
-            testsBox.setFillWidth(true);
-            testsBox.setSpacing(15);
-
-            rightPane.setContent(testsBox);
+    /**
+     * Создание панели редактирования тестов
+     */
+    private void editTestPane(ScrollPane rightPane, File file) {
+        BookMeta bookMeta = null;
+        try {
+            bookMeta = ZipBook.getBookMeta(file);
+        } catch (IOException e) {
+            log.info("Not zip file");
+        }
+        if (bookMeta != null && bookMeta.getIsTestIn()) {
+            try {
+                Optional<Test> optional = ZipBook.getTest(bookMeta);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            //заполняем редактор тестов данными
+        } else {
+            Button addTest = new Button("Создать тест");
+            StackPane stackPane = new StackPane();
+            stackPane.setAlignment(Pos.CENTER); // Центрируем содержимое
+            stackPane.getChildren().add(addTest);
+            rightPane.setContent(stackPane);
             rightPane.setFitToWidth(true);
             rightPane.setFitToHeight(true);
-
-            Label label = new Label("Создание теста");
-            label.setStyle("-fx-font-weight: bold");
-            label.setStyle("-fx-font-size: 32px;");
-            testsBox.getChildren().add(label);
-            testsBox.getChildren().add(new TestSectionVBox(testsBox));
-
-            ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
-            imageView.setPreserveRatio(true);
-            imageView.setFitHeight(32);
-            Button newQuestionButton = new Button("Добавить вопрос");
-            newQuestionButton.setContentDisplay(ContentDisplay.LEFT);
-            newQuestionButton.setGraphic(imageView);
-            newQuestionButton.setOnAction(event1 -> {
-                testsBox.getChildren().remove(newQuestionButton);
-                testsBox.getChildren().add(new TestSectionVBox(testsBox));
-                testsBox.getChildren().add(newQuestionButton);
+            addTest.setOnAction(event -> {
+                drawEditTestPane(rightPane, null);
             });
+        }
 
+    }
+
+    private void drawEditTestPane(ScrollPane rightPane, Test test) {
+        testsBox = new VBox();
+        testsBox.setFillWidth(true);
+        testsBox.setSpacing(15);
+
+        rightPane.setContent(testsBox);
+        rightPane.setFitToWidth(true);
+        rightPane.setFitToHeight(true);
+
+        Label label = new Label("Редактирование теста");
+        label.setStyle("-fx-font-weight: bold");
+        label.setStyle("-fx-font-size: 32px;");
+        testsBox.getChildren().add(label);
+
+        if (test != null) {
+            for (TestSection testSection : test.getSections()) {
+                testsBox.getChildren().add(new TestSectionVBox(testSection));
+            }
+        } else {
+            testsBox.getChildren().add(new TestSectionVBox(null));
+        }
+
+        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
+        imageView.setPreserveRatio(true);
+        imageView.setFitHeight(32);
+        Button newQuestionButton = new Button("Добавить вопрос");
+        newQuestionButton.setContentDisplay(ContentDisplay.LEFT);
+        newQuestionButton.setGraphic(imageView);
+        newQuestionButton.setOnAction(event1 -> {
+            testsBox.getChildren().remove(newQuestionButton);
+            testsBox.getChildren().add(new TestSectionVBox(null));
             testsBox.getChildren().add(newQuestionButton);
         });
+
+        testsBox.getChildren().add(newQuestionButton);
     }
 }

@@ -18,19 +18,21 @@ import java.util.UUID;
 @Slf4j
 public class TestSectionVBox extends VBox {
 
-    private final VBox parentVBox;
-
     private TextField txtQuestion;
     private AnswersBox answersBox;
     private HBox bottomBox;
 
-    public TestSectionVBox(VBox parentVBox) {
+    public TestSectionVBox(TestSection testSection) {
         super();
-        this.parentVBox = parentVBox;
+
         setStyle("-fx-background-color: #888; -fx-padding: 15; -fx-spacing: 15;");
 
         txtQuestion = new TextField();
-        txtQuestion.setPromptText("Введите вопрос");
+        if (testSection != null) {
+            txtQuestion.setText(testSection.getQuestion());
+        } else {
+            txtQuestion.setPromptText("Введите вопрос");
+        }
 
         Button editButton = new Button();
         ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("edit.png")));
@@ -55,9 +57,14 @@ public class TestSectionVBox extends VBox {
         getChildren().add(hBox);
         VBox.setVgrow(hBox, Priority.ALWAYS);
 
-        answersBox = new AnswersBox();
+        if (testSection != null) {
+            answersBox = new AnswersBox(testSection.getAnswers());
+        } else {
+            answersBox = new AnswersBox(null);
+        }
+
         getChildren().add(answersBox);
-        getChildren().add(getBottomBox());
+        getChildren().add(buildBottomBox());
 
     }
 
@@ -66,16 +73,15 @@ public class TestSectionVBox extends VBox {
         testSection.setQuestion(txtQuestion.getText());
         List<Answer> answers = new ArrayList<>();
         List<UUID> correctResponses = new ArrayList<>();
-        answersBox.getChildren().stream().filter(AnswersBox.class::isInstance).map(AnswersBox.class::cast)
-                .forEach(answerBox -> {
-                    answerBox.getChildren().stream().filter(AnswerRow.class::isInstance).map(AnswerRow.class::cast)
-                            .forEach(row -> {
-                                Answer answer = row.getAnswer();
-                                answers.add(answer);
-                                if (answer.getWeight() > 0) {
-                                    correctResponses.add(answer.getUuid());
-                                }
-                            });
+        answersBox.getChildren().stream()
+                .filter(AnswerRow.class::isInstance)
+                .map(AnswerRow.class::cast)
+                .forEach(row -> {
+                    Answer answer = row.getAnswer();
+                    answers.add(answer);
+                    if (answer.getWeight() > 0) {
+                        correctResponses.add(answer.getUuid());
+                    }
                 });
         testSection.setAnswers(answers);
         testSection.setCorrectResponses(correctResponses);
@@ -126,7 +132,7 @@ public class TestSectionVBox extends VBox {
         });
     }
 
-    private HBox getBottomBox() {
+    private HBox buildBottomBox() {
         Label label = new Label("Отметьте правильный(ые) вариант(ы) ответа(ов)");
         Pane pane = new Pane();
         HBox.setHgrow(pane, Priority.ALWAYS);
@@ -136,7 +142,7 @@ public class TestSectionVBox extends VBox {
         imageView.setFitHeight(16);
         delButton.setGraphic(imageView);
         delButton.setOnAction(event -> {
-            parentVBox.getChildren().remove(this);
+            ((VBox) getParent()).getChildren().remove(this);
         });
         bottomBox = new HBox();
         bottomBox.getChildren().addAll(label, pane, delButton);

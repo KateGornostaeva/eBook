@@ -60,7 +60,7 @@ public class BookMeta {
     private String description;
 
     //признак черновика
-    private Boolean isDraft;
+    private Boolean isDraft = false;
 
     @JsonIgnore
     public File getFile() {
