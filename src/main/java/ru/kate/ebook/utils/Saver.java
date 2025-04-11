@@ -23,16 +23,17 @@ import java.util.UUID;
 @Slf4j
 public class Saver {
 
-    /*
-     * сохранение учебника в локальное хранилище
-     **/
-    public static void localSaveAction(File file, Context ctx, VBox testsBox) {
+    /**
+     * Сохранение учебника в локальное хранилище
+     */
+    public static void localSaveAction(File file, BookMeta meta, VBox testsBox) {
 
-        BookMeta meta = new BookMeta();
-
-        //запись имени файла учебника для последующего извлечения из архива
-        meta.setBookFileName(file.getName());
-        meta.setIsDraft(true);
+        if (meta == null) {
+            meta = new BookMeta();
+            //запись имени файла учебника для последующего извлечения из архива
+            meta.setBookFileName(file.getName());
+            meta.setIsDraft(true);
+        }
 
         Test test = getTest(testsBox);
         //запись признака наличия тестов в zip архиве
@@ -42,7 +43,12 @@ public class Saver {
             meta.setIsTestIn(Boolean.TRUE);
         }
 
-        TextInputDialog textInputDialog = new TextInputDialog("Название черновика");
+        TextInputDialog textInputDialog;
+        if (meta.getTitle() != null && !meta.getTitle().isEmpty()) {
+            textInputDialog = new TextInputDialog(meta.getTitle());
+        } else {
+            textInputDialog = new TextInputDialog("Название черновика");
+        }
         textInputDialog.setHeaderText("Для сохранения черновика\nвведите название");
         textInputDialog.getEditor().setPrefWidth(300);
         Optional<String> result = textInputDialog.showAndWait();
@@ -112,7 +118,13 @@ public class Saver {
     private static Path zipAll(File file, Test test, File fileCover, BookMeta meta) throws IOException {
         File bookAndTest = ZipBook.addBookAndTest(file, test.getFile());
         ZipBook.addFile(bookAndTest, fileCover, BookMeta.COVER_NAME);
-        Path path = Files.move(bookAndTest.toPath(), Path.of(LocalStore.PATH + UUID.randomUUID() + ".zip"), StandardCopyOption.REPLACE_EXISTING);
+        Path targetPath;
+        if (meta.getPath() != null) {
+            targetPath = meta.getPath();
+        } else {
+            targetPath = Path.of(LocalStore.PATH + UUID.randomUUID() + ".zip");
+        }
+        Path path = Files.move(bookAndTest.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
         ZipBook.addFile(path.toFile(), meta.getFile(), BookMeta.META_NAME);
         return path;
     }

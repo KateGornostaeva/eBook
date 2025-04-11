@@ -23,20 +23,6 @@ public class BookMeta {
     public final static String TEST_NAME = "test.json";
     private final static ObjectMapper mapper = new ObjectMapper();
 
-    public BookMeta(BookDto dto) {
-        title = dto.getTitle();
-        author = dto.getAuthor();
-        description = dto.getDescription();
-        isTestIn = dto.getIsTestIn();
-
-        Base64.Decoder decoder = Base64.getMimeDecoder();
-        byte[] decodedBytes = decoder.decode(dto.getImageB64());
-        cover = new Image(new ByteArrayInputStream(decodedBytes));
-
-        isDraft = false;
-
-    }
-
     //название учебника или черновика отображается на плитках
     private String title;
 
@@ -61,6 +47,20 @@ public class BookMeta {
 
     //признак черновика
     private Boolean isDraft = false;
+
+    public BookMeta(BookDto dto) {
+        title = dto.getTitle();
+        author = dto.getAuthor();
+        description = dto.getDescription();
+        isTestIn = dto.getIsTestIn();
+
+        Base64.Decoder decoder = Base64.getMimeDecoder();
+        byte[] decodedBytes = decoder.decode(dto.getImageB64());
+        cover = new Image(new ByteArrayInputStream(decodedBytes));
+
+        isDraft = false;
+
+    }
 
     @JsonIgnore
     public File getFile() {

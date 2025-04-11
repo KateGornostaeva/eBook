@@ -299,7 +299,7 @@ public class MainWindowController implements Initializable {
 
     public void editMode(File file, BookMeta meta) {
         mainVBox.getChildren().remove(toolBar);
-        mainVBox.getChildren().add(editTestToolBar(file));
+        mainVBox.getChildren().add(editTestToolBar(file, meta));
 
         mainVBox.getChildren().remove(sPane);
         splitPane = new SplitPane();
@@ -327,12 +327,14 @@ public class MainWindowController implements Initializable {
         editTestPane(rightPane, file, meta);
     }
 
-    //рисование главного меню в режиме редактирования тестов
-    private ToolBar editTestToolBar(File file) {
+    /**
+     * Рисование главного меню в режиме редактирования тестов
+     */
+    private ToolBar editTestToolBar(File file, BookMeta meta) {
         ToolBar toolBar = new ToolBar();
         Button localSaveButton = new Button("Сохранить\nлокально");
         localSaveButton.setOnAction(event -> {
-            localSaveAction(file, ctx, testsBox);
+            localSaveAction(file, meta, testsBox);
         });
         toolBar.getItems().add(localSaveButton);
 
