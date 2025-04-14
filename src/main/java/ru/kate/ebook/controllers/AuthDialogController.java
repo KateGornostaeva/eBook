@@ -54,7 +54,7 @@ public class AuthDialogController extends EbController {
             btnServ.setContentDisplay(ContentDisplay.TOP);
             btnServ.setDisable(false);
             exitButton.getScene().getWindow().hide();
-            ctx.getMainWindowController().setUpMainPane();
+            ctx.getMainWindowController().drawMainPane();
         } catch (URISyntaxException | IOException | InterruptedException e) {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();

@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.Context;
 import ru.kate.ebook.localStore.BookMeta;
 import ru.kate.ebook.localStore.LocalStore;
-import ru.kate.ebook.nodes.TestSectionVBox;
+import ru.kate.ebook.nodes.EditTestSectionBox;
 import ru.kate.ebook.test.Test;
 
 import java.io.File;
@@ -108,7 +108,7 @@ public class Saver {
      */
     private static Test getTest(VBox testsBox) {
         Test test = new Test();
-        testsBox.getChildren().stream().filter(TestSectionVBox.class::isInstance).map(TestSectionVBox.class::cast)
+        testsBox.getChildren().stream().filter(EditTestSectionBox.class::isInstance).map(EditTestSectionBox.class::cast)
                 .forEach(editTestSection -> {
                     test.getSections().add(editTestSection.getTestSection());
                 });

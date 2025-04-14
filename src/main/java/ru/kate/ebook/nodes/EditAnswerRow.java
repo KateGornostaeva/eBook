@@ -8,7 +8,7 @@ import ru.kate.ebook.test.Answer;
 
 import java.util.UUID;
 
-public class AnswerRow extends HBox {
+public class EditAnswerRow extends HBox {
 
     RadioButton radioButton = new RadioButton();
     CheckBox checkBox = new CheckBox();
@@ -17,7 +17,7 @@ public class AnswerRow extends HBox {
     private UUID uuid = UUID.randomUUID();
     private TextField textField;
 
-    public AnswerRow(ToggleGroup group, boolean oneIs) {
+    public EditAnswerRow(ToggleGroup group, boolean oneIs) {
 
         super();
         this.group = group;
@@ -89,7 +89,7 @@ public class AnswerRow extends HBox {
         Button delButton = new Button();
         delButton.setGraphic(imageView);
         delButton.setOnAction(e -> {
-            AnswersBox parent = (AnswersBox) getParent();
+            EditAnswersBox parent = (EditAnswersBox) getParent();
             if (parent.getChildren().size() > 2) {
                 parent.getChildren().remove(this);
                 group.getToggles().remove(radioButton);

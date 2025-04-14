@@ -7,12 +7,12 @@ import ru.kate.ebook.test.Answer;
 
 import java.util.List;
 
-public class AnswersBox extends VBox {
+public class EditAnswersBox extends VBox {
 
     private final ToggleGroup toggleGroup = new ToggleGroup();
     private boolean oneIs = true;
 
-    public AnswersBox(List<Answer> answers) {
+    public EditAnswersBox(List<Answer> answers) {
         super();
         init(answers);
 
@@ -20,7 +20,7 @@ public class AnswersBox extends VBox {
 
     public void setType(boolean oneIs) {
         this.oneIs = oneIs;
-        getChildren().stream().filter(AnswerRow.class::isInstance).map(AnswerRow.class::cast)
+        getChildren().stream().filter(EditAnswerRow.class::isInstance).map(EditAnswerRow.class::cast)
                 .forEach(row -> {
                     row.setType(this.oneIs);
                 });
@@ -36,17 +36,17 @@ public class AnswersBox extends VBox {
 
         if (answers != null && !answers.isEmpty()) {
             for (Answer answer : answers) {
-                AnswerRow answerRow = new AnswerRow(toggleGroup, oneIs);
-                answerRow.setAnswer(answer);
-                getChildren().add(answerRow);
+                EditAnswerRow editAnswerRow = new EditAnswerRow(toggleGroup, oneIs);
+                editAnswerRow.setAnswer(answer);
+                getChildren().add(editAnswerRow);
             }
         } else {
-            getChildren().add(new AnswerRow(toggleGroup, oneIs));
+            getChildren().add(new EditAnswerRow(toggleGroup, oneIs));
         }
         Button newButton = new Button("Добавить вариант");
         newButton.setOnAction(e -> {
             getChildren().remove(newButton);
-            getChildren().add(new AnswerRow(toggleGroup, oneIs));
+            getChildren().add(new EditAnswerRow(toggleGroup, oneIs));
             getChildren().add(newButton);
         });
         getChildren().add(newButton);

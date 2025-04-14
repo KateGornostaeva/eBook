@@ -3,6 +3,7 @@ package ru.kate.ebook.controllers;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -20,10 +21,7 @@ import ru.kate.ebook.exceptions.NotSupportedExtension;
 import ru.kate.ebook.exceptions.WrongFileFormat;
 import ru.kate.ebook.localStore.BookMeta;
 import ru.kate.ebook.network.Page;
-import ru.kate.ebook.nodes.AddBookButton;
-import ru.kate.ebook.nodes.EbModal;
-import ru.kate.ebook.nodes.TailBook;
-import ru.kate.ebook.nodes.TestSectionVBox;
+import ru.kate.ebook.nodes.*;
 import ru.kate.ebook.test.Test;
 import ru.kate.ebook.test.TestSection;
 import ru.kate.ebook.utils.ProcessBook;
@@ -76,13 +74,14 @@ public class MainWindowController implements Initializable {
     private ScrollPane sPane;
     private WebView webView;
     private VBox testsBox;
+    private ScrollPane runTestPane;
     @Getter
     private boolean grid = true;
 
     public void setCtx(Context ctx) {
         this.ctx = ctx;
         try {
-            setUpMainPane();
+            drawMainPane();
         } catch (URISyntaxException | IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -94,6 +93,8 @@ public class MainWindowController implements Initializable {
         //навешиваем изображения на кнопки
         btnSettings.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("setting.png"))));
         btnSettings.setContentDisplay(ContentDisplay.TOP);
+        btnSettings.setPrefWidth(100);
+        btnSettings.setPrefHeight(60);
 
         btnBack.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("back.png"))));
         btnBack.setContentDisplay(ContentDisplay.TOP);
@@ -101,7 +102,7 @@ public class MainWindowController implements Initializable {
 
     @FXML
     //действие на кнопку открытия файла (на локальном компе)
-    private void handleOpenFile(ActionEvent event) throws IOException {
+    private void handleOpenFile(ActionEvent event) throws IOException, NotSupportedExtension, SQLException, WrongFileFormat {
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Открыть файл");
@@ -112,7 +113,8 @@ public class MainWindowController implements Initializable {
         );
         File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
         if (file != null) {
-            showFile(file);
+            readMode(file, null);
+            //showFile(file);
         }
     }
 
@@ -126,7 +128,7 @@ public class MainWindowController implements Initializable {
         btnListOrGrid.setDisable(false);
         mainVBox.getChildren().remove(sPane);
         mainVBox.getChildren().remove(webView);
-        setUpMainPane();
+        drawMainPane();
     }
 
     @FXML
@@ -138,7 +140,7 @@ public class MainWindowController implements Initializable {
     //переключение вида плитки / строчки
     private void handleSwitchList(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
         grid = !grid;
-        setUpMainPane();
+        drawMainPane();
     }
 
     @FXML
@@ -153,30 +155,27 @@ public class MainWindowController implements Initializable {
 
     }
 
-    //отображение файла (переход в режим чтения)
-    public void showFile(File file) {
-        try {
-            btnOpen.setPrefWidth(0);
-            btnOpen.setVisible(false);
-            btnBack.setVisible(true);
-            btnBack.setPrefWidth(-1.0);
-            btnListOrGrid.setDisable(true);
-            mainVBox.getChildren().remove(splitPane);
-            mainVBox.getChildren().remove(sPane);
-            mainVBox.getChildren().remove(webView);
-            webView = new WebView();
-            mainVBox.getChildren().add(webView);
-            VBox.setVgrow(webView, Priority.ALWAYS);
-            ctx.setWebView(webView);
-            ProcessBook processBook = new ProcessBook(ctx);
-            processBook.checkExtAndProcess(file);
-        } catch (NotSupportedExtension | SQLException | WrongFileFormat | IOException e) {
-            throw new RuntimeException(e);
-        }
+    /**
+     * Отображение режима чтения
+     */
+    public void readMode(File file, BookMeta meta) throws NotSupportedExtension, SQLException, IOException, WrongFileFormat {
+        mainVBox.getChildren().remove(toolBar);
+        mainVBox.getChildren().add(buildReadModeToolBar(meta));
+        mainVBox.getChildren().remove(splitPane);
+        mainVBox.getChildren().remove(sPane);
+        mainVBox.getChildren().remove(webView);
+        webView = new WebView();
+        mainVBox.getChildren().add(webView);
+        VBox.setVgrow(webView, Priority.ALWAYS);
+        ctx.setWebView(webView);
+        ProcessBook processBook = new ProcessBook(ctx);
+        processBook.checkExtAndProcess(file);
     }
 
-    //перерисовка главного окна в зависимости от состояния приложения
-    public void setUpMainPane() throws URISyntaxException, IOException, InterruptedException {
+    /**
+     * Перерисовка главного окна в зависимости от состояния приложения
+     */
+    public void drawMainPane() throws URISyntaxException, IOException, InterruptedException {
 
         if (ctx.isConnected()) {
             btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("map.png"))));
@@ -218,7 +217,9 @@ public class MainWindowController implements Initializable {
         }
     }
 
-    //добавление кнопок книг на панель (режим отображения списка книг)
+    /**
+     * Добавление кнопок книг на панель (режим отображения списка книг)
+     */
     private void addBookToPane(Pane pane) throws URISyntaxException, IOException, InterruptedException {
 
         if (ctx.getRole().equals(Role.ROLE_TEACHER)) {
@@ -241,22 +242,23 @@ public class MainWindowController implements Initializable {
 
         List<BookMeta> publishedBooks = new ArrayList<>();
         books.forEach(book -> {
-            TailBook tailBook = new TailBook(book, this);
-            tailBook.setOnMouseClicked(event -> {
+            TileBook tileBook = new TileBook(book, this);
+            tileBook.setOnMouseClicked(event -> {
                 try {
-                    TailBook t = (TailBook) event.getSource();
+                    TileBook t = (TileBook) event.getSource();
                     BookMeta meta = t.getMeta();
                     if (event.getButton() == MouseButton.PRIMARY) {
                         File bookFile = ZipBook.getBookFile(meta);
-                        showFile(bookFile);
+                        readMode(bookFile, meta);
+                        //showFile(bookFile);
                     } else {
                         t.showPopup(event.getScreenX(), event.getScreenY());
                     }
-                } catch (IOException e) {
+                } catch (IOException | NotSupportedExtension | SQLException | WrongFileFormat e) {
                     throw new RuntimeException(e);
                 }
             });
-            pane.getChildren().add(tailBook);
+            pane.getChildren().add(tileBook);
         });
     }
 
@@ -299,7 +301,7 @@ public class MainWindowController implements Initializable {
 
     public void editMode(File file, BookMeta meta) {
         mainVBox.getChildren().remove(toolBar);
-        mainVBox.getChildren().add(editTestToolBar(file, meta));
+        mainVBox.getChildren().add(buildEditTestToolBar(file, meta));
 
         mainVBox.getChildren().remove(sPane);
         splitPane = new SplitPane();
@@ -324,13 +326,91 @@ public class MainWindowController implements Initializable {
             throw new RuntimeException(e);
         }
 
-        editTestPane(rightPane, file, meta);
+        drawEditTestPane(rightPane, meta);
+    }
+
+    /**
+     * Рисование главного меню в режиме чтения книги
+     */
+    private ToolBar buildReadModeToolBar(BookMeta meta) throws IOException {
+        ToolBar toolBar = new ToolBar();
+
+        Button btnBack = new Button();
+        btnBack.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("back.png"))));
+        btnBack.setOnAction(event -> {
+            mainVBox.getChildren().remove(toolBar);
+            mainVBox.getChildren().remove(webView);
+            mainVBox.getChildren().remove(runTestPane);
+            mainVBox.getChildren().add(this.toolBar);
+            try {
+                drawMainPane();
+            } catch (URISyntaxException | IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+        });
+        toolBar.getItems().add(btnBack);
+
+        Button btnRunTest = new Button("Тест");
+        Test test;
+        if (meta != null) {
+            btnRunTest.setDisable(!meta.getIsTestIn());
+            Optional<Test> optional = ZipBook.getTest(meta);
+            if (optional.isPresent()) {
+                test = optional.get();
+            } else {
+                test = null;
+            }
+        } else {
+            btnRunTest.setDisable(true);
+            test = null;
+        }
+        btnRunTest.setOnAction(event -> {
+            mainVBox.getChildren().remove(webView);
+            runTestPane = buildRunTestPane(test);
+            mainVBox.getChildren().add(runTestPane);
+
+        });
+        toolBar.getItems().add(btnRunTest);
+        return toolBar;
+    }
+
+    private ScrollPane buildRunTestPane(Test test) {
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(true);
+        VBox testBox = new VBox();
+        testBox.setSpacing(25);
+        testBox.setPadding(new Insets(25));
+        testBox.setAlignment(Pos.CENTER);
+        Label label = new Label(test.getName());
+        Pane pane = new Pane();
+        HBox.setHgrow(pane, Priority.ALWAYS);
+        Button btnResetAndBack = new Button("Сбросить тест\nи вернуться к книге");
+        HBox headerBox = new HBox();
+
+        headerBox.setPadding(new Insets(25));
+        headerBox.getChildren().addAll(label, pane, btnResetAndBack);
+        testBox.getChildren().add(headerBox);
+
+        test.getSections().forEach(testSection -> {
+            testBox.getChildren().add(new RunTestSectionBox(testSection));
+        });
+
+        Button btnEndTest = new Button("Завершить тест");
+        btnEndTest.setOnAction(event -> {
+
+        });
+        testBox.getChildren().add(btnEndTest);
+
+        scrollPane.setContent(testBox);
+        return scrollPane;
     }
 
     /**
      * Рисование главного меню в режиме редактирования тестов
      */
-    private ToolBar editTestToolBar(File file, BookMeta meta) {
+    private ToolBar buildEditTestToolBar(File file, BookMeta meta) {
         ToolBar toolBar = new ToolBar();
         Button localSaveButton = new Button("Сохранить\nлокально");
         localSaveButton.setOnAction(event -> {
@@ -358,7 +438,7 @@ public class MainWindowController implements Initializable {
             mainVBox.getChildren().remove(splitPane);
             mainVBox.getChildren().add(this.toolBar);
             try {
-                setUpMainPane();
+                drawMainPane();
             } catch (URISyntaxException | InterruptedException | IOException e) {
                 throw new RuntimeException(e);
             }
@@ -372,11 +452,11 @@ public class MainWindowController implements Initializable {
     /**
      * Создание панели редактирования тестов
      */
-    private void editTestPane(ScrollPane rightPane, File file, BookMeta meta) {
+    private void drawEditTestPane(ScrollPane rightPane, BookMeta meta) {
         if (meta != null && meta.getIsTestIn()) {
             try {
                 Optional<Test> optional = ZipBook.getTest(meta);
-                drawEditTestPane(rightPane, optional.get());
+                fillEditTestPane(rightPane, optional.get());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -390,13 +470,13 @@ public class MainWindowController implements Initializable {
             rightPane.setFitToWidth(true);
             rightPane.setFitToHeight(true);
             addTest.setOnAction(event -> {
-                drawEditTestPane(rightPane, null);
+                fillEditTestPane(rightPane, null);
             });
         }
 
     }
 
-    private void drawEditTestPane(ScrollPane rightPane, Test test) {
+    private void fillEditTestPane(ScrollPane rightPane, Test test) {
         testsBox = new VBox();
         testsBox.setFillWidth(true);
         testsBox.setSpacing(15);
@@ -412,10 +492,10 @@ public class MainWindowController implements Initializable {
 
         if (test != null) {
             for (TestSection testSection : test.getSections()) {
-                testsBox.getChildren().add(new TestSectionVBox(testSection));
+                testsBox.getChildren().add(new EditTestSectionBox(testSection));
             }
         } else {
-            testsBox.getChildren().add(new TestSectionVBox(null));
+            testsBox.getChildren().add(new EditTestSectionBox(null));
         }
 
         ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
@@ -426,7 +506,7 @@ public class MainWindowController implements Initializable {
         newQuestionButton.setGraphic(imageView);
         newQuestionButton.setOnAction(event1 -> {
             testsBox.getChildren().remove(newQuestionButton);
-            testsBox.getChildren().add(new TestSectionVBox(null));
+            testsBox.getChildren().add(new EditTestSectionBox(null));
             testsBox.getChildren().add(newQuestionButton);
         });
 

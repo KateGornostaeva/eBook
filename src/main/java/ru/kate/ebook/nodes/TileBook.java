@@ -17,13 +17,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Optional;
 
-public class TailBook extends Button {
+public class TileBook extends Button {
 
     @Getter
     private final BookMeta meta;
     private final MainWindowController controller;
 
-    public TailBook(BookMeta meta, MainWindowController controller) {
+    public TileBook(BookMeta meta, MainWindowController controller) {
         super();
         this.meta = meta;
         this.controller = controller;

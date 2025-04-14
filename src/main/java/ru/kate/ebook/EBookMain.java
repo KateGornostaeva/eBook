@@ -34,8 +34,10 @@ public class EBookMain extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(EBookMain.class.getResource("fxml/main-window.fxml"));
         fxmlLoader.setResources(mainWindowBundle);
         ctx.setMainScene(new Scene(fxmlLoader.load(), ctx.getGc().getScreenWidth(), ctx.getGc().getScreenHeight()));
+        ctx.getMainScene().getStylesheets().add(EBookMain.class.getResource("css/global.css").toExternalForm());
         stage.setTitle(mainWindowBundle.getString("title"));
         stage.setScene(ctx.getMainScene());
+        stage.setMaximized(true);
         MainWindowController mainWindowController = fxmlLoader.getController();
         ctx.setMainWindowController(mainWindowController);
         mainWindowController.setCtx(ctx);

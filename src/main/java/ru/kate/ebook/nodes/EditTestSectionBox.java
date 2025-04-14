@@ -16,13 +16,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-public class TestSectionVBox extends VBox {
+public class EditTestSectionBox extends VBox {
 
     private TextField txtQuestion;
-    private AnswersBox answersBox;
+    private EditAnswersBox editAnswersBox;
     private HBox bottomBox;
 
-    public TestSectionVBox(TestSection testSection) {
+    public EditTestSectionBox(TestSection testSection) {
         super();
 
         setStyle("-fx-background-color: #888; -fx-padding: 15; -fx-spacing: 15;");
@@ -58,13 +58,13 @@ public class TestSectionVBox extends VBox {
         VBox.setVgrow(hBox, Priority.ALWAYS);
 
         if (testSection != null) {
-            answersBox = new AnswersBox(testSection.getAnswers());
-            answersBox.setType(testSection.getOneIs());
+            editAnswersBox = new EditAnswersBox(testSection.getAnswers());
+            editAnswersBox.setType(testSection.getOneIs());
         } else {
-            answersBox = new AnswersBox(null);
+            editAnswersBox = new EditAnswersBox(null);
         }
 
-        getChildren().add(answersBox);
+        getChildren().add(editAnswersBox);
         getChildren().add(buildBottomBox());
 
     }
@@ -74,9 +74,9 @@ public class TestSectionVBox extends VBox {
         testSection.setQuestion(txtQuestion.getText());
         List<Answer> answers = new ArrayList<>();
         List<UUID> correctResponses = new ArrayList<>();
-        answersBox.getChildren().stream()
-                .filter(AnswerRow.class::isInstance)
-                .map(AnswerRow.class::cast)
+        editAnswersBox.getChildren().stream()
+                .filter(EditAnswerRow.class::isInstance)
+                .map(EditAnswerRow.class::cast)
                 .forEach(row -> {
                     Answer answer = row.getAnswer();
                     answers.add(answer);
@@ -87,7 +87,7 @@ public class TestSectionVBox extends VBox {
         testSection.setAnswers(answers);
         testSection.setCorrectResponses(correctResponses);
         testSection.setMinValue(correctResponses.size());
-        testSection.setOneIs(answersBox.getType());
+        testSection.setOneIs(editAnswersBox.getType());
         return testSection;
     }
 
@@ -127,10 +127,10 @@ public class TestSectionVBox extends VBox {
         popupControl.show(this.getScene().getWindow());
 
         btnCheck.setOnAction(e -> {
-            answersBox.setType(false);
+            editAnswersBox.setType(false);
         });
         btnRadio.setOnAction(e -> {
-            answersBox.setType(true);
+            editAnswersBox.setType(true);
         });
     }
 
