@@ -6,6 +6,8 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 import ru.kate.ebook.test.TestSection;
 
+import java.util.List;
+
 public class RunTestSectionBox extends VBox {
 
     private final TestSection testSection;
@@ -15,6 +17,35 @@ public class RunTestSectionBox extends VBox {
         super();
         this.testSection = testSection;
         init();
+    }
+
+    public void finish() {
+        List<RunAnswerRow> runAnswerRows = getChildren().stream().filter(RunAnswerRow.class::isInstance).map(RunAnswerRow.class::cast).toList();
+        for (RunAnswerRow runAnswerRow : runAnswerRows) {
+            if (testSection.getCorrectResponses().contains(runAnswerRow.getAnswerId())
+                    && runAnswerRow.isSelected()) {
+                runAnswerRow.finish(true);
+            }
+            if (!testSection.getCorrectResponses().contains(runAnswerRow.getAnswerId())
+                    && runAnswerRow.isSelected()) {
+                runAnswerRow.finish(false);
+            }
+            if (!testSection.getOneIs()) {
+                if (testSection.getCorrectResponses().contains(runAnswerRow.getAnswerId())) {
+                    runAnswerRow.finish(true);
+                }
+            }
+        }
+    }
+
+    public boolean isChecked() {
+        List<RunAnswerRow> runAnswerRows = getChildren().stream().filter(RunAnswerRow.class::isInstance).map(RunAnswerRow.class::cast).toList();
+        for (RunAnswerRow runAnswerRow : runAnswerRows) {
+            if (runAnswerRow.isSelected()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void init() {

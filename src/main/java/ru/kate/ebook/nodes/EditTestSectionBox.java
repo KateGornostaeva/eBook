@@ -82,6 +82,7 @@ public class EditTestSectionBox extends VBox {
                     answers.add(answer);
                     if (answer.getWeight() > 0) {
                         correctResponses.add(answer.getUuid());
+                        testSection.setMinValue(testSection.getMinValue() + answer.getWeight());
                     }
                 });
         testSection.setAnswers(answers);

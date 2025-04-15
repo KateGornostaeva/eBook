@@ -1,11 +1,13 @@
 package ru.kate.ebook.controllers;
 
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,6 +26,7 @@ import ru.kate.ebook.network.Page;
 import ru.kate.ebook.nodes.*;
 import ru.kate.ebook.test.Test;
 import ru.kate.ebook.test.TestSection;
+import ru.kate.ebook.utils.CheckTest;
 import ru.kate.ebook.utils.ProcessBook;
 import ru.kate.ebook.utils.ZipBook;
 
@@ -399,11 +402,51 @@ public class MainWindowController implements Initializable {
 
         Button btnEndTest = new Button("Завершить тест");
         btnEndTest.setOnAction(event -> {
+            if (CheckTest.finishCheck(testBox.getChildren())) {
+                Dialog<ButtonType> dialog = new Dialog<>();
+                dialog.initOwner(ctx.getMainScene().getWindow());
+                dialog.setContentText("Завершить тест?");
+                dialog.getDialogPane().getButtonTypes().addAll(
+                        new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE),
+                        new ButtonType("Завершить", ButtonBar.ButtonData.OK_DONE));
+                Optional<ButtonType> result = dialog.showAndWait();
+                if (result.get().getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                    testBox.getChildren().stream().filter(RunTestSectionBox.class::isInstance).map(RunTestSectionBox.class::cast)
+                            .forEach(RunTestSectionBox::finish);
+                    //buildResultTestPane(test, testBox.getChildren());
+                }
+            } else {
+                Dialog<ButtonType> dialog2 = new Dialog<>();
+                dialog2.initOwner(ctx.getMainScene().getWindow());
+                dialog2.setContentText("Вы ответили не на все вопросы\n\nВсё равно завершить тест?");
+                dialog2.getDialogPane().getButtonTypes().addAll(
+                        new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE),
+                        new ButtonType("Завершить", ButtonBar.ButtonData.OK_DONE));
+                Optional<ButtonType> result2 = dialog2.showAndWait();
+
+            }
+
 
         });
         testBox.getChildren().add(btnEndTest);
 
         scrollPane.setContent(testBox);
+        return scrollPane;
+    }
+
+    /**
+     * Показать результаты теста
+     *
+     * @param test
+     * @param sections
+     * @return
+     */
+    private ScrollPane buildResultTestPane(Test test, ObservableList<Node> sections) {
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(true);
+
+
         return scrollPane;
     }
 
