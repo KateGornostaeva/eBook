@@ -48,6 +48,21 @@ public class RunTestSectionBox extends VBox {
         return false;
     }
 
+    public int getResult() {
+        int result = 0;
+        List<RunAnswerRow> runAnswerRows = getChildren().stream().filter(RunAnswerRow.class::isInstance).map(RunAnswerRow.class::cast).toList();
+        for (RunAnswerRow runAnswerRow : runAnswerRows) {
+            if (runAnswerRow.isSelected() && testSection.getCorrectResponses().contains(runAnswerRow.getAnswerId())) {
+                result++;
+            }
+        }
+        if (result >= testSection.getMinValue()) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
     private void init() {
         setSpacing(10);
         setPadding(new Insets(25));

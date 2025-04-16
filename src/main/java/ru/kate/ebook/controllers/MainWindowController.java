@@ -1,13 +1,11 @@
 package ru.kate.ebook.controllers;
 
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -382,10 +380,10 @@ public class MainWindowController implements Initializable {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToHeight(true);
         scrollPane.setFitToWidth(true);
-        VBox testBox = new VBox();
-        testBox.setSpacing(25);
-        testBox.setPadding(new Insets(25));
-        testBox.setAlignment(Pos.CENTER);
+        VBox runTestBox = new VBox();
+        runTestBox.setSpacing(25);
+        runTestBox.setPadding(new Insets(25));
+        runTestBox.setAlignment(Pos.CENTER);
         Label label = new Label(test.getName());
         Pane pane = new Pane();
         HBox.setHgrow(pane, Priority.ALWAYS);
@@ -394,15 +392,19 @@ public class MainWindowController implements Initializable {
 
         headerBox.setPadding(new Insets(25));
         headerBox.getChildren().addAll(label, pane, btnResetAndBack);
-        testBox.getChildren().add(headerBox);
+        runTestBox.getChildren().add(headerBox);
 
         test.getSections().forEach(testSection -> {
-            testBox.getChildren().add(new RunTestSectionBox(testSection));
+            runTestBox.getChildren().add(new RunTestSectionBox(testSection));
         });
 
         Button btnEndTest = new Button("Завершить тест");
         btnEndTest.setOnAction(event -> {
-            if (CheckTest.finishCheck(testBox.getChildren())) {
+
+            List<RunTestSectionBox> runTestSectionBoxes = runTestBox.getChildren().stream()
+                    .filter(RunTestSectionBox.class::isInstance).map(RunTestSectionBox.class::cast).toList();
+
+            if (CheckTest.finishCheck(runTestSectionBoxes)) {
                 Dialog<ButtonType> dialog = new Dialog<>();
                 dialog.initOwner(ctx.getMainScene().getWindow());
                 dialog.setContentText("Завершить тест?");
@@ -411,9 +413,10 @@ public class MainWindowController implements Initializable {
                         new ButtonType("Завершить", ButtonBar.ButtonData.OK_DONE));
                 Optional<ButtonType> result = dialog.showAndWait();
                 if (result.get().getButtonData() == ButtonBar.ButtonData.OK_DONE) {
-                    testBox.getChildren().stream().filter(RunTestSectionBox.class::isInstance).map(RunTestSectionBox.class::cast)
-                            .forEach(RunTestSectionBox::finish);
-                    //buildResultTestPane(test, testBox.getChildren());
+                    runTestSectionBoxes.forEach(RunTestSectionBox::finish);
+                    runTestBox.getChildren().remove(btnEndTest);
+                    Button button = new Button("Результат теста: " + CheckTest.calcResult(test, runTestSectionBoxes));
+                    runTestBox.getChildren().add(button);
                 }
             } else {
                 Dialog<ButtonType> dialog2 = new Dialog<>();
@@ -423,30 +426,11 @@ public class MainWindowController implements Initializable {
                         new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE),
                         new ButtonType("Завершить", ButtonBar.ButtonData.OK_DONE));
                 Optional<ButtonType> result2 = dialog2.showAndWait();
-
             }
-
-
         });
-        testBox.getChildren().add(btnEndTest);
+        runTestBox.getChildren().add(btnEndTest);
 
-        scrollPane.setContent(testBox);
-        return scrollPane;
-    }
-
-    /**
-     * Показать результаты теста
-     *
-     * @param test
-     * @param sections
-     * @return
-     */
-    private ScrollPane buildResultTestPane(Test test, ObservableList<Node> sections) {
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToHeight(true);
-        scrollPane.setFitToWidth(true);
-
-
+        scrollPane.setContent(runTestBox);
         return scrollPane;
     }
 

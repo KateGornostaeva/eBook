@@ -54,14 +54,6 @@ public class RunAnswerRow extends HBox {
         }
     }
 
-    public int getResult() {
-        if (isSelected()) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
     public UUID getAnswerId() {
         return answer.getUuid();
     }
