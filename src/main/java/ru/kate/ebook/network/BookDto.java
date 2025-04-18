@@ -11,5 +11,6 @@ public class BookDto {
     private String author;
     private Boolean isTestIn;
     private String description;
+    private String code;
     private byte[] imageB64;
 }

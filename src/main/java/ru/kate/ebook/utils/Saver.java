@@ -1,5 +1,9 @@
 package ru.kate.ebook.utils;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.control.PopupControl;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -94,7 +98,21 @@ public class Saver {
         File fileCover = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
         try {
             Path path = zipAll(file, test, fileCover, meta);
-            ctx.getNetwork().upLoadBook("/books/addBook", path.toFile());
+            String code = ctx.getNetwork().upLoadBook("/books/addBook", path.toFile());
+
+            VBox vbox = new VBox();
+            vbox.setAlignment(Pos.BASELINE_CENTER);
+            vbox.setSpacing(25);
+            vbox.setPadding(new Insets(25));
+            Label msg = new Label("Книга опубликована");
+            Label label = new Label("Код книги: " + code);
+            vbox.getChildren().addAll(msg, label);
+            PopupControl popup = new PopupControl();
+            popup.setAutoFix(true);
+            popup.setAutoHide(true);
+            popup.setPrefWidth(150);
+            popup.getScene().setRoot(vbox);
+            popup.show(ctx.getMainScene().getWindow());
         } catch (Exception e) {
             log.error(e.getMessage());
         }

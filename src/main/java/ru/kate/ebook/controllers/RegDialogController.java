@@ -67,4 +67,8 @@ public class RegDialogController extends EbController {
         chbRole.getItems().addAll("Студент", "Преподаватель");
         chbRole.setValue("Студент");
     }
+
+    private void showOkResult() {
+
+    }
 }

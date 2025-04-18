@@ -1,8 +1,10 @@
 package ru.kate.ebook.nodes;
 
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -17,7 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Optional;
 
-public class TileBook extends Button {
+public class TileBook extends AnchorPane {
 
     @Getter
     private final BookMeta meta;
@@ -31,20 +33,56 @@ public class TileBook extends Button {
     }
 
     private void init(boolean grid) {
+
+        setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+
         ImageView imageView = new ImageView(meta.getCover());
         imageView.setPreserveRatio(true);
+
+        Label title = new Label(meta.getTitle());
+        title.setWrapText(true);
+
         if (grid) {
-            imageView.setFitHeight(200);
+            setPrefHeight(350);
+            setPrefWidth(200);
+
+            imageView.setFitHeight(240);
+            double ratio = imageView.getImage().getHeight() / 240;
+            double width = imageView.getImage().getWidth() / ratio;
+            setLeftAnchor(imageView, (200 - width) / 2);
+
+            title.setAlignment(Pos.CENTER);
+            title.setPrefWidth(200);
+            setTopAnchor(title, 240.0);
+
         } else {
-            imageView.setFitHeight(32);
+            setPrefHeight(120);
+            setPrefWidth(500);
+
+            imageView.setFitHeight(90);
+            setBottomAnchor(imageView, 0.0);
+
+            title.setAlignment(Pos.CENTER_LEFT);
+            title.setPrefWidth(500);
+            setLeftAnchor(title, 80.0);
         }
-        setGraphic(imageView);
-        if (grid) {
-            setContentDisplay(ContentDisplay.TOP);
-        } else {
-            setContentDisplay(ContentDisplay.LEFT);
-        }
-        setText(meta.getTitle());
+
+
+        getChildren().add(imageView);
+        getChildren().add(title);
+//        ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("onServer.png")));
+//        icon.setPreserveRatio(true);
+//        icon.setX(imageView.getFitWidth());
+//        Pane pane = new Pane();
+//        pane.getChildren().addAll(imageView, icon);
+//
+//        setGraphic(pane);
+//        if (grid) {
+//            setContentDisplay(ContentDisplay.TOP);
+//        } else {
+//            setContentDisplay(ContentDisplay.LEFT);
+//        }
+//        setText(meta.getTitle());
     }
 
     public void showPopup(double x, double y) {

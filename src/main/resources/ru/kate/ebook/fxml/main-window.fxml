@@ -3,7 +3,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <VBox fx:id="mainVBox" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kate.ebook.controllers.MainWindowController">
@@ -17,8 +16,8 @@
                 <Button fx:id="btnServ" mnemonicParsing="false" onAction="#handleOpenServ"/>
                 <Button fx:id="btnListOrGrid" mnemonicParsing="false" onAction="#handleSwitchList"/>
                 <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true"/>
-                <TextField/>
-                <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="txtSearch" HBox.hgrow="ALWAYS"/>
+                <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true"/>
                 <Button fx:id="btnUser" mnemonicParsing="false" onAction="#handleOpenUser" text="Войти"/>
                 <Button fx:id="btnSettings" mnemonicParsing="false" onAction="#handleOpenSettings"/>
             </items>

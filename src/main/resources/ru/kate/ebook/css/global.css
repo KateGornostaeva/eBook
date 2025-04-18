@@ -1,8 +1,9 @@
 .root {
     -fx-background-color: #f0f0f0;
-    -fx-font-size: 32px;
+    -fx-font-size: 24px;
 }
 
 .button {
+    -fx-pref-height: 60px;
     -fx-background-radius: 10;
 }

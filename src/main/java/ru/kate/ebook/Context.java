@@ -16,8 +16,9 @@ public class Context {
     private final EBookMain eBookMain;
 
     private LocalStore localStore;
-    private Role role = Role.ROLE_TEACHER;
+    //private Role role = Role.ROLE_TEACHER;
     //private Role role = Role.ROLE_STUDENT;
+    private Role role = Role.ROLE_GUEST;
 
     private Scene mainScene;
     private MainWindowController mainWindowController;

@@ -5,7 +5,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -20,6 +22,7 @@ import ru.kate.ebook.configuration.Role;
 import ru.kate.ebook.exceptions.NotSupportedExtension;
 import ru.kate.ebook.exceptions.WrongFileFormat;
 import ru.kate.ebook.localStore.BookMeta;
+import ru.kate.ebook.network.BookDto;
 import ru.kate.ebook.network.Page;
 import ru.kate.ebook.nodes.*;
 import ru.kate.ebook.test.Test;
@@ -66,6 +69,9 @@ public class MainWindowController implements Initializable {
     private Button btnListOrGrid;
 
     @FXML
+    private TextField txtSearch;
+
+    @FXML
     private Button btnUser;
 
     @FXML
@@ -99,24 +105,15 @@ public class MainWindowController implements Initializable {
 
         btnBack.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("back.png"))));
         btnBack.setContentDisplay(ContentDisplay.TOP);
-    }
 
-    @FXML
-    //действие на кнопку открытия файла (на локальном компе)
-    private void handleOpenFile(ActionEvent event) throws IOException, NotSupportedExtension, SQLException, WrongFileFormat {
-
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Открыть файл");
-        fileChooser.getExtensionFilters().addAll(
-                //new FileChooser.ExtensionFilter("Электронный учебник", "*.etb"),
-                new FileChooser.ExtensionFilter("Электронные книги", "*.pdf", "*.fb2")
-                //new FileChooser.ExtensionFilter("Веб страницы", "*.htm", "*.html")
-        );
-        File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
-        if (file != null) {
-            readMode(file, null);
-            //showFile(file);
-        }
+        txtSearch.setPromptText("Поиск книг на сервере");
+        txtSearch.setOnAction(event -> {
+            try {
+                serverSearch(event);
+            } catch (URISyntaxException | IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @FXML
@@ -130,47 +127,6 @@ public class MainWindowController implements Initializable {
         mainVBox.getChildren().remove(sPane);
         mainVBox.getChildren().remove(webView);
         drawMainPane();
-    }
-
-    @FXML
-    private void handleOpenServ(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
-        ctx.getNetwork().getBooks();
-    }
-
-    @FXML
-    //переключение вида плитки / строчки
-    private void handleSwitchList(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
-        grid = !grid;
-        drawMainPane();
-    }
-
-    @FXML
-    //авторизация пользователя через сервер
-    private void handleOpenUser(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
-        EbModal authDialog = new EbModal(null, "auth-dialog", ctx);
-        authDialog.show();
-    }
-
-    @FXML
-    private void handleOpenSettings(ActionEvent event) {
-
-    }
-
-    /**
-     * Отображение режима чтения
-     */
-    public void readMode(File file, BookMeta meta) throws NotSupportedExtension, SQLException, IOException, WrongFileFormat {
-        mainVBox.getChildren().remove(toolBar);
-        mainVBox.getChildren().add(buildReadModeToolBar(meta));
-        mainVBox.getChildren().remove(splitPane);
-        mainVBox.getChildren().remove(sPane);
-        mainVBox.getChildren().remove(webView);
-        webView = new WebView();
-        mainVBox.getChildren().add(webView);
-        VBox.setVgrow(webView, Priority.ALWAYS);
-        ctx.setWebView(webView);
-        ProcessBook processBook = new ProcessBook(ctx);
-        processBook.checkExtAndProcess(file);
     }
 
     /**
@@ -218,6 +174,85 @@ public class MainWindowController implements Initializable {
         }
     }
 
+    @FXML
+    //действие на кнопку открытия файла (на локальном компе)
+    private void handleOpenFile(ActionEvent event) throws IOException, NotSupportedExtension, SQLException, WrongFileFormat {
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Открыть файл");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Электронные книги", "*.pdf", "*.fb2"),
+                new FileChooser.ExtensionFilter("Все файлы", "*.*")
+        );
+        File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
+        if (file != null) {
+            readMode(file, null);
+            //showFile(file);
+        }
+    }
+
+    @FXML
+    private void handleOpenServ(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
+        ctx.getNetwork().getPageBooks();
+    }
+
+    @FXML
+    //переключение вида плитки / строчки
+    private void handleSwitchList(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
+        grid = !grid;
+        drawMainPane();
+    }
+
+    @FXML
+    //авторизация пользователя через сервер
+    private void handleOpenUser(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
+        EbModal authDialog = new EbModal(null, "auth-dialog", ctx);
+        authDialog.show();
+    }
+
+    @FXML
+    private void handleOpenSettings(ActionEvent event) {
+
+    }
+
+    /**
+     * Реакция на поисковый запрос на сервер
+     */
+    private void serverSearch(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
+
+        Scene scene = txtSearch.getScene();
+        // Получаем координаты сцены
+        final Point2D sceneCoord = new Point2D(scene.getX(), scene.getY());
+        // Получаем координаты узла в системе координат сцены
+        final Point2D nodeCoord = txtSearch.localToScene(0.0, 0.0);
+        // Вычисляем итоговые координаты на экране
+        final double screenX = Math.round(scene.getWindow().getX() + sceneCoord.getX() + nodeCoord.getX());
+        final double screenY = Math.round(scene.getWindow().getY() + sceneCoord.getY() + nodeCoord.getY());
+
+        List<BookDto> bookDtos = ctx.getNetwork().searchBooks(txtSearch.getText());
+        if (bookDtos.isEmpty()) {
+            PopupControl popup = new PopupControl();
+            popup.setAutoHide(true);
+            popup.setAutoFix(true);
+            popup.setX(screenX);
+            popup.setY(screenY + 60);
+            Label label = new Label("По данному запросу на сервере ни чего не найдено");
+            label.setPrefWidth(txtSearch.getWidth());
+            popup.getScene().setRoot(label);
+            popup.show(txtSearch.getScene().getWindow());
+        } else {
+            List<BookMeta> metas = new ArrayList<>();
+            for (BookDto bookDto : bookDtos) {
+                BookMeta bookMeta = new BookMeta(bookDto);
+                metas.add(bookMeta);
+            }
+            SearchPopupControl searchPopupControl = new SearchPopupControl(metas, this, txtSearch.getWidth());
+            searchPopupControl.setX(screenX);
+            searchPopupControl.setY(screenY + 60);
+            searchPopupControl.show(txtSearch.getScene().getWindow());
+        }
+    }
+
     /**
      * Добавление кнопок книг на панель (режим отображения списка книг)
      */
@@ -232,7 +267,7 @@ public class MainWindowController implements Initializable {
             List<BookMeta> draftBooks = ctx.getLocalStore().getBooks().stream().filter(BookMeta::getIsDraft).toList();
             books = new ArrayList<>();
             books.addAll(draftBooks);
-            Page page = ctx.getNetwork().getBooks();
+            Page page = ctx.getNetwork().getPageBooks();
             page.getContent().forEach(dto -> {
                 BookMeta bookMeta = new BookMeta(dto);
                 books.add(bookMeta);
@@ -328,6 +363,23 @@ public class MainWindowController implements Initializable {
         }
 
         drawEditTestPane(rightPane, meta);
+    }
+
+    /**
+     * Отображение режима чтения
+     */
+    public void readMode(File file, BookMeta meta) throws NotSupportedExtension, SQLException, IOException, WrongFileFormat {
+        mainVBox.getChildren().remove(toolBar);
+        mainVBox.getChildren().add(buildReadModeToolBar(meta));
+        mainVBox.getChildren().remove(splitPane);
+        mainVBox.getChildren().remove(sPane);
+        mainVBox.getChildren().remove(webView);
+        webView = new WebView();
+        mainVBox.getChildren().add(webView);
+        VBox.setVgrow(webView, Priority.ALWAYS);
+        ctx.setWebView(webView);
+        ProcessBook processBook = new ProcessBook(ctx);
+        processBook.checkExtAndProcess(file);
     }
 
     /**

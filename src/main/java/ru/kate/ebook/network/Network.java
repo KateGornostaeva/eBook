@@ -9,12 +9,18 @@ import ru.kate.ebook.configuration.Role;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 public class Network {
@@ -60,7 +66,7 @@ public class Network {
         return Role.valueOf(body);
     }
 
-    public void upLoadBook(String endpoint, File file) throws URISyntaxException, IOException, InterruptedException {
+    public String upLoadBook(String endpoint, File zipFile) throws URISyntaxException, IOException, InterruptedException {
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(new URI(nc.getHost() + ":" + nc.getPort() + endpoint))
@@ -68,16 +74,33 @@ public class Network {
                 .header("Accept", "application/json")
                 .header("Authorization", "Bearer " + jwt)
                 .timeout(Duration.ofSeconds(TIMEOUT))
-                .POST(HttpRequest.BodyPublishers.ofFile(file.toPath()))
+                .POST(HttpRequest.BodyPublishers.ofFile(zipFile.toPath()))
                 .build();
         HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-        log.info(response.body());
+        return response.body();
     }
 
-    public Page getBooks() throws URISyntaxException, IOException, InterruptedException {
+    public File downloadZipFile(UUID idBook) throws URISyntaxException, IOException, InterruptedException {
+
+        HttpRequest httpRequest = getGetRequestNoJwt("/search/getBook", "id=" + idBook);
+        HttpResponse<InputStream> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
+        InputStream inputStream = httpResponse.body();
+        File outputFile = new File(String.valueOf(Paths.get(System.getProperty("java.io.tmpdir") + File.separator + idBook + ".zip")));
+        Files.copy(inputStream, outputFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        inputStream.close();
+        return outputFile;
+    }
+
+    public Page getPageBooks() throws URISyntaxException, IOException, InterruptedException {
         HttpRequest httpRequest = getGetRequest("/books/list", "page=0&size=100");
         HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
         return mapper.readValue(httpResponse.body(), Page.class);
+    }
+
+    public List<BookDto> searchBooks(String query) throws URISyntaxException, IOException, InterruptedException {
+        HttpRequest httpRequest = getGetRequestNoJwt("/search/books", "query=" + query);
+        HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        return mapper.readValue(httpResponse.body(), mapper.getTypeFactory().constructCollectionType(List.class, BookDto.class));
     }
 
     private String getToken() throws URISyntaxException, IOException, InterruptedException {
@@ -115,6 +138,16 @@ public class Network {
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .header("Authorization", "Bearer " + jwt)
+                .timeout(Duration.ofSeconds(TIMEOUT))
+                .GET()
+                .build();
+    }
+
+    private HttpRequest getGetRequestNoJwt(String endpoint, String params) throws URISyntaxException {
+        return HttpRequest.newBuilder()
+                .uri(new URI(nc.getHost() + ":" + nc.getPort() + endpoint + "?" + params))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
                 .timeout(Duration.ofSeconds(TIMEOUT))
                 .GET()
                 .build();

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -22,6 +23,8 @@ public class BookMeta {
     public final static String COVER_NAME = "cover.png";
     public final static String TEST_NAME = "test.json";
     private final static ObjectMapper mapper = new ObjectMapper();
+
+    private UUID id;
 
     //название учебника или черновика отображается на плитках
     private String title;
@@ -49,6 +52,7 @@ public class BookMeta {
     private Boolean isDraft = false;
 
     public BookMeta(BookDto dto) {
+        id = dto.getId();
         title = dto.getTitle();
         author = dto.getAuthor();
         description = dto.getDescription();
