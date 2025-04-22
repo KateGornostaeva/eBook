@@ -28,7 +28,7 @@ public class LocalStore {
             try {
                 books.add(ZipBook.getBookMeta(file));
             } catch (IOException e) {
-                //log.info(e.getMessage());
+
             }
         }
         return books;

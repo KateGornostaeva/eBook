@@ -2,12 +2,14 @@ package ru.kate.ebook.controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lombok.extern.slf4j.Slf4j;
+import ru.kate.ebook.exceptions.WrongAuthorisation;
 import ru.kate.ebook.nodes.EbModal;
 
 import java.io.IOException;
@@ -58,6 +60,12 @@ public class AuthDialogController extends EbController {
         } catch (URISyntaxException | IOException | InterruptedException e) {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();
+        } catch (WrongAuthorisation e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Wrong Username or Password");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
     }
 

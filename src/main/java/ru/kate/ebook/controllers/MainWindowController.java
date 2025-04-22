@@ -11,7 +11,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
@@ -155,6 +154,7 @@ public class MainWindowController implements Initializable {
             flowPane.setOrientation(Orientation.VERTICAL);
             flowPane.setVgap(10);
             flowPane.setHgap(10);
+            flowPane.setPadding(new Insets(10, 10, 10, 10));
             flowPane.setPrefWidth(sPane.getWidth());
             flowPane.setPrefHeight(sPane.getHeight());
             addBookToPane(flowPane);
@@ -258,42 +258,24 @@ public class MainWindowController implements Initializable {
      */
     private void addBookToPane(Pane pane) throws URISyntaxException, IOException, InterruptedException {
 
+        List<BookMeta> books = new ArrayList<>();
+
         if (ctx.getRole().equals(Role.ROLE_TEACHER)) {
             addAddTail(pane);
+            books.addAll(ctx.getLocalStore().getBooks().stream().filter(BookMeta::getIsDraft).toList());
         }
-
-        List<BookMeta> books;
-        if (ctx.isConnected()) {
-            List<BookMeta> draftBooks = ctx.getLocalStore().getBooks().stream().filter(BookMeta::getIsDraft).toList();
-            books = new ArrayList<>();
-            books.addAll(draftBooks);
-            Page page = ctx.getNetwork().getPageBooks();
-            page.getContent().forEach(dto -> {
-                BookMeta bookMeta = new BookMeta(dto);
-                books.add(bookMeta);
-            });
-        } else {
-            books = ctx.getLocalStore().getBooks();
+        if (ctx.getRole().equals(Role.ROLE_STUDENT) || ctx.getRole().equals(Role.ROLE_TEACHER)) {
+            books.addAll(ctx.getLocalStore().getBooks().stream().filter(BookMeta::getIsNotDraft).toList());
         }
+        //если гость, то только с сервера список опубликованных книг
+        Page page = ctx.getNetwork().getPageBooks();
+        page.getContent().forEach(dto -> {
+            BookMeta bookMeta = new BookMeta(dto);
+            books.add(bookMeta);
+        });
 
-        List<BookMeta> publishedBooks = new ArrayList<>();
         books.forEach(book -> {
             TileBook tileBook = new TileBook(book, this);
-            tileBook.setOnMouseClicked(event -> {
-                try {
-                    TileBook t = (TileBook) event.getSource();
-                    BookMeta meta = t.getMeta();
-                    if (event.getButton() == MouseButton.PRIMARY) {
-                        File bookFile = ZipBook.getBookFile(meta);
-                        readMode(bookFile, meta);
-                        //showFile(bookFile);
-                    } else {
-                        t.showPopup(event.getScreenX(), event.getScreenY());
-                    }
-                } catch (IOException | NotSupportedExtension | SQLException | WrongFileFormat e) {
-                    throw new RuntimeException(e);
-                }
-            });
             pane.getChildren().add(tileBook);
         });
     }

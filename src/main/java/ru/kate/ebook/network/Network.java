@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.configuration.NetworkConfig;
 import ru.kate.ebook.configuration.Role;
+import ru.kate.ebook.exceptions.WrongAuthorisation;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,11 +38,11 @@ public class Network {
         this.nc = nc;
     }
 
-    public void login() throws URISyntaxException, IOException, InterruptedException {
+    public void login() throws URISyntaxException, IOException, InterruptedException, WrongAuthorisation {
         jwt = getToken();
     }
 
-    public void login(String username, String password) throws URISyntaxException, IOException, InterruptedException {
+    public void login(String username, String password) throws URISyntaxException, IOException, InterruptedException, WrongAuthorisation {
         nc.setUsername(username);
         nc.setPassword(password);
         login();
@@ -92,7 +93,7 @@ public class Network {
     }
 
     public Page getPageBooks() throws URISyntaxException, IOException, InterruptedException {
-        HttpRequest httpRequest = getGetRequest("/books/list", "page=0&size=100");
+        HttpRequest httpRequest = getGetRequestNoJwt("/books/list", "page=0&size=100");
         HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
         return mapper.readValue(httpResponse.body(), Page.class);
     }
@@ -103,7 +104,7 @@ public class Network {
         return mapper.readValue(httpResponse.body(), mapper.getTypeFactory().constructCollectionType(List.class, BookDto.class));
     }
 
-    private String getToken() throws URISyntaxException, IOException, InterruptedException {
+    private String getToken() throws URISyntaxException, IOException, InterruptedException, WrongAuthorisation {
 
         SignInRequestDto signInRequestDto = new SignInRequestDto();
         signInRequestDto.setUsername(nc.getUsername());
@@ -117,6 +118,9 @@ public class Network {
                 .POST(HttpRequest.BodyPublishers.ofString(s))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 403) {
+            throw new WrongAuthorisation();
+        }
         ResponseTokenDto responseTokenDto = mapper.readValue(response.body(), ResponseTokenDto.class);
         return responseTokenDto.getToken();
     }

@@ -63,7 +63,10 @@ public class BookMeta {
         cover = new Image(new ByteArrayInputStream(decodedBytes));
 
         isDraft = false;
+    }
 
+    public Boolean getIsNotDraft() {
+        return !isDraft;
     }
 
     @JsonIgnore

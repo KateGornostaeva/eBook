@@ -4,6 +4,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -11,12 +12,19 @@ import javafx.scene.layout.VBox;
 import lombok.Getter;
 import ru.kate.ebook.configuration.Role;
 import ru.kate.ebook.controllers.MainWindowController;
+import ru.kate.ebook.exceptions.NotSupportedExtension;
+import ru.kate.ebook.exceptions.WrongFileFormat;
 import ru.kate.ebook.localStore.BookMeta;
+import ru.kate.ebook.localStore.LocalStore;
 import ru.kate.ebook.utils.ZipBook;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.sql.SQLException;
 import java.util.Optional;
 
 public class TileBook extends AnchorPane {
@@ -34,13 +42,15 @@ public class TileBook extends AnchorPane {
 
     private void init(boolean grid) {
 
-        setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+        setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);" +
+                "-fx-background-radius: 10");
 
         ImageView imageView = new ImageView(meta.getCover());
         imageView.setPreserveRatio(true);
 
         Label title = new Label(meta.getTitle());
         title.setWrapText(true);
+        title.setStyle("-fx-font-size: 22");
 
         if (grid) {
             setPrefHeight(350);
@@ -50,10 +60,12 @@ public class TileBook extends AnchorPane {
             double ratio = imageView.getImage().getHeight() / 240;
             double width = imageView.getImage().getWidth() / ratio;
             setLeftAnchor(imageView, (200 - width) / 2);
+            setTopAnchor(imageView, 10.0);
 
             title.setAlignment(Pos.CENTER);
             title.setPrefWidth(200);
-            setTopAnchor(title, 240.0);
+            setTopAnchor(title, 255.0);
+            setLeftAnchor(title, 10.0);
 
         } else {
             setPrefHeight(120);
@@ -67,23 +79,86 @@ public class TileBook extends AnchorPane {
             setLeftAnchor(title, 80.0);
         }
 
+        ImageView icon = new ImageView();
+
+        if (meta.getPath() == null && !controller.getCtx().getRole().equals(Role.ROLE_GUEST)) {
+            icon = new ImageView(new Image(getClass().getResourceAsStream("onServer.png")));
+
+            icon.setOnMouseClicked(e -> {
+                Dialog<ButtonType> dialog = new Dialog<>();
+                dialog.setTitle("(!)");
+                dialog.setHeaderText("Вы уверены, что хотите скачать\nучебник?");
+                dialog.setContentText("Учебник будет сохранён\nлокально");
+                dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+                Optional<ButtonType> result = dialog.showAndWait();
+                if (result.get() == ButtonType.OK) {
+                    try {
+                        File downloadedZipFile = controller.getCtx().getNetwork().downloadZipFile(meta.getId());
+                        Files.copy(downloadedZipFile.toPath(), Path.of(LocalStore.PATH + downloadedZipFile.getName()), StandardCopyOption.REPLACE_EXISTING);
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setHeaderText("Учебник успешно скопирован");
+                        alert.showAndWait();
+                        controller.drawMainPane();
+                    } catch (URISyntaxException | IOException | InterruptedException ex) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setHeaderText(ex.getMessage());
+                        alert.showAndWait();
+                    }
+                }
+                e.consume();
+            });
+
+        }
+
+        if (meta.getPath() == null && controller.getCtx().getRole().equals(Role.ROLE_GUEST)) {
+            icon = new ImageView(new Image(getClass().getResourceAsStream("noDownlod.png")));
+
+            icon.setOnMouseClicked(e -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Невозможно скачать учебник");
+                alert.setHeaderText("Для скачивания учебника\nнеобходимо авторизоваться на сервере");
+                alert.showAndWait();
+                e.consume();
+            });
+        }
+
+        if (meta.getPath() != null) {
+            icon = new ImageView(new Image(getClass().getResourceAsStream("offLine.png")));
+        }
+
+        icon.setPreserveRatio(true);
+        setRightAnchor(icon, 5.0);
+        setTopAnchor(icon, 10.0);
 
         getChildren().add(imageView);
         getChildren().add(title);
-//        ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("onServer.png")));
-//        icon.setPreserveRatio(true);
-//        icon.setX(imageView.getFitWidth());
-//        Pane pane = new Pane();
-//        pane.getChildren().addAll(imageView, icon);
-//
-//        setGraphic(pane);
-//        if (grid) {
-//            setContentDisplay(ContentDisplay.TOP);
-//        } else {
-//            setContentDisplay(ContentDisplay.LEFT);
-//        }
-//        setText(meta.getTitle());
+        getChildren().add(icon);
+
+
+        setOnMouseClicked(event -> {
+            try {
+                TileBook t = (TileBook) event.getSource();
+                BookMeta meta = t.getMeta();
+                if (event.getButton() == MouseButton.PRIMARY) {
+                    if (meta.getPath() == null) {
+                        File downloadedZipFile = controller.getCtx().getNetwork().downloadZipFile(meta.getId());
+                        BookMeta bookMeta = ZipBook.getBookMeta(downloadedZipFile);
+                        File bookFile = ZipBook.getBookFile(bookMeta);
+                        controller.readMode(bookFile, bookMeta);
+                    } else {
+                        File bookFile = ZipBook.getBookFile(meta);
+                        controller.readMode(bookFile, meta);
+                    }
+                } else {
+                    t.showPopup(event.getScreenX(), event.getScreenY());
+                }
+            } catch (IOException | NotSupportedExtension | SQLException | WrongFileFormat | URISyntaxException |
+                     InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
+
 
     public void showPopup(double x, double y) {
         PopupControl popupControl = new PopupControl();
