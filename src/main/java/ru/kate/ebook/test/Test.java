@@ -34,4 +34,23 @@ public class Test {
             throw new RuntimeException(e);
         }
     }
+
+    @JsonIgnore
+    public boolean isCompleted() {
+        if (sections.isEmpty()) {
+            return false;
+        }
+        for (TestSection section : sections) {
+            if (section.getQuestion() == null || section.getQuestion().isEmpty()) {
+                return false;
+            }
+            if (section.getCorrectResponses() == null || section.getCorrectResponses().isEmpty()) {
+                return false;
+            }
+            if (section.getAnswers() == null || section.getAnswers().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

@@ -2,6 +2,7 @@ package ru.kate.ebook.utils;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PopupControl;
 import javafx.scene.control.TextInputDialog;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.Context;
 import ru.kate.ebook.localStore.BookMeta;
 import ru.kate.ebook.localStore.LocalStore;
+import ru.kate.ebook.network.ProfileDto;
 import ru.kate.ebook.nodes.EditTestSectionBox;
 import ru.kate.ebook.test.Test;
 
@@ -74,10 +76,22 @@ public class Saver {
         meta.setIsDraft(false);
 
         Test test = getTest(testsBox);
-        if (test.getSections().isEmpty()) {
-            meta.setIsTestIn(Boolean.FALSE);
-        } else {
-            meta.setIsTestIn(Boolean.TRUE);
+        if (test == null || !test.isCompleted()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText("Учебник не может быть опубликован на сервер\n" +
+                    "\n" +
+                    "Пожалуйста, проверьте все ли вопросы доделаны и все ли ответы отмечены ");
+            alert.showAndWait();
+            return;
+        }
+
+        meta.setIsTestIn(Boolean.TRUE);
+
+        try {
+            ProfileDto profile = ctx.getNetwork().getProfile();
+            meta.setAuthor(profile.getName() + " " + profile.getMiddleName() + " " + profile.getLastName());
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         TextInputDialog textInputDialog = new TextInputDialog("Название учебника");

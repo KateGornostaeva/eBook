@@ -30,7 +30,7 @@ import java.util.Optional;
 public class TileBook extends AnchorPane {
 
     @Getter
-    private final BookMeta meta;
+    private BookMeta meta;
     private final MainWindowController controller;
 
     public TileBook(BookMeta meta, MainWindowController controller) {
@@ -182,10 +182,18 @@ public class TileBook extends AnchorPane {
 
             btnEdit.setOnAction(e -> {
                 try {
-                    File bookFile = ZipBook.getBookFile(meta);
+                    File bookFile = null;
+                    if (meta.getPath() == null) {
+                        File downloadedZipFile = controller.getCtx().getNetwork().downloadZipFile(meta.getId());
+                        BookMeta bookMeta = ZipBook.getBookMeta(downloadedZipFile);
+                        bookFile = ZipBook.getBookFile(bookMeta);
+                        meta = bookMeta;
+                    } else {
+                        bookFile = ZipBook.getBookFile(meta);
+                    }
                     controller.editMode(bookFile, meta);
                     popupControl.hide();
-                } catch (IOException ex) {
+                } catch (IOException | URISyntaxException | InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
 

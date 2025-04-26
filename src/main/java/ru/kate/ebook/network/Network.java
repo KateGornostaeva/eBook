@@ -67,6 +67,13 @@ public class Network {
         return Role.valueOf(body);
     }
 
+    public ProfileDto getProfile() throws URISyntaxException, IOException, InterruptedException {
+        HttpRequest httpRequest = getGetRequest("/user/profile", "");
+        HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+        String body = httpResponse.body();
+        return mapper.readValue(body, ProfileDto.class);
+    }
+
     public String upLoadBook(String endpoint, File zipFile) throws URISyntaxException, IOException, InterruptedException {
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
@@ -92,10 +99,16 @@ public class Network {
         return outputFile;
     }
 
-    public Page getPageBooks() throws URISyntaxException, IOException, InterruptedException {
-        HttpRequest httpRequest = getGetRequestNoJwt("/books/list", "page=0&size=100");
-        HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-        return mapper.readValue(httpResponse.body(), Page.class);
+    public Page getPageBooks() {
+        Page page = new Page();
+        try {
+            HttpRequest httpRequest = getGetRequestNoJwt("/books/list", "page=0&size=100");
+            HttpResponse<String> httpResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            page = mapper.readValue(httpResponse.body(), Page.class);
+        } catch (Exception e) {
+
+        }
+        return page;
     }
 
     public List<BookDto> searchBooks(String query) throws URISyntaxException, IOException, InterruptedException {

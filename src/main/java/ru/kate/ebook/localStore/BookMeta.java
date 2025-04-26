@@ -65,6 +65,7 @@ public class BookMeta {
         isDraft = false;
     }
 
+    @JsonIgnore
     public Boolean getIsNotDraft() {
         return !isDraft;
     }

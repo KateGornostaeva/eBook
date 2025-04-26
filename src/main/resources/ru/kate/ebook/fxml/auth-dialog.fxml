@@ -10,8 +10,8 @@
         <Label text="ВХОД"/>
         <TextField fx:id="txtUserName" alignment="CENTER" promptText="логин">
         </TextField>
-        <TextField fx:id="txtPassword" alignment="CENTER" promptText="пароль">
-        </TextField>
+        <PasswordField fx:id="txtPassword" alignment="CENTER" promptText="пароль">
+        </PasswordField>
         <Button mnemonicParsing="false" onAction="#handleBtnEnter" text="ВОЙТИ"/>
         <Button fx:id="exitButton" mnemonicParsing="false" onAction="#handleBtnReg" text="РЕГИСТРАЦИЯ"/>
     </children>

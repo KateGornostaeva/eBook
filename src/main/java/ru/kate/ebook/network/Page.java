@@ -2,12 +2,13 @@ package ru.kate.ebook.network;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Data
 public class Page {
-    private List<BookDto> content;
+    private List<BookDto> content = new ArrayList<>();
     private Map<String, Object> pageable;
     private Boolean last;
     private Integer totalPages;

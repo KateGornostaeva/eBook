@@ -572,5 +572,12 @@ public class MainWindowController implements Initializable {
         });
 
         testsBox.getChildren().add(newQuestionButton);
+
+        Button delAllTest = new Button("Удалить весь тест");
+        delAllTest.setOnAction(event -> {
+            drawEditTestPane(rightPane, null);
+        });
+        testsBox.getChildren().add(delAllTest);
+        testsBox.setAlignment(Pos.CENTER);
     }
 }
