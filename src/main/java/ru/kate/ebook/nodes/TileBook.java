@@ -27,6 +27,8 @@ import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import static javafx.geometry.Pos.TOP_CENTER;
+
 public class TileBook extends AnchorPane {
 
     @Getter
@@ -41,31 +43,40 @@ public class TileBook extends AnchorPane {
     }
 
     private void init(boolean grid) {
+        getStyleClass().add("tile-book");
 
-        setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);" +
-                "-fx-background-radius: 10");
+        AnchorPane paneInner = new AnchorPane();
+        paneInner.getStyleClass().add("tile-book-inner");
 
         ImageView imageView = new ImageView(meta.getCover());
         imageView.setPreserveRatio(true);
 
         Label title = new Label(meta.getTitle());
         title.setWrapText(true);
-        title.setStyle("-fx-font-size: 22");
+
 
         if (grid) {
-            setPrefHeight(350);
-            setPrefWidth(200);
+            setPrefWidth(250);
 
-            imageView.setFitHeight(240);
-            double ratio = imageView.getImage().getHeight() / 240;
-            double width = imageView.getImage().getWidth() / ratio;
-            setLeftAnchor(imageView, (200 - width) / 2);
+            paneInner.setPrefWidth(250);
+            paneInner.setPrefHeight(345);
+
+            setLeftAnchor(paneInner, 0.0);
+            setRightAnchor(paneInner, 0.0);
+            setTopAnchor(paneInner, 0.0);
+
+            imageView.setFitWidth(230);
             setTopAnchor(imageView, 10.0);
+            setLeftAnchor(imageView, 10.0);
+            setRightAnchor(imageView, 10.0);
 
-            title.setAlignment(Pos.CENTER);
-            title.setPrefWidth(200);
-            setTopAnchor(title, 255.0);
+            paneInner.getChildren().add(imageView);
+
+            title.setAlignment(TOP_CENTER);
+            title.setPrefWidth(230);
+            setTopAnchor(title, 355.0);
             setLeftAnchor(title, 10.0);
+            setRightAnchor(title, 10.0);
 
         } else {
             setPrefHeight(120);
@@ -79,12 +90,15 @@ public class TileBook extends AnchorPane {
             setLeftAnchor(title, 80.0);
         }
 
+        Pane paneIcon = new Pane();
+        paneIcon.setPrefWidth(42);
+        paneIcon.setPrefHeight(42);
         ImageView icon = new ImageView();
 
         if (meta.getPath() == null && !controller.getCtx().getRole().equals(Role.ROLE_GUEST)) {
             icon = new ImageView(new Image(getClass().getResourceAsStream("onServer.png")));
 
-            icon.setOnMouseClicked(e -> {
+            paneIcon.setOnMouseClicked(e -> {
                 Dialog<ButtonType> dialog = new Dialog<>();
                 dialog.setTitle("(!)");
                 dialog.setHeaderText("Вы уверены, что хотите скачать\nучебник?");
@@ -112,8 +126,9 @@ public class TileBook extends AnchorPane {
 
         if (meta.getPath() == null && controller.getCtx().getRole().equals(Role.ROLE_GUEST)) {
             icon = new ImageView(new Image(getClass().getResourceAsStream("noDownlod.png")));
+            paneInner.setStyle("-fx-background-color: #33666680");
 
-            icon.setOnMouseClicked(e -> {
+            paneIcon.setOnMouseClicked(e -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Невозможно скачать учебник");
                 alert.setHeaderText("Для скачивания учебника\nнеобходимо авторизоваться на сервере");
@@ -126,13 +141,14 @@ public class TileBook extends AnchorPane {
             icon = new ImageView(new Image(getClass().getResourceAsStream("offLine.png")));
         }
 
-        icon.setPreserveRatio(true);
-        setRightAnchor(icon, 5.0);
-        setTopAnchor(icon, 10.0);
 
-        getChildren().add(imageView);
+        setRightAnchor(paneIcon, 2.0);
+        setTopAnchor(paneIcon, 2.0);
+
+        paneIcon.getChildren().add(icon);
+        getChildren().add(paneInner);
         getChildren().add(title);
-        getChildren().add(icon);
+        getChildren().add(paneIcon);
 
 
         setOnMouseClicked(event -> {

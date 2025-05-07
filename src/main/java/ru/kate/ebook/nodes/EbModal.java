@@ -21,10 +21,9 @@ public class EbModal extends Stage {
 
     public EbModal(String bundleName, String fxmlName, Context ctx) throws IOException {
         super();
-        //ResourceBundle enterDialogBundle = ResourceBundle.getBundle("bundles." + bundleName, ctx.getLocale());
         fxmlLoader = new FXMLLoader(EBookMain.class.getResource("fxml/" + fxmlName + ".fxml"));
-        //fxmlLoader.setResources(enterDialogBundle);
         setScene(new Scene(fxmlLoader.load()));
+        getScene().getStylesheets().add(EBookMain.class.getResource("css/global.css").toExternalForm());
         setResizable(false);
         initModality(Modality.APPLICATION_MODAL);
         initOwner(ctx.getMainScene().getWindow());

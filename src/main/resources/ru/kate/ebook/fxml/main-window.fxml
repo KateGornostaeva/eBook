@@ -7,18 +7,19 @@
 <VBox fx:id="mainVBox" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kate.ebook.controllers.MainWindowController">
     <children>
-        <ToolBar fx:id="toolBar" prefHeight="40.0" prefWidth="900.0">
+        <ToolBar fx:id="toolBar" styleClass="main-tool-bar">
             <items>
-                <Button fx:id="btnOpen" minHeight="32.0" mnemonicParsing="false" onAction="#handleOpenFile"
+                <Button fx:id="btnOpen" prefHeight="64" mnemonicParsing="false" onAction="#handleOpenFile"
                         text="Открыть"/>
-                <Button fx:id="btnBack" minHeight="32.0" mnemonicParsing="false" onAction="#handleBack" prefWidth="0.0"
-                        visible="false"/>
-                <Button fx:id="btnServ" mnemonicParsing="false" onAction="#handleOpenServ"/>
+                <Button fx:id="btnHome" mnemonicParsing="false" onAction="#handleHome"/>
+                <Button fx:id="btnDraftAndPublished" mnemonicParsing="false" onAction="#handleDraftAndPublished"/>
+
                 <Button fx:id="btnListOrGrid" mnemonicParsing="false" onAction="#handleSwitchList"/>
                 <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true"/>
-                <TextField fx:id="txtSearch" HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="txtSearch" styleClass="search-field" HBox.hgrow="ALWAYS"/>
                 <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true"/>
-                <Button fx:id="btnUser" mnemonicParsing="false" onAction="#handleOpenUser" text="Войти"/>
+                <Button fx:id="btnUser" prefHeight="64" mnemonicParsing="false" onAction="#handleOpenUser"
+                        text="Войти"/>
                 <Button fx:id="btnSettings" mnemonicParsing="false" onAction="#handleOpenSettings"/>
             </items>
         </ToolBar>

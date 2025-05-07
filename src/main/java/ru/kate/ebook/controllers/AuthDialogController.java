@@ -2,7 +2,10 @@ package ru.kate.ebook.controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import lombok.extern.slf4j.Slf4j;
@@ -47,11 +50,7 @@ public class AuthDialogController extends EbController {
             Button btnUser = (Button) ctx.getMainScene().lookup("#btnUser");
             btnUser.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("user.png"))));
             btnUser.setText("");
-            btnUser.setContentDisplay(ContentDisplay.TOP);
-            Button btnServ = (Button) ctx.getMainScene().lookup("#btnServ");
-            btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("map.png"))));
-            btnServ.setContentDisplay(ContentDisplay.TOP);
-            btnServ.setDisable(false);
+            //btnUser.setContentDisplay(ContentDisplay.TOP);
             exitButton.getScene().getWindow().hide();
             ctx.getMainWindowController().drawMainPane();
         } catch (URISyntaxException | IOException | InterruptedException e) {

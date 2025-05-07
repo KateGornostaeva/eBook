@@ -50,7 +50,7 @@ public class MainWindowController implements Initializable {
     private Context ctx;
 
     @FXML
-    private VBox mainVBox;
+    public VBox mainVBox;
 
     @FXML
     public ToolBar toolBar;
@@ -59,10 +59,10 @@ public class MainWindowController implements Initializable {
     private Button btnOpen;
 
     @FXML
-    private Button btnBack;
+    private Button btnHome;
 
     @FXML
-    private Button btnServ;
+    private Button btnDraftAndPublished;
 
     @FXML
     private Button btnListOrGrid;
@@ -97,13 +97,8 @@ public class MainWindowController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         //навешиваем изображения на кнопки
-        btnSettings.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("setting.png"))));
-        btnSettings.setContentDisplay(ContentDisplay.TOP);
-        btnSettings.setPrefWidth(100);
-        btnSettings.setPrefHeight(60);
-
-        btnBack.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("back.png"))));
-        btnBack.setContentDisplay(ContentDisplay.TOP);
+        btnHome.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("home.png"))));
+        btnDraftAndPublished.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("draftAndPublished.png"))));
 
         txtSearch.setPromptText("Поиск книг на сервере");
         txtSearch.setOnAction(event -> {
@@ -113,13 +108,14 @@ public class MainWindowController implements Initializable {
                 throw new RuntimeException(e);
             }
         });
+
+        //btnUser.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("user.png"))));
+        btnSettings.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("setting.png"))));
     }
 
     @FXML
     //действие на кнопку возврата из режима чтения учебника
     public void handleBack(ActionEvent actionEvent) throws URISyntaxException, IOException, InterruptedException {
-        btnBack.setVisible(false);
-        btnBack.setPrefWidth(0);
         btnOpen.setVisible(true);
         btnOpen.setPrefWidth(-1.0);
         btnListOrGrid.setDisable(false);
@@ -132,16 +128,6 @@ public class MainWindowController implements Initializable {
      * Перерисовка главного окна в зависимости от состояния приложения
      */
     public void drawMainPane() throws URISyntaxException, IOException, InterruptedException {
-
-        if (ctx.isConnected()) {
-            btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("map.png"))));
-            btnServ.setContentDisplay(ContentDisplay.TOP);
-            btnServ.setDisable(false);
-        } else {
-            btnServ.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("no-wifi.png"))));
-            btnServ.setContentDisplay(ContentDisplay.TOP);
-            btnServ.setDisable(true);
-        }
         mainVBox.getChildren().remove(splitPane);
         mainVBox.getChildren().remove(sPane);
         sPane = new ScrollPane();
@@ -160,17 +146,13 @@ public class MainWindowController implements Initializable {
             addBookToPane(flowPane);
             sPane.setContent(flowPane);
             btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("list.png"))));
-            btnListOrGrid.setContentDisplay(ContentDisplay.TOP);
         } else {
             VBox vBox = new VBox();
             vBox.setPrefWidth(sPane.getScene().getWidth());
             vBox.setPrefHeight(sPane.getHeight());
             addBookToPane(vBox);
             sPane.setContent(vBox);
-            btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("tile.png"))));
-            btnListOrGrid.setContentDisplay(ContentDisplay.TOP);
-
-            log.info(sPane.widthProperty().toString() + " " + sPane.heightProperty().toString());
+            btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("grid.png"))));
         }
     }
 
@@ -187,13 +169,7 @@ public class MainWindowController implements Initializable {
         File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
         if (file != null) {
             readMode(file, null);
-            //showFile(file);
         }
-    }
-
-    @FXML
-    private void handleOpenServ(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
-        ctx.getNetwork().getPageBooks();
     }
 
     @FXML
@@ -206,8 +182,13 @@ public class MainWindowController implements Initializable {
     @FXML
     //авторизация пользователя через сервер
     private void handleOpenUser(ActionEvent event) throws URISyntaxException, IOException, InterruptedException {
-        EbModal authDialog = new EbModal(null, "auth-dialog", ctx);
-        authDialog.show();
+        if (ctx.isConnected()) {
+            EbModal profileDialog = new EbModal(null, "profile-dialog", ctx);
+            profileDialog.show();
+        } else {
+            EbModal authDialog = new EbModal(null, "auth-dialog", ctx);
+            authDialog.show();
+        }
     }
 
     @FXML
@@ -286,35 +267,8 @@ public class MainWindowController implements Initializable {
      * @param pane
      */
     private void addAddTail(Pane pane) {
-        AddBookButton addTail = new AddBookButton();
-        addTail.setText("Добавить учебник");
-        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
-        iv.setPreserveRatio(true);
-        if (grid) {
-            iv.setFitHeight(200);
-            addTail.setContentDisplay(ContentDisplay.TOP);
-        } else {
-            iv.setFitHeight(32);
-            addTail.setContentDisplay(ContentDisplay.LEFT);
-        }
-        addTail.setGraphic(iv);
+        AddBookTile addTail = new AddBookTile(this);
         pane.getChildren().add(addTail);
-        if (!grid) {
-
-            VBox.setVgrow(addTail, Priority.ALWAYS);
-        }
-        addTail.setOnMouseClicked(event -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Открыть файл");
-            fileChooser.getExtensionFilters().addAll(
-                    new FileChooser.ExtensionFilter("Электронные книги", "*.pdf", "*.fb2")
-                    //new FileChooser.ExtensionFilter("Веб страницы", "*.htm", "*.html")
-            );
-            File file = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
-            if (file != null) {
-                editMode(file, null);
-            }
-        });
     }
 
     public void editMode(File file, BookMeta meta) {
@@ -579,5 +533,11 @@ public class MainWindowController implements Initializable {
         });
         testsBox.getChildren().add(delAllTest);
         testsBox.setAlignment(Pos.CENTER);
+    }
+
+    public void handleHome(ActionEvent actionEvent) {
+    }
+
+    public void handleDraftAndPublished(ActionEvent actionEvent) {
     }
 }

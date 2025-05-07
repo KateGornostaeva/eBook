@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      prefHeight="650.0" prefWidth="450.0" spacing="15.0" xmlns="http://javafx.com/javafx/22"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kate.ebook.controllers.ProfileDialogController">
+    <children>
+        <VBox spacing="20.0" style="-fx-background-radius: 10; -fx-background-color: #336666;">
+            <children>
+                <HBox alignment="BASELINE_LEFT">
+                    <children>
+                        <ImageView>
+                            <Image url="@profile.png"/>
+                        </ImageView>
+                        <Label fx:id="role" prefHeight="48"/>
+                    </children>
+                </HBox>
+                <Label fx:id="family"/>
+                <Label fx:id="name"/>
+                <Label fx:id="patronym"/>
+                <Label fx:id="email"/>
+            </children>
+            <padding>
+                <Insets left="30.0" right="30.0" top="20.0" bottom="10.0"/>
+            </padding>
+        </VBox>
+
+        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" text="Редактировать профиль"/>
+        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" text="Вход и безопасность"/>
+        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" text="Уведомления"/>
+        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" text="Выйти"/>
+    </children>
+    <padding>
+        <Insets left="30.0" right="30.0" top="30.0" bottom="30.0"/>
+    </padding>
+</VBox>

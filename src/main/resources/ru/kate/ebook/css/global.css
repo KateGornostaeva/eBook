@@ -1,9 +1,61 @@
 .root {
     -fx-background-color: #f0f0f0;
     -fx-font-size: 24px;
+    -fx-background-radius: 10;
 }
 
 .button {
-    -fx-pref-height: 60px;
     -fx-background-radius: 10;
+    -fx-background-color: #FBFBFD;
+}
+
+.text-field {
+    -fx-background-radius: 10;
+}
+
+.main-tool-bar {
+    -fx-background-color: #9584E0;
+    -fx-padding: 10;
+}
+
+.main-tool-bar.button {
+    -fx-pref-height: 60;
+    -fx-pref-width: 90;
+}
+
+.search-field {
+    -fx-background-color: #554BA3;
+}
+
+.tile-book {
+}
+
+.tile-book-inner {
+    -fx-background-radius: 10;
+    -fx-background-color: #336666;
+}
+
+.add-book-tile {
+    -fx-background-radius: 10;
+    -fx-background-color: #669999;
+}
+
+.profile-top-box {
+    -fx-background-radius: 10;
+    -fx-background-color: #336666;
+}
+
+.profile-button {
+    -fx-background-color: #9584E0;
+}
+
+
+.auth-dialog {
+    -fx-background-color: #669999;
+}
+
+.auth-dialog-text-field {
+    -fx-text-fill: #336666;
+    -fx-text-origin: #336666;
+    -fx-background-color: #336666;
 }
