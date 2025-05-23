@@ -53,7 +53,7 @@ public class MainWindowController implements Initializable {
     public VBox mainVBox;
 
     @FXML
-    public ToolBar toolBar;
+    public ToolBar mainToolBar;
 
     @FXML
     private Button btnOpen;
@@ -80,6 +80,7 @@ public class MainWindowController implements Initializable {
     private ScrollPane sPane;
     private WebView webView;
     private VBox testsBox;
+    private ToolBar readModeToolBar;
     private ScrollPane runTestPane;
     @Getter
     private boolean grid = true;
@@ -138,9 +139,9 @@ public class MainWindowController implements Initializable {
         if (grid) {
             FlowPane flowPane = new FlowPane();
             flowPane.setOrientation(Orientation.VERTICAL);
-            flowPane.setVgap(10);
-            flowPane.setHgap(10);
-            flowPane.setPadding(new Insets(10, 10, 10, 10));
+            flowPane.setVgap(50);
+            flowPane.setHgap(50);
+            flowPane.setPadding(new Insets(50, 50, 50, 85));
             flowPane.setPrefWidth(sPane.getWidth());
             flowPane.setPrefHeight(sPane.getHeight());
             addBookToPane(flowPane);
@@ -148,8 +149,10 @@ public class MainWindowController implements Initializable {
             btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("list.png"))));
         } else {
             VBox vBox = new VBox();
-            vBox.setPrefWidth(sPane.getScene().getWidth());
+            vBox.setPrefWidth(sPane.getScene().getWidth() - 10);
             vBox.setPrefHeight(sPane.getHeight());
+            vBox.setPadding(new Insets(27, 85, 10, 85));
+            vBox.setSpacing(27);
             addBookToPane(vBox);
             sPane.setContent(vBox);
             btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("grid.png"))));
@@ -189,11 +192,6 @@ public class MainWindowController implements Initializable {
             EbModal authDialog = new EbModal(null, "auth-dialog", ctx);
             authDialog.show();
         }
-    }
-
-    @FXML
-    private void handleOpenSettings(ActionEvent event) {
-
     }
 
     /**
@@ -272,7 +270,7 @@ public class MainWindowController implements Initializable {
     }
 
     public void editMode(File file, BookMeta meta) {
-        mainVBox.getChildren().remove(toolBar);
+        mainVBox.getChildren().remove(mainToolBar);
         mainVBox.getChildren().add(buildEditTestToolBar(file, meta));
 
         mainVBox.getChildren().remove(sPane);
@@ -305,8 +303,8 @@ public class MainWindowController implements Initializable {
      * Отображение режима чтения
      */
     public void readMode(File file, BookMeta meta) throws NotSupportedExtension, SQLException, IOException, WrongFileFormat {
-        mainVBox.getChildren().remove(toolBar);
-        mainVBox.getChildren().add(buildReadModeToolBar(meta));
+        mainVBox.getChildren().remove(mainToolBar);
+        mainVBox.getChildren().add(buildReadModeToolBar(file, meta));
         mainVBox.getChildren().remove(splitPane);
         mainVBox.getChildren().remove(sPane);
         mainVBox.getChildren().remove(webView);
@@ -321,16 +319,18 @@ public class MainWindowController implements Initializable {
     /**
      * Рисование главного меню в режиме чтения книги
      */
-    private ToolBar buildReadModeToolBar(BookMeta meta) throws IOException {
-        ToolBar toolBar = new ToolBar();
+    private ToolBar buildReadModeToolBar(File file, BookMeta meta) throws IOException {
+        readModeToolBar = new ToolBar();
+        readModeToolBar.getStyleClass().add("read-mode-tool-bar");
 
         Button btnBack = new Button();
         btnBack.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("back.png"))));
+        btnBack.setPrefHeight(61);
         btnBack.setOnAction(event -> {
-            mainVBox.getChildren().remove(toolBar);
+            mainVBox.getChildren().remove(readModeToolBar);
             mainVBox.getChildren().remove(webView);
             mainVBox.getChildren().remove(runTestPane);
-            mainVBox.getChildren().add(this.toolBar);
+            mainVBox.getChildren().add(mainToolBar);
             try {
                 drawMainPane();
             } catch (URISyntaxException | IOException | InterruptedException e) {
@@ -338,9 +338,45 @@ public class MainWindowController implements Initializable {
             }
 
         });
-        toolBar.getItems().add(btnBack);
+        readModeToolBar.getItems().add(btnBack);
+
+        Button btnContents = new Button();
+        btnContents.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("contents.png"))));
+        btnContents.setPrefHeight(61);
+        btnContents.setOnAction(event -> {
+
+        });
+        readModeToolBar.getItems().add(btnContents);
+
+        Button btnReadMode = new Button();
+        btnReadMode.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("readMode.png"))));
+        btnReadMode.setPrefHeight(61);
+        readModeToolBar.getItems().add(btnReadMode);
+
+        Button btnZoomIn = new Button();
+        btnZoomIn.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("zoomIn.png"))));
+        btnZoomIn.setPrefHeight(61);
+        btnZoomIn.setOnAction(event -> {
+
+        });
+        readModeToolBar.getItems().add(btnZoomIn);
+
+        Button btnZoomOut = new Button();
+        btnZoomOut.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("zoomOut.png"))));
+        btnZoomOut.setPrefHeight(61);
+        btnZoomOut.setOnAction(event -> {
+
+        });
+        readModeToolBar.getItems().add(btnZoomOut);
+
+        Pane pane = new Pane();
+        HBox.setHgrow(pane, Priority.ALWAYS);
+        readModeToolBar.getItems().add(pane);
 
         Button btnRunTest = new Button("Тест");
+        btnRunTest.setPrefHeight(61);
+        btnRunTest.setPrefWidth(150);
+        btnRunTest.getStyleClass().add("run-test-button");
         Test test;
         if (meta != null) {
             btnRunTest.setDisable(!meta.getIsTestIn());
@@ -356,12 +392,21 @@ public class MainWindowController implements Initializable {
         }
         btnRunTest.setOnAction(event -> {
             mainVBox.getChildren().remove(webView);
+            mainVBox.getChildren().remove(readModeToolBar);
+            ToolBar runTestToolBar = buildRunTestToolBar(file, meta);
+            mainVBox.getChildren().add(runTestToolBar);
             runTestPane = buildRunTestPane(test);
             mainVBox.getChildren().add(runTestPane);
 
+
         });
-        toolBar.getItems().add(btnRunTest);
-        return toolBar;
+        readModeToolBar.getItems().add(btnRunTest);
+
+        Button btnSettings = new Button();
+        btnSettings.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("setting.png"))));
+        btnSettings.setPrefHeight(61);
+        readModeToolBar.getItems().add(btnSettings);
+        return readModeToolBar;
     }
 
     private ScrollPane buildRunTestPane(Test test) {
@@ -370,16 +415,16 @@ public class MainWindowController implements Initializable {
         scrollPane.setFitToWidth(true);
         VBox runTestBox = new VBox();
         runTestBox.setSpacing(25);
-        runTestBox.setPadding(new Insets(25));
+        runTestBox.setPadding(new Insets(100, 385, 25, 385));
         runTestBox.setAlignment(Pos.CENTER);
         Label label = new Label(test.getName());
         Pane pane = new Pane();
         HBox.setHgrow(pane, Priority.ALWAYS);
-        Button btnResetAndBack = new Button("Сбросить тест\nи вернуться к книге");
+        //Button btnResetAndBack = new Button("Сбросить тест\nи вернуться к книге");
         HBox headerBox = new HBox();
 
         headerBox.setPadding(new Insets(25));
-        headerBox.getChildren().addAll(label, pane, btnResetAndBack);
+        //headerBox.getChildren().addAll(label, pane, btnResetAndBack);
         runTestBox.getChildren().add(headerBox);
 
         test.getSections().forEach(testSection -> {
@@ -387,6 +432,7 @@ public class MainWindowController implements Initializable {
         });
 
         Button btnEndTest = new Button("Завершить тест");
+        btnEndTest.getStyleClass().add("btn-end");
         btnEndTest.setOnAction(event -> {
 
             List<RunTestSectionBox> runTestSectionBoxes = runTestBox.getChildren().stream()
@@ -422,6 +468,47 @@ public class MainWindowController implements Initializable {
         return scrollPane;
     }
 
+
+    private ToolBar buildRunTestToolBar(File file, BookMeta meta) {
+        ToolBar toolBar = new ToolBar();
+        toolBar.getStyleClass().add("run-test-tool-bar");
+
+        Button returnButton = new Button();
+        returnButton.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("back.png"))));
+        returnButton.setPrefWidth(100);
+        returnButton.setPrefHeight(61);
+        returnButton.setOnAction(event -> {
+            mainVBox.getChildren().clear();
+            try {
+                readMode(file, meta);
+            } catch (IOException | NotSupportedExtension | SQLException | WrongFileFormat e) {
+                throw new RuntimeException(e);
+            }
+
+        });
+
+        Pane pane = new Pane();
+        HBox.setHgrow(pane, Priority.ALWAYS);
+
+        Button resetButton = new Button("Сбросить тест и вернуться к книге");
+        resetButton.getStyleClass().add("btn-reset");
+        resetButton.setPrefHeight(61);
+        resetButton.setOnAction(event -> {
+
+        });
+
+        Button button = new Button();
+        button.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("setting.png"))));
+        button.setPrefWidth(100);
+        button.setPrefHeight(61);
+
+        toolBar.getItems().add(returnButton);
+        toolBar.getItems().addAll(pane);
+        toolBar.getItems().add(resetButton);
+        toolBar.getItems().add(button);
+        return toolBar;
+    }
+
     /**
      * Рисование главного меню в режиме редактирования тестов
      */
@@ -451,7 +538,7 @@ public class MainWindowController implements Initializable {
         backButton.setOnAction(event -> {
             mainVBox.getChildren().remove(toolBar);
             mainVBox.getChildren().remove(splitPane);
-            mainVBox.getChildren().add(this.toolBar);
+            mainVBox.getChildren().add(mainToolBar);
             try {
                 drawMainPane();
             } catch (URISyntaxException | InterruptedException | IOException e) {

@@ -87,6 +87,7 @@ public class EditAnswerRow extends HBox {
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(16);
         Button delButton = new Button();
+        delButton.setStyle("-fx-background-color: #66999933");
         delButton.setGraphic(imageView);
         delButton.setOnAction(e -> {
             EditAnswersBox parent = (EditAnswersBox) getParent();

@@ -79,15 +79,28 @@ public class TileBook extends AnchorPane {
             setRightAnchor(title, 10.0);
 
         } else {
-            setPrefHeight(120);
-            setPrefWidth(500);
+            setPrefHeight(140);
+            //setPrefWidth(1900);
+            setStyle("-fx-background-color: #6699994D;");
+
+            paneInner.setPrefWidth(80);
+            paneInner.setPrefHeight(140);
+            setLeftAnchor(paneInner, 0.0);
+            setTopAnchor(paneInner, 0.0);
+            setBottomAnchor(paneInner, 0.0);
 
             imageView.setFitHeight(90);
-            setBottomAnchor(imageView, 0.0);
+            setTopAnchor(imageView, 5.0);
+            setLeftAnchor(imageView, 5.0);
+            setBottomAnchor(imageView, 5.0);
+            setRightAnchor(imageView, 5.0);
+
+            paneInner.getChildren().add(imageView);
 
             title.setAlignment(Pos.CENTER_LEFT);
-            title.setPrefWidth(500);
-            setLeftAnchor(title, 80.0);
+            title.setPrefWidth(1500);
+            setLeftAnchor(title, 90.0);
+            setTopAnchor(title, 30.0);
         }
 
         Pane paneIcon = new Pane();

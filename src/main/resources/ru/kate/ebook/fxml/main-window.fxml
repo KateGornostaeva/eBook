@@ -7,20 +7,24 @@
 <VBox fx:id="mainVBox" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kate.ebook.controllers.MainWindowController">
     <children>
-        <ToolBar fx:id="toolBar" styleClass="main-tool-bar">
+        <ToolBar fx:id="mainToolBar" styleClass="main-tool-bar">
             <items>
-                <Button fx:id="btnOpen" prefHeight="64" mnemonicParsing="false" onAction="#handleOpenFile"
+                <Button fx:id="btnOpen" prefHeight="61" prefWidth="185" mnemonicParsing="false"
+                        onAction="#handleOpenFile"
                         text="Открыть"/>
-                <Button fx:id="btnHome" mnemonicParsing="false" onAction="#handleHome"/>
-                <Button fx:id="btnDraftAndPublished" mnemonicParsing="false" onAction="#handleDraftAndPublished"/>
+                <Button fx:id="btnHome" prefHeight="61" prefWidth="100" mnemonicParsing="false" onAction="#handleHome"/>
+                <Button fx:id="btnDraftAndPublished" prefHeight="61" prefWidth="100" mnemonicParsing="false"
+                        onAction="#handleDraftAndPublished"/>
 
-                <Button fx:id="btnListOrGrid" mnemonicParsing="false" onAction="#handleSwitchList"/>
+                <Button fx:id="btnListOrGrid" prefHeight="61" prefWidth="100" mnemonicParsing="false"
+                        onAction="#handleSwitchList"/>
                 <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true"/>
                 <TextField fx:id="txtSearch" styleClass="search-field" HBox.hgrow="ALWAYS"/>
                 <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true"/>
-                <Button fx:id="btnUser" prefHeight="64" mnemonicParsing="false" onAction="#handleOpenUser"
+                <Button fx:id="btnUser" prefHeight="61" prefWidth="100" mnemonicParsing="false"
+                        onAction="#handleOpenUser"
                         text="Войти"/>
-                <Button fx:id="btnSettings" mnemonicParsing="false" onAction="#handleOpenSettings"/>
+                <Button fx:id="btnSettings" prefHeight="61" prefWidth="100" mnemonicParsing="false"/>
             </items>
         </ToolBar>
     </children>

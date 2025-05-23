@@ -18,16 +18,23 @@
     -fx-padding: 10;
 }
 
-.main-tool-bar.button {
+.search-field {
     -fx-pref-height: 60;
-    -fx-pref-width: 90;
+    -fx-background-color: #FBFBFD;
 }
 
-.search-field {
+.read-mode-tool-bar {
+    -fx-background-color: #9584E0;
+
+}
+
+.run-test-button {
     -fx-background-color: #554BA3;
+    -fx-text-fill: #FBFBFD;
 }
 
 .tile-book {
+    -fx-background-radius: 10;
 }
 
 .tile-book-inner {
@@ -42,7 +49,8 @@
 
 .profile-top-box {
     -fx-background-radius: 10;
-    -fx-background-color: #336666;
+    -fx-background-color: #669999;
+    -fx-text-fill: black;
 }
 
 .profile-button {
@@ -55,7 +63,38 @@
 }
 
 .auth-dialog-text-field {
-    -fx-text-fill: #336666;
-    -fx-text-origin: #336666;
+    -fx-text-fill: #FBFBFD;
+    -fx-prompt-text-fill: #FBFBFD80;
     -fx-background-color: #336666;
+}
+
+.run-test-section {
+    -fx-background-color: #66999933;
+}
+
+.btn-end {
+    -fx-background-radius: 10;
+    -fx-background-color: #554BA3;
+    -fx-text-fill: #FBFBFD;
+}
+
+.run-test-tool-bar {
+    -fx-background-color: #9584E0;
+}
+
+.btn-reset {
+    -fx-background-radius: 10;
+    -fx-background-color: #554BA3;
+    -fx-text-fill: #FBFBFD;
+}
+
+.edit-test-section-box {
+    -fx-background-radius: 10;
+    -fx-background-color: #66999933;
+    -fx-padding: 15;
+    -fx-spacing: 15;
+}
+
+.edit-answers-box {
+    -fx-spacing: 15;
 }

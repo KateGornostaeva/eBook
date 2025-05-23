@@ -25,9 +25,10 @@ public class EditTestSectionBox extends VBox {
     public EditTestSectionBox(TestSection testSection) {
         super();
 
-        setStyle("-fx-background-color: #888; -fx-padding: 15; -fx-spacing: 15;");
+        getStyleClass().add("edit-test-section-box");
 
         txtQuestion = new TextField();
+        txtQuestion.setPrefWidth(800);
         if (testSection != null) {
             txtQuestion.setText(testSection.getQuestion());
         } else {
@@ -35,6 +36,7 @@ public class EditTestSectionBox extends VBox {
         }
 
         Button editButton = new Button();
+        editButton.setStyle("-fx-background-color: #66999933");
         ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("edit.png")));
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(16);
@@ -102,9 +104,6 @@ public class EditTestSectionBox extends VBox {
 
         VBox vBox = new VBox();
         vBox.setSpacing(10);
-        vBox.setStyle("-fx-background-color: #666;" +
-                "-fx-padding: 15;" +
-                "-fx-border-width: 0");
 
         ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("radio-button.png")));
         imageView.setPreserveRatio(true);
@@ -137,9 +136,11 @@ public class EditTestSectionBox extends VBox {
 
     private HBox buildBottomBox() {
         Label label = new Label("Отметьте правильный(ые) вариант(ы) ответа(ов)");
+        label.setStyle("-fx-text-fill: #00000080");
         Pane pane = new Pane();
         HBox.setHgrow(pane, Priority.ALWAYS);
         Button delButton = new Button();
+        delButton.setStyle("-fx-background-color: #66999933");
         ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("garbage-can.png")));
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(16);

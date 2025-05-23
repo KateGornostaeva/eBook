@@ -32,7 +32,7 @@ public class EditAnswersBox extends VBox {
 
     private void init(List<Answer> answers) {
 
-        setStyle("-fx-background-color: #aaa; -fx-padding: 15; -fx-spacing: 15;");
+        getStyleClass().add("edit-answers-box");
 
         if (answers != null && !answers.isEmpty()) {
             for (Answer answer : answers) {
@@ -44,6 +44,7 @@ public class EditAnswersBox extends VBox {
             getChildren().add(new EditAnswerRow(toggleGroup, oneIs));
         }
         Button newButton = new Button("Добавить вариант");
+        newButton.setStyle("-fx-background-color: #66999933");
         newButton.setOnAction(e -> {
             getChildren().remove(newButton);
             getChildren().add(new EditAnswerRow(toggleGroup, oneIs));

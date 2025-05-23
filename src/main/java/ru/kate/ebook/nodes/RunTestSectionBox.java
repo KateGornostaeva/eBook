@@ -16,6 +16,7 @@ public class RunTestSectionBox extends VBox {
     public RunTestSectionBox(TestSection testSection) {
         super();
         this.testSection = testSection;
+        getStyleClass().add("run-test-section");
         init();
     }
 
@@ -66,7 +67,6 @@ public class RunTestSectionBox extends VBox {
     private void init() {
         setSpacing(10);
         setPadding(new Insets(25));
-        setStyle("-fx-background-color: gray;");
         Label question = new Label(testSection.getQuestion());
         getChildren().add(question);
         testSection.getAnswers().forEach(answer -> {
