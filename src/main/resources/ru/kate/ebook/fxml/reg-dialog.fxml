@@ -4,18 +4,18 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<VBox alignment="CENTER" prefHeight="300.0" prefWidth="250.0" spacing="15.0"
+<VBox styleClass="reg-dialog" alignment="CENTER" prefHeight="300.0" prefWidth="400.0" spacing="15.0"
       xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ru.kate.ebook.controllers.RegDialogController">
     <children>
         <Label text="РЕГИСТРАЦИЯ"/>
-        <TextField fx:id="txtLastName" promptText="фамилия"/>
-        <TextField fx:id="txtName" promptText="имя"/>
-        <TextField fx:id="txtMiddleName" promptText="отчество (по желанию)"/>
-        <TextField fx:id="txtEmail" promptText="email"/>
-        <TextField fx:id="txtLogin" promptText="логин"/>
-        <TextField fx:id="txtPassword" promptText="пароль"/>
-        <TextField fx:id="txtRepeatPassword" promptText="повторить пароль"/>
+        <TextField fx:id="txtLastName" styleClass="auth-dialog-text-field" promptText="фамилия"/>
+        <TextField fx:id="txtName" styleClass="auth-dialog-text-field" promptText="имя"/>
+        <TextField fx:id="txtMiddleName" styleClass="auth-dialog-text-field" promptText="отчество (по желанию)"/>
+        <TextField fx:id="txtEmail" styleClass="auth-dialog-text-field" promptText="email"/>
+        <TextField fx:id="txtLogin" styleClass="auth-dialog-text-field" promptText="логин"/>
+        <TextField fx:id="txtPassword" styleClass="auth-dialog-text-field" promptText="пароль"/>
+        <TextField fx:id="txtRepeatPassword" styleClass="auth-dialog-text-field" promptText="повторить пароль"/>
         <HBox prefHeight="100.0" prefWidth="200.0">
             <children>
                 <Label text="Роль:">

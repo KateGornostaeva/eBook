@@ -1,6 +1,7 @@
 package ru.kate.ebook.controllers;
 
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -11,6 +12,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
@@ -190,6 +193,8 @@ public class MainWindowController implements Initializable {
             profileDialog.show();
         } else {
             EbModal authDialog = new EbModal(null, "auth-dialog", ctx);
+            AuthDialogController controller = (AuthDialogController) authDialog.getController();
+            controller.setStage(authDialog);
             authDialog.show();
         }
     }
@@ -211,12 +216,15 @@ public class MainWindowController implements Initializable {
         List<BookDto> bookDtos = ctx.getNetwork().searchBooks(txtSearch.getText());
         if (bookDtos.isEmpty()) {
             PopupControl popup = new PopupControl();
+            popup.setMinHeight(64);
             popup.setAutoHide(true);
             popup.setAutoFix(true);
             popup.setX(screenX);
             popup.setY(screenY + 60);
             Label label = new Label("По данному запросу на сервере ни чего не найдено");
             label.setPrefWidth(txtSearch.getWidth());
+            label.setStyle("-fx-background-color: #6699994D;");
+            label.setPadding(new Insets(10, 10, 10, 50));
             popup.getScene().setRoot(label);
             popup.show(txtSearch.getScene().getWindow());
         } else {
@@ -326,7 +334,7 @@ public class MainWindowController implements Initializable {
         Button btnBack = new Button();
         btnBack.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("back.png"))));
         btnBack.setPrefHeight(61);
-        btnBack.setOnAction(event -> {
+        btnBack.setOnMouseClicked(event -> {
             mainVBox.getChildren().remove(readModeToolBar);
             mainVBox.getChildren().remove(webView);
             mainVBox.getChildren().remove(runTestPane);
@@ -345,6 +353,17 @@ public class MainWindowController implements Initializable {
         btnContents.setPrefHeight(61);
         btnContents.setOnAction(event -> {
 
+            Point2D localToScreen = readModeToolBar.localToScreen(50, 50);
+            Point2D localToScene = readModeToolBar.localToScene(50, 50);
+            event.consume();
+            Event.fireEvent(readModeToolBar, new MouseEvent(MouseEvent.MOUSE_CLICKED,
+                    localToScene.getX(), localToScene.getY(),
+                    localToScreen.getX(), localToScreen.getY(),
+                    MouseButton.PRIMARY, 1,
+                    true, true, true, true, true,
+                    true, true, true,
+                    true, true, null));
+            log.info("Screen: " + localToScreen + " Scene: " + localToScene);
         });
         readModeToolBar.getItems().add(btnContents);
 
@@ -442,6 +461,7 @@ public class MainWindowController implements Initializable {
                 Dialog<ButtonType> dialog = new Dialog<>();
                 dialog.initOwner(ctx.getMainScene().getWindow());
                 dialog.setContentText("Завершить тест?");
+                dialog.getDialogPane().setStyle("-fx-background-color: #9584E0");
                 dialog.getDialogPane().getButtonTypes().addAll(
                         new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE),
                         new ButtonType("Завершить", ButtonBar.ButtonData.OK_DONE));
@@ -454,6 +474,8 @@ public class MainWindowController implements Initializable {
                 }
             } else {
                 Dialog<ButtonType> dialog2 = new Dialog<>();
+                dialog2.getDialogPane().setStyle("-fx-background-color: #9584E0");
+                dialog2.getDialogPane().setPrefWidth(400);
                 dialog2.initOwner(ctx.getMainScene().getWindow());
                 dialog2.setContentText("Вы ответили не на все вопросы\n\nВсё равно завершить тест?");
                 dialog2.getDialogPane().getButtonTypes().addAll(

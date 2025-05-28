@@ -145,6 +145,8 @@ public class TileBook extends AnchorPane {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Невозможно скачать учебник");
                 alert.setHeaderText("Для скачивания учебника\nнеобходимо авторизоваться на сервере");
+                alert.getDialogPane().setStyle("-fx-background-color: #9584E0; -fx-background-radius: 10");
+                //alert.getDialogPane().getHeader().setStyle("-fx-background-color: #9584E0;");
                 alert.showAndWait();
                 e.consume();
             });

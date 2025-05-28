@@ -33,7 +33,8 @@
         <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" text="Редактировать профиль"/>
         <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" text="Вход и безопасность"/>
         <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" text="Уведомления"/>
-        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" text="Выйти"/>
+        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" onAction="#exitHandler"
+                text="Выйти"/>
     </children>
     <padding>
         <Insets left="30.0" right="30.0" top="30.0" bottom="30.0"/>

@@ -22,6 +22,7 @@ public class SearchPopupControl extends PopupControl {
         for (BookMeta meta : metas) {
             SearchTileBook searchTileBook = new SearchTileBook(meta, controller);
             searchTileBook.setPrefWidth(width);
+            searchTileBook.setStyle("-fx-background-color: #6699994D;");
             VBox.setVgrow(searchTileBook, Priority.ALWAYS);
             vBox.getChildren().add(searchTileBook);
         }

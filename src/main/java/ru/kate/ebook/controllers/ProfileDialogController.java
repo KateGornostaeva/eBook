@@ -1,11 +1,14 @@
 package ru.kate.ebook.controllers;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import lombok.SneakyThrows;
 import ru.kate.ebook.Context;
 import ru.kate.ebook.network.ProfileDto;
+import ru.kate.ebook.nodes.EbModal;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -37,5 +40,13 @@ public class ProfileDialogController extends EbController {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+    }
+
+    public void exitHandler(ActionEvent actionEvent) throws IOException {
+        role.getScene().getWindow().hide();
+        EbModal authDialog = new EbModal(null, "auth-dialog", ctx);
+        AuthDialogController controller = (AuthDialogController) authDialog.getController();
+        controller.setStage(authDialog);
+        authDialog.show();
     }
 }

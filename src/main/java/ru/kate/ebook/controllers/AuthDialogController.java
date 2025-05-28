@@ -8,6 +8,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.exceptions.WrongAuthorisation;
 import ru.kate.ebook.nodes.EbModal;
@@ -29,11 +31,14 @@ public class AuthDialogController extends EbController {
     @FXML
     private Button exitButton;
 
+    @Setter
+    private Stage stage;
+
 
     @FXML
     private void handleBtnReg(ActionEvent event) throws IOException {
-        EbModal authDialog = new EbModal(null, "reg-dialog", ctx);
-        authDialog.show();
+        EbModal regDialog = new EbModal(null, "reg-dialog", ctx);
+        regDialog.show();
     }
 
     @FXML
@@ -50,8 +55,6 @@ public class AuthDialogController extends EbController {
             Button btnUser = (Button) ctx.getMainScene().lookup("#btnUser");
             btnUser.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("user.png"))));
             btnUser.setText("");
-            //btnUser.setContentDisplay(ContentDisplay.TOP);
-            exitButton.getScene().getWindow().hide();
             ctx.getMainWindowController().drawMainPane();
         } catch (URISyntaxException | IOException | InterruptedException e) {
             log.error(e.getLocalizedMessage());
@@ -67,6 +70,9 @@ public class AuthDialogController extends EbController {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+        txtPassword.setOnAction(actionEvent -> {
+            handleBtnEnter(actionEvent);
+            stage.close();
+        });
     }
 }

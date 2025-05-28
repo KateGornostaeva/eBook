@@ -118,6 +118,7 @@ public class Saver {
             vbox.setAlignment(Pos.BASELINE_CENTER);
             vbox.setSpacing(25);
             vbox.setPadding(new Insets(25));
+            vbox.setStyle("-fx-background-color: #9584E0");
             Label msg = new Label("Книга опубликована");
             Label label = new Label("Код книги: " + code);
             vbox.getChildren().addAll(msg, label);
