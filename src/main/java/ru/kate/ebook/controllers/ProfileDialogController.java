@@ -2,13 +2,15 @@ package ru.kate.ebook.controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import lombok.SneakyThrows;
 import ru.kate.ebook.Context;
+import ru.kate.ebook.configuration.Role;
 import ru.kate.ebook.network.ProfileDto;
-import ru.kate.ebook.nodes.EbModal;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -42,11 +44,17 @@ public class ProfileDialogController extends EbController {
     public void initialize(URL url, ResourceBundle resourceBundle) {
     }
 
-    public void exitHandler(ActionEvent actionEvent) throws IOException {
+    public void exitHandler(ActionEvent actionEvent) throws IOException, URISyntaxException, InterruptedException {
         role.getScene().getWindow().hide();
-        EbModal authDialog = new EbModal(null, "auth-dialog", ctx);
+        ctx.setRole(Role.ROLE_GUEST);
+        ctx.setConnected(false);
+        ctx.getMainWindowController().drawMainPane();
+        Button btnUser = (Button) ctx.getMainScene().lookup("#btnUser");
+        btnUser.setGraphic(null);
+        btnUser.setText("Войти");
+        /*EbModal authDialog = new EbModal(null, "auth-dialog", ctx);
         AuthDialogController controller = (AuthDialogController) authDialog.getController();
         controller.setStage(authDialog);
-        authDialog.show();
+        authDialog.show();*/
     }
 }

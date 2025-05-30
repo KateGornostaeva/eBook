@@ -60,6 +60,7 @@
 
 .auth-dialog {
     -fx-background-color: #669999;
+    -fx-text-fill: black;
 }
 
 .auth-dialog-text-field {
@@ -69,7 +70,7 @@
 }
 
 .reg-dialog {
-    -fx-background-color: #669999;
+    -fx-background-color: #9584E0;
 }
 
 .run-test-section {

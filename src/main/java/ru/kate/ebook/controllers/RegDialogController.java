@@ -3,6 +3,7 @@ package ru.kate.ebook.controllers;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import ru.kate.ebook.network.SignUpRequestDto;
 
@@ -29,10 +30,10 @@ public class RegDialogController extends EbController {
     public TextField txtLogin;
 
     @FXML
-    public TextField txtPassword;
+    public PasswordField txtPassword;
 
     @FXML
-    public TextField txtRepeatPassword;
+    public PasswordField txtRepeatPassword;
 
     @FXML
     public ChoiceBox chbRole;

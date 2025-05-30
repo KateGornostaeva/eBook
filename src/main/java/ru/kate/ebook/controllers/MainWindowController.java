@@ -1,5 +1,7 @@
 package ru.kate.ebook.controllers;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -17,6 +19,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.Context;
@@ -220,13 +223,27 @@ public class MainWindowController implements Initializable {
             popup.setAutoHide(true);
             popup.setAutoFix(true);
             popup.setX(screenX);
-            popup.setY(screenY + 60);
-            Label label = new Label("По данному запросу на сервере ни чего не найдено");
+            popup.setY(screenY + 65);
+
+            PauseTransition wait = new PauseTransition(Duration.seconds(3));
+            wait.setOnFinished(e -> {
+                // Затем начинаем плавное затухание
+                FadeTransition fade = new FadeTransition(Duration.seconds(1));
+                fade.setFromValue(1.0);
+                fade.setToValue(0.0);
+                fade.setOnFinished(fadeEvent -> popup.hide());
+                fade.play();
+            });
+
+            Label label = new Label("По данному запросу на сервере ничего не найдено");
             label.setPrefWidth(txtSearch.getWidth());
-            label.setStyle("-fx-background-color: #6699994D;");
+            label.setPrefHeight(txtSearch.getHeight() * 1.7);
+            label.setStyle("-fx-background-color: #669999;");
+            //label.set
             label.setPadding(new Insets(10, 10, 10, 50));
             popup.getScene().setRoot(label);
             popup.show(txtSearch.getScene().getWindow());
+            wait.play();
         } else {
             List<BookMeta> metas = new ArrayList<>();
             for (BookDto bookDto : bookDtos) {

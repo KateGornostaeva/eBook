@@ -39,6 +39,7 @@ public class AuthDialogController extends EbController {
     private void handleBtnReg(ActionEvent event) throws IOException {
         EbModal regDialog = new EbModal(null, "reg-dialog", ctx);
         regDialog.show();
+        stage.close();
     }
 
     @FXML

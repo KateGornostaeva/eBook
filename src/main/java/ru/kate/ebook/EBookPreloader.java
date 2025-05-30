@@ -24,7 +24,7 @@ public class EBookPreloader extends Preloader {
     public void start(Stage stage) throws Exception {
         Image img;
         try {
-            img = new Image(getClass().getResourceAsStream("img/preloader.png"));
+            img = new Image(getClass().getResourceAsStream("img/booki.jpg"));
             if (img.isError()) throw new RuntimeException("Error loading preload image");
         } catch (Exception e) {
             log.error("Error loading preload image", e);
