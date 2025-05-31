@@ -80,7 +80,6 @@ public class TileBook extends AnchorPane {
 
         } else {
             setPrefHeight(140);
-            //setPrefWidth(1900);
             setStyle("-fx-background-color: #6699994D;");
 
             paneInner.setPrefWidth(80);
@@ -157,8 +156,14 @@ public class TileBook extends AnchorPane {
         }
 
 
-        setRightAnchor(paneIcon, 2.0);
-        setTopAnchor(paneIcon, 2.0);
+        if (grid) {
+            setRightAnchor(paneIcon, 2.0);
+            setTopAnchor(paneIcon, 2.0);
+        } else {
+            setRightAnchor(paneIcon, 20.0);
+            setTopAnchor(paneIcon, 30.0);
+        }
+
 
         paneIcon.getChildren().add(icon);
         getChildren().add(paneInner);

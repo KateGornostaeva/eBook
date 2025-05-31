@@ -17,6 +17,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
@@ -251,9 +252,23 @@ public class MainWindowController implements Initializable {
                 metas.add(bookMeta);
             }
             SearchPopupControl searchPopupControl = new SearchPopupControl(metas, this, txtSearch.getWidth());
+            searchPopupControl.setAutoFix(true);
+            searchPopupControl.setAutoHide(true);
             searchPopupControl.setX(screenX);
-            searchPopupControl.setY(screenY + 60);
+            searchPopupControl.setY(screenY + 65);
+
+            PauseTransition wait = new PauseTransition(Duration.seconds(3));
+            wait.setOnFinished(e -> {
+                // Затем начинаем плавное затухание
+                FadeTransition fade = new FadeTransition(Duration.seconds(1));
+                fade.setFromValue(1.0);
+                fade.setToValue(0.0);
+                fade.setOnFinished(fadeEvent -> searchPopupControl.hide());
+                fade.play();
+            });
+
             searchPopupControl.show(txtSearch.getScene().getWindow());
+            wait.play();
         }
     }
 
@@ -477,28 +492,74 @@ public class MainWindowController implements Initializable {
             if (CheckTest.finishCheck(runTestSectionBoxes)) {
                 Dialog<ButtonType> dialog = new Dialog<>();
                 dialog.initOwner(ctx.getMainScene().getWindow());
-                dialog.setContentText("Завершить тест?");
-                dialog.getDialogPane().setStyle("-fx-background-color: #9584E0");
-                dialog.getDialogPane().getButtonTypes().addAll(
-                        new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE),
-                        new ButtonType("Завершить", ButtonBar.ButtonData.OK_DONE));
-                Optional<ButtonType> result = dialog.showAndWait();
-                if (result.get().getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                dialog.getDialogPane().setPrefWidth(500);
+                dialog.getDialogPane().setStyle("-fx-background-color: #9584E0;");
+                VBox vBox = new VBox();
+                vBox.setAlignment(Pos.CENTER);
+                vBox.setPadding(new Insets(25));
+                vBox.setSpacing(35);
+                Text text = new Text("Завершить тест?");
+                HBox hBox = new HBox();
+                hBox.setAlignment(Pos.CENTER);
+                hBox.setSpacing(25);
+                Button btnCancel = new Button("Отмена");
+                btnCancel.setPrefWidth(200);
+                Button btnOk = new Button("Завершить");
+                btnOk.setPrefWidth(200);
+                btnOk.setStyle("-fx-background-color: #554BA3;");
+                btnOk.setOnAction(event1 -> {
+                    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+                    dialog.close();
                     runTestSectionBoxes.forEach(RunTestSectionBox::finish);
                     runTestBox.getChildren().remove(btnEndTest);
                     Button button = new Button("Результат теста: " + CheckTest.calcResult(test, runTestSectionBoxes));
+                    button.setStyle("-fx-background-color: #336666; -fx-text-fill: #FBFBFD");
+                    button.setPrefWidth(1200);
                     runTestBox.getChildren().add(button);
-                }
+                });
+                hBox.getChildren().addAll(btnCancel, btnOk);
+                vBox.getChildren().addAll(text, hBox);
+                dialog.getDialogPane().setContent(vBox);
+                dialog.showAndWait();
             } else {
                 Dialog<ButtonType> dialog2 = new Dialog<>();
-                dialog2.getDialogPane().setStyle("-fx-background-color: #9584E0");
-                dialog2.getDialogPane().setPrefWidth(400);
+                dialog2.getDialogPane().setPrefWidth(500);
+                dialog2.getDialogPane().setStyle("-fx-background-color: #9584E0;");
                 dialog2.initOwner(ctx.getMainScene().getWindow());
-                dialog2.setContentText("Вы ответили не на все вопросы\n\nВсё равно завершить тест?");
-                dialog2.getDialogPane().getButtonTypes().addAll(
-                        new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE),
-                        new ButtonType("Завершить", ButtonBar.ButtonData.OK_DONE));
-                Optional<ButtonType> result2 = dialog2.showAndWait();
+                VBox vBox = new VBox();
+                vBox.setAlignment(Pos.CENTER);
+                vBox.setPadding(new Insets(25));
+                vBox.setSpacing(35);
+                Text text = new Text("Вы ответили не на все вопросы");
+                Text text1 = new Text("Всё равно завершить тест?");
+                vBox.getChildren().addAll(text, text1);
+                HBox hBox = new HBox();
+                hBox.setAlignment(Pos.CENTER);
+                hBox.setSpacing(25);
+                Button btnCancel = new Button("Отмена");
+                btnCancel.setPrefWidth(200);
+                btnCancel.setOnAction(event1 -> {
+                    dialog2.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+                    dialog2.close();
+                });
+                Button btnOk = new Button("Завершить");
+                btnOk.setPrefWidth(200);
+                btnOk.setStyle("-fx-background-color: #554BA3;");
+                btnOk.setOnAction(event1 -> {
+                    dialog2.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+                    dialog2.close();
+                    mainVBox.getChildren().clear();
+                    mainVBox.getChildren().add(mainToolBar);
+                    try {
+                        drawMainPane();
+                    } catch (URISyntaxException | IOException | InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                hBox.getChildren().addAll(btnCancel, btnOk);
+                vBox.getChildren().add(hBox);
+                dialog2.getDialogPane().setContent(vBox);
+                dialog2.showAndWait();
             }
         });
         runTestBox.getChildren().add(btnEndTest);
