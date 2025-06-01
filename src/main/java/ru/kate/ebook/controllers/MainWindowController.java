@@ -3,7 +3,6 @@ package ru.kate.ebook.controllers;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -11,10 +10,14 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
@@ -37,6 +40,7 @@ import ru.kate.ebook.utils.CheckTest;
 import ru.kate.ebook.utils.ProcessBook;
 import ru.kate.ebook.utils.ZipBook;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -358,19 +362,9 @@ public class MainWindowController implements Initializable {
         Button btnContents = new Button();
         btnContents.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("contents.png"))));
         btnContents.setPrefHeight(61);
-        btnContents.setOnAction(event -> {
-
-            Point2D localToScreen = readModeToolBar.localToScreen(50, 50);
-            Point2D localToScene = readModeToolBar.localToScene(50, 50);
-            event.consume();
-            Event.fireEvent(readModeToolBar, new MouseEvent(MouseEvent.MOUSE_CLICKED,
-                    localToScene.getX(), localToScene.getY(),
-                    localToScreen.getX(), localToScreen.getY(),
-                    MouseButton.PRIMARY, 1,
-                    true, true, true, true, true,
-                    true, true, true,
-                    true, true, null));
-            log.info("Screen: " + localToScreen + " Scene: " + localToScene);
+        btnContents.setOnMouseClicked(event -> {
+            virtualPress(20, 20, event);
+            virtualPress(50, 50, event);
         });
         readModeToolBar.getItems().add(btnContents);
 
@@ -380,10 +374,10 @@ public class MainWindowController implements Initializable {
         readModeToolBar.getItems().add(btnReadMode);
 
         Button btnZoomIn = new Button();
-        btnZoomIn.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("zoomIn.png"))));
+        btnZoomIn.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("lens.png"))));
         btnZoomIn.setPrefHeight(61);
-        btnZoomIn.setOnAction(event -> {
-
+        btnZoomIn.setOnMouseClicked(event -> {
+            virtualPress(80, 20, event);
         });
         readModeToolBar.getItems().add(btnZoomIn);
 
@@ -393,7 +387,7 @@ public class MainWindowController implements Initializable {
         btnZoomOut.setOnAction(event -> {
 
         });
-        readModeToolBar.getItems().add(btnZoomOut);
+        //readModeToolBar.getItems().add(btnZoomOut);
 
         Pane pane = new Pane();
         HBox.setHgrow(pane, Priority.ALWAYS);
@@ -433,6 +427,22 @@ public class MainWindowController implements Initializable {
         btnSettings.setPrefHeight(61);
         readModeToolBar.getItems().add(btnSettings);
         return readModeToolBar;
+    }
+
+    private void virtualPress(int x, int y, MouseEvent event) {
+        Point2D localToScreen = webView.localToScreen(x, y);
+        int oldX = (int) event.getScreenX();
+        int oldY = (int) event.getScreenY();
+        try {
+            Robot robot = new java.awt.Robot();
+            robot.mouseMove((int) localToScreen.getX(), (int) localToScreen.getY());
+            robot.mousePress(16);
+            robot.mouseRelease(16);
+            robot.mouseMove(oldX, oldY);
+            //Thread.sleep(500);
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
     }
 
     private ScrollPane buildRunTestPane(Test test) {
