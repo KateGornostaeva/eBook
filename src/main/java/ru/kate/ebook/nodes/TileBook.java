@@ -1,14 +1,13 @@
 package ru.kate.ebook.nodes;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import lombok.Getter;
 import ru.kate.ebook.configuration.Role;
 import ru.kate.ebook.controllers.MainWindowController;
@@ -141,12 +140,31 @@ public class TileBook extends AnchorPane {
             paneInner.setStyle("-fx-background-color: #33666680");
 
             paneIcon.setOnMouseClicked(e -> {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Невозможно скачать учебник");
-                alert.setHeaderText("Для скачивания учебника\nнеобходимо авторизоваться на сервере");
-                alert.getDialogPane().setStyle("-fx-background-color: #9584E0; -fx-background-radius: 10");
-                //alert.getDialogPane().getHeader().setStyle("-fx-background-color: #9584E0;");
-                alert.showAndWait();
+                Dialog<ButtonType> dialog = new Dialog<>();
+                dialog.initOwner(controller.getCtx().getMainScene().getWindow());
+                dialog.getDialogPane().setPrefWidth(200);
+                dialog.getDialogPane().setStyle("-fx-background-color: #9584E0;");
+                VBox vBox = new VBox();
+                vBox.setAlignment(Pos.CENTER);
+                vBox.setPadding(new Insets(25));
+                vBox.setSpacing(35);
+                Text text = new Text("Для скачивания учебника");
+                Text text1 = new Text("необходимо авторизоваться на сервере");
+                HBox hBox = new HBox();
+                hBox.setAlignment(Pos.CENTER);
+                hBox.setSpacing(25);
+                Button btnOk = new Button("OK");
+                btnOk.setPrefWidth(200);
+                btnOk.setStyle("-fx-background-color: #554BA3;");
+                btnOk.setOnAction(event1 -> {
+                    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+                    dialog.close();
+                    event1.consume();
+                });
+                hBox.getChildren().addAll(btnOk);
+                vBox.getChildren().addAll(text, text1, hBox);
+                dialog.getDialogPane().setContent(vBox);
+                dialog.showAndWait();
                 e.consume();
             });
         }

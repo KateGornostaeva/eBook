@@ -94,11 +94,7 @@ public class MainWindowController implements Initializable {
 
     public void setCtx(Context ctx) {
         this.ctx = ctx;
-        try {
-            drawMainPane();
-        } catch (URISyntaxException | IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        drawMainPane();
     }
 
     @Override
@@ -135,7 +131,7 @@ public class MainWindowController implements Initializable {
     /**
      * Перерисовка главного окна в зависимости от состояния приложения
      */
-    public void drawMainPane() throws URISyntaxException, IOException, InterruptedException {
+    public void drawMainPane() {
         mainVBox.getChildren().remove(splitPane);
         mainVBox.getChildren().remove(sPane);
         sPane = new ScrollPane();
@@ -275,7 +271,7 @@ public class MainWindowController implements Initializable {
     /**
      * Добавление кнопок книг на панель (режим отображения списка книг)
      */
-    private void addBookToPane(Pane pane) throws URISyntaxException, IOException, InterruptedException {
+    private void addBookToPane(Pane pane) {
 
         List<BookMeta> books = new ArrayList<>();
 
@@ -371,12 +367,7 @@ public class MainWindowController implements Initializable {
             mainVBox.getChildren().remove(webView);
             mainVBox.getChildren().remove(runTestPane);
             mainVBox.getChildren().add(mainToolBar);
-            try {
-                drawMainPane();
-            } catch (URISyntaxException | IOException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
+            drawMainPane();
         });
         readModeToolBar.getItems().add(btnBack);
 
@@ -466,16 +457,13 @@ public class MainWindowController implements Initializable {
         scrollPane.setFitToWidth(true);
         VBox runTestBox = new VBox();
         runTestBox.setSpacing(25);
-        runTestBox.setPadding(new Insets(100, 385, 25, 385));
+        runTestBox.setPadding(new Insets(20, 385, 25, 385));
         runTestBox.setAlignment(Pos.CENTER);
-        Label label = new Label(test.getName());
-        Pane pane = new Pane();
-        HBox.setHgrow(pane, Priority.ALWAYS);
-        //Button btnResetAndBack = new Button("Сбросить тест\nи вернуться к книге");
+        Label label = new Label("Тест");
+        label.setStyle("-fx-font-weight: bold;");
         HBox headerBox = new HBox();
-
-        headerBox.setPadding(new Insets(25));
-        //headerBox.getChildren().addAll(label, pane, btnResetAndBack);
+        headerBox.setPadding(new Insets(25, 0, 0, 0));
+        headerBox.getChildren().add(label);
         runTestBox.getChildren().add(headerBox);
 
         test.getSections().forEach(testSection -> {
@@ -550,11 +538,7 @@ public class MainWindowController implements Initializable {
                     dialog2.close();
                     mainVBox.getChildren().clear();
                     mainVBox.getChildren().add(mainToolBar);
-                    try {
-                        drawMainPane();
-                    } catch (URISyntaxException | IOException | InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                    drawMainPane();
                 });
                 hBox.getChildren().addAll(btnCancel, btnOk);
                 vBox.getChildren().add(hBox);
@@ -594,7 +578,9 @@ public class MainWindowController implements Initializable {
         resetButton.getStyleClass().add("btn-reset");
         resetButton.setPrefHeight(61);
         resetButton.setOnAction(event -> {
-
+            mainVBox.getChildren().clear();
+            mainVBox.getChildren().add(mainToolBar);
+            drawMainPane();
         });
 
         Button button = new Button();
@@ -639,11 +625,7 @@ public class MainWindowController implements Initializable {
             mainVBox.getChildren().remove(toolBar);
             mainVBox.getChildren().remove(splitPane);
             mainVBox.getChildren().add(mainToolBar);
-            try {
-                drawMainPane();
-            } catch (URISyntaxException | InterruptedException | IOException e) {
-                throw new RuntimeException(e);
-            }
+            drawMainPane();
         });
         toolBar.getItems().add(backButton);
 

@@ -73,8 +73,31 @@
     -fx-background-color: #9584E0;
 }
 
+.reg-dialog-text-field {
+    -fx-text-fill: #FBFBFD;
+    -fx-prompt-text-fill: #FBFBFD80;
+    -fx-background-color: #554BA3;
+}
+
+.reg-dialog-choice-box {
+    -fx-background-color: #554BA3;
+    -fx-text-origin: #FBFBFD;
+    -fx-background-radius: 10;
+}
+
+.reg-dialog-choice-box .label {
+    -fx-text-fill: #FBFBFD;
+}
+
+.reg-dialog-choice-box .context-menu {
+    -fx-text-fill: #FBFBFD;
+    -fx-background-color: #554BA3;
+    -fx-background-radius: 10;
+}
+
 .run-test-section {
     -fx-background-color: #66999933;
+    -fx-background-radius: 10;
 }
 
 .btn-end {

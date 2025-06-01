@@ -4,31 +4,34 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<VBox styleClass="reg-dialog" alignment="CENTER" prefHeight="300.0" prefWidth="500.0" spacing="15.0"
+<?import javafx.scene.text.Text?>
+<VBox styleClass="reg-dialog" alignment="CENTER" prefHeight="300.0" prefWidth="850.0" spacing="25.0"
       xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ru.kate.ebook.controllers.RegDialogController">
     <children>
-        <Label text="РЕГИСТРАЦИЯ"/>
-        <TextField fx:id="txtLastName" styleClass="auth-dialog-text-field" promptText="фамилия"/>
-        <TextField fx:id="txtName" styleClass="auth-dialog-text-field" promptText="имя"/>
-        <TextField fx:id="txtMiddleName" styleClass="auth-dialog-text-field" promptText="отчество (по желанию)"/>
-        <TextField fx:id="txtEmail" styleClass="auth-dialog-text-field" promptText="email"/>
-        <TextField fx:id="txtLogin" styleClass="auth-dialog-text-field" promptText="логин"/>
-        <PasswordField fx:id="txtPassword" styleClass="auth-dialog-text-field" promptText="пароль"/>
-        <PasswordField fx:id="txtRepeatPassword" styleClass="auth-dialog-text-field" promptText="повторить пароль"/>
-        <HBox prefHeight="100.0" prefWidth="200.0">
+        <Label style="-fx-font-weight: bold" text="Регистрация"/>
+        <TextField fx:id="txtLastName" styleClass="reg-dialog-text-field" promptText="Фамилия"/>
+        <TextField fx:id="txtName" styleClass="reg-dialog-text-field" promptText="Имя"/>
+        <TextField fx:id="txtMiddleName" styleClass="reg-dialog-text-field" promptText="Отчество (по желанию)"/>
+        <TextField fx:id="txtEmail" styleClass="reg-dialog-text-field" promptText="email"/>
+        <TextField fx:id="txtLogin" styleClass="reg-dialog-text-field" promptText="Логин"/>
+        <PasswordField fx:id="txtPassword" styleClass="reg-dialog-text-field" promptText="Пароль"/>
+        <PasswordField fx:id="txtRepeatPassword" styleClass="reg-dialog-text-field" promptText="Повторить пароль"/>
+        <HBox prefHeight="100.0" prefWidth="200.0" spacing="40">
             <children>
                 <Label text="Роль:">
                     <HBox.margin>
                         <Insets right="10.0"/>
                     </HBox.margin>
                 </Label>
-                <ChoiceBox fx:id="chbRole"/>
+                <ChoiceBox fx:id="chbRole" styleClass="reg-dialog-choice-box" prefWidth="380"/>
             </children>
         </HBox>
-        <Button fx:id="btnReg" mnemonicParsing="false" onAction="#handleBtnReg" text="ЗАРЕГИСТРИРОВАТЬСЯ"/>
+        <Text text=""/>
+        <Button fx:id="btnReg" style="-fx-background-color: #FBFBFD; -fx-text-fill: #554BA3;" mnemonicParsing="false"
+                onAction="#handleBtnReg" text="Зарегистрироваться"/>
     </children>
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+        <Insets bottom="20.0" left="180.0" right="180.0" top="25.0"/>
     </padding>
 </VBox>

@@ -65,7 +65,7 @@ public class RegDialogController extends EbController {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        chbRole.getItems().addAll("Студент", "Преподаватель");
+        chbRole.getItems().addAll("Студент", "Преподаватель                      ");
         chbRole.setValue("Студент");
     }
 
