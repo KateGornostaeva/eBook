@@ -63,9 +63,6 @@ public class MainWindowController implements Initializable {
     public ToolBar mainToolBar;
 
     @FXML
-    private Button btnOpen;
-
-    @FXML
     private Button btnHome;
 
     @FXML
@@ -113,19 +110,7 @@ public class MainWindowController implements Initializable {
             }
         });
 
-        //btnUser.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("user.png"))));
         btnSettings.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("setting.png"))));
-    }
-
-    @FXML
-    //действие на кнопку возврата из режима чтения учебника
-    public void handleBack(ActionEvent actionEvent) throws URISyntaxException, IOException, InterruptedException {
-        btnOpen.setVisible(true);
-        btnOpen.setPrefWidth(-1.0);
-        btnListOrGrid.setDisable(false);
-        mainVBox.getChildren().remove(sPane);
-        mainVBox.getChildren().remove(webView);
-        drawMainPane();
     }
 
     /**
@@ -236,7 +221,6 @@ public class MainWindowController implements Initializable {
             label.setPrefWidth(txtSearch.getWidth());
             label.setPrefHeight(txtSearch.getHeight() * 1.7);
             label.setStyle("-fx-background-color: #669999;");
-            //label.set
             label.setPadding(new Insets(10, 10, 10, 50));
             popup.getScene().setRoot(label);
             popup.show(txtSearch.getScene().getWindow());
@@ -494,7 +478,7 @@ public class MainWindowController implements Initializable {
                 btnCancel.setPrefWidth(200);
                 Button btnOk = new Button("Завершить");
                 btnOk.setPrefWidth(200);
-                btnOk.setStyle("-fx-background-color: #554BA3;");
+                btnOk.setStyle("-fx-background-color: #554BA3; -fx-text-fill: #FBFBFD");
                 btnOk.setOnAction(event1 -> {
                     dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
                     dialog.close();
@@ -532,7 +516,7 @@ public class MainWindowController implements Initializable {
                 });
                 Button btnOk = new Button("Завершить");
                 btnOk.setPrefWidth(200);
-                btnOk.setStyle("-fx-background-color: #554BA3;");
+                btnOk.setStyle("-fx-background-color: #554BA3; -fx-text-fill: #FBFBFD");
                 btnOk.setOnAction(event1 -> {
                     dialog2.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
                     dialog2.close();
@@ -600,13 +584,21 @@ public class MainWindowController implements Initializable {
      */
     private ToolBar buildEditTestToolBar(File file, BookMeta meta) {
         ToolBar toolBar = new ToolBar();
+        toolBar.setStyle("-fx-background-color: #9584E0;");
         Button localSaveButton = new Button("Сохранить\nлокально");
+        localSaveButton.setAlignment(Pos.CENTER);
+        localSaveButton.setStyle("-fx-line-spacing: -10;");
+        localSaveButton.setPadding(new Insets(0, 20, 0, 20));
+        localSaveButton.setMaxHeight(60);
         localSaveButton.setOnAction(event -> {
             localSaveAction(file, meta, testsBox);
         });
-        toolBar.getItems().add(localSaveButton);
 
         Button serverSaveButton = new Button("Сохранить и\nопубликовать");
+        serverSaveButton.setAlignment(Pos.CENTER);
+        serverSaveButton.setStyle("-fx-line-spacing: -10;");
+        serverSaveButton.setPadding(new Insets(0, 20, 0, 20));
+        serverSaveButton.setMaxHeight(60);
         serverSaveButton.setOnAction(event -> {
             serverSaveAction(file, ctx, testsBox);
         });
@@ -615,11 +607,11 @@ public class MainWindowController implements Initializable {
         } else {
             serverSaveButton.setDisable(true);
         }
-        toolBar.getItems().add(serverSaveButton);
 
         ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("back.png")));
         iv.setPreserveRatio(true);
         Button backButton = new Button();
+        backButton.setPrefHeight(60);
         backButton.setGraphic(iv);
         backButton.setOnAction(event -> {
             mainVBox.getChildren().remove(toolBar);
@@ -627,8 +619,7 @@ public class MainWindowController implements Initializable {
             mainVBox.getChildren().add(mainToolBar);
             drawMainPane();
         });
-        toolBar.getItems().add(backButton);
-
+        toolBar.getItems().addAll(backButton, localSaveButton, serverSaveButton);
 
         return toolBar;
     }
@@ -647,6 +638,9 @@ public class MainWindowController implements Initializable {
             //заполняем редактор тестов данными
         } else {
             Button addTest = new Button("Создать тест");
+            addTest.setPrefWidth(250);
+            addTest.setMaxHeight(80);
+            addTest.getStyleClass().add("btn-add-test");
             StackPane stackPane = new StackPane();
             stackPane.setAlignment(Pos.CENTER); // Центрируем содержимое
             stackPane.getChildren().add(addTest);
@@ -702,8 +696,6 @@ public class MainWindowController implements Initializable {
         });
 
         testsBox.getChildren().add(newQuestionButton);
-
-
         testsBox.getChildren().add(delAllTest);
         testsBox.setAlignment(Pos.CENTER);
     }

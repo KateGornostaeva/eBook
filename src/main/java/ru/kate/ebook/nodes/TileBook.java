@@ -155,7 +155,7 @@ public class TileBook extends AnchorPane {
                 hBox.setSpacing(25);
                 Button btnOk = new Button("OK");
                 btnOk.setPrefWidth(200);
-                btnOk.setStyle("-fx-background-color: #554BA3;");
+                btnOk.setStyle("-fx-background-color: #554BA3;  -fx-text-fill: #FBFBFD");
                 btnOk.setOnAction(event1 -> {
                     dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
                     dialog.close();

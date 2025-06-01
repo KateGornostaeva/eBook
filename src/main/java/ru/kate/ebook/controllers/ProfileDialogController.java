@@ -52,9 +52,7 @@ public class ProfileDialogController extends EbController {
         Button btnUser = (Button) ctx.getMainScene().lookup("#btnUser");
         btnUser.setGraphic(null);
         btnUser.setText("Войти");
-        /*EbModal authDialog = new EbModal(null, "auth-dialog", ctx);
-        AuthDialogController controller = (AuthDialogController) authDialog.getController();
-        controller.setStage(authDialog);
-        authDialog.show();*/
+        Button btnDraftAndPublished = (Button) ctx.getMainScene().lookup("#btnDraftAndPublished");
+        btnDraftAndPublished.setVisible(false);
     }
 }

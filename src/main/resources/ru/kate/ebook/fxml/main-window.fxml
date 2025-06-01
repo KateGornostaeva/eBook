@@ -12,12 +12,13 @@
                 <Button fx:id="btnOpen" prefHeight="61" prefWidth="185" mnemonicParsing="false"
                         onAction="#handleOpenFile"
                         text="Открыть"/>
-                <Button fx:id="btnHome" prefHeight="61" prefWidth="100" mnemonicParsing="false" onAction="#handleHome"/>
-                <Button fx:id="btnDraftAndPublished" prefHeight="61" prefWidth="100" mnemonicParsing="false"
-                        onAction="#handleDraftAndPublished"/>
-
+                <Button fx:id="btnHome" style="-fx-background-color: #554BA3;" prefHeight="61" prefWidth="100"
+                        mnemonicParsing="false" onAction="#handleHome"/>
                 <Button fx:id="btnListOrGrid" prefHeight="61" prefWidth="100" mnemonicParsing="false"
                         onAction="#handleSwitchList"/>
+                <Button fx:id="btnDraftAndPublished" prefHeight="61" prefWidth="100" mnemonicParsing="false"
+                        visible="false"
+                        onAction="#handleDraftAndPublished"/>
                 <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true"/>
                 <TextField fx:id="txtSearch" styleClass="search-field" HBox.hgrow="ALWAYS"/>
                 <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true"/>

@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import ru.kate.ebook.configuration.Role;
 import ru.kate.ebook.exceptions.WrongAuthorisation;
 import ru.kate.ebook.nodes.EbModal;
 
@@ -52,6 +53,11 @@ public class AuthDialogController extends EbController {
             }
             ctx.setConnected(true);
             ctx.setRole(ctx.getNetwork().getRole());
+
+            if (ctx.getRole().equals(Role.ROLE_TEACHER)) {
+                Button btnDraftAndPublished = (Button) ctx.getMainScene().lookup("#btnDraftAndPublished");
+                btnDraftAndPublished.setVisible(true);
+            }
 
             Button btnUser = (Button) ctx.getMainScene().lookup("#btnUser");
             btnUser.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("user.png"))));

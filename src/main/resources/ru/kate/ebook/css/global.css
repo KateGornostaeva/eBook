@@ -116,6 +116,11 @@
     -fx-text-fill: #FBFBFD;
 }
 
+.btn-add-test {
+    -fx-background-color: #336666;
+    -fx-text-fill: #FBFBFD;
+}
+
 .edit-test-section-box {
     -fx-background-radius: 10;
     -fx-background-color: #66999933;
