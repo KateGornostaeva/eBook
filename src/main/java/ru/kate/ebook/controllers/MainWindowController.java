@@ -682,6 +682,11 @@ public class MainWindowController implements Initializable {
             testsBox.getChildren().add(new EditTestSectionBox(null));
         }
 
+        Button delAllTest = new Button("Удалить весь тест");
+        delAllTest.setOnAction(event -> {
+            drawEditTestPane(rightPane, null);
+        });
+
         ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(32);
@@ -690,16 +695,15 @@ public class MainWindowController implements Initializable {
         newQuestionButton.setGraphic(imageView);
         newQuestionButton.setOnAction(event1 -> {
             testsBox.getChildren().remove(newQuestionButton);
+            testsBox.getChildren().remove(delAllTest);
             testsBox.getChildren().add(new EditTestSectionBox(null));
             testsBox.getChildren().add(newQuestionButton);
+            testsBox.getChildren().add(delAllTest);
         });
 
         testsBox.getChildren().add(newQuestionButton);
 
-        Button delAllTest = new Button("Удалить весь тест");
-        delAllTest.setOnAction(event -> {
-            drawEditTestPane(rightPane, null);
-        });
+
         testsBox.getChildren().add(delAllTest);
         testsBox.setAlignment(Pos.CENTER);
     }

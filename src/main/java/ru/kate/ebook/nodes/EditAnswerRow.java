@@ -83,7 +83,7 @@ public class EditAnswerRow extends HBox {
     }
 
     private Button buildDelRowButton() {
-        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("garbage-can.png")));
+        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("close.png")));
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(16);
         Button delButton = new Button();
