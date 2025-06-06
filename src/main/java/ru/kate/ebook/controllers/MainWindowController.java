@@ -204,7 +204,38 @@ public class MainWindowController implements Initializable {
         final double screenX = Math.round(scene.getWindow().getX() + sceneCoord.getX() + nodeCoord.getX());
         final double screenY = Math.round(scene.getWindow().getY() + sceneCoord.getY() + nodeCoord.getY());
 
-        List<BookDto> bookDtos = ctx.getNetwork().searchBooks(txtSearch.getText());
+        List<BookDto> bookDtos = new ArrayList<>();
+        try {
+            bookDtos = ctx.getNetwork().searchBooks(txtSearch.getText());
+        } catch (Exception e) {
+            //если сервер вернул ошибку, то нет интернета
+            PopupControl popup = new PopupControl();
+            popup.setMinHeight(64);
+            popup.setAutoHide(true);
+            popup.setAutoFix(true);
+            popup.setX(screenX);
+            popup.setY(screenY + 65);
+
+            PauseTransition wait = new PauseTransition(Duration.seconds(3));
+            wait.setOnFinished(e1 -> {
+                // Затем начинаем плавное затухание
+                FadeTransition fade = new FadeTransition(Duration.seconds(1));
+                fade.setFromValue(1.0);
+                fade.setToValue(0.0);
+                fade.setOnFinished(fadeEvent -> popup.hide());
+                fade.play();
+            });
+
+            Label label = new Label("Подключитесь к интернету для поиска учебника на сервере приложения");
+            label.setPrefWidth(txtSearch.getWidth());
+            label.setPrefHeight(txtSearch.getHeight() * 1.7);
+            label.setStyle("-fx-background-color: #669999;");
+            label.setPadding(new Insets(10, 10, 10, 50));
+            popup.getScene().setRoot(label);
+            popup.show(txtSearch.getScene().getWindow());
+            wait.play();
+            return;
+        }
         if (bookDtos.isEmpty()) {
             PopupControl popup = new PopupControl();
             popup.setMinHeight(64);

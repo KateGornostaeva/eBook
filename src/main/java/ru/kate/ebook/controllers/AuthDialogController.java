@@ -2,13 +2,16 @@ package ru.kate.ebook.controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.configuration.Role;
@@ -30,7 +33,7 @@ public class AuthDialogController extends EbController {
     private PasswordField txtPassword;
 
     @FXML
-    private Button exitButton;
+    private Button btnEnter;
 
     @Setter
     private Stage stage;
@@ -43,8 +46,7 @@ public class AuthDialogController extends EbController {
         stage.close();
     }
 
-    @FXML
-    private void handleBtnEnter(ActionEvent event) {
+    private void processBtnEnter(ActionEvent event) {
         try {
             if (txtUserName.getText().isEmpty() || txtPassword.getText().isEmpty()) {
                 ctx.getNetwork().login();
@@ -63,23 +65,48 @@ public class AuthDialogController extends EbController {
             btnUser.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("user.png"))));
             btnUser.setText("");
             ctx.getMainWindowController().drawMainPane();
+            stage.close();
         } catch (URISyntaxException | IOException | InterruptedException e) {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();
         } catch (WrongAuthorisation e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Wrong Username or Password");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            event.consume();
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.initStyle(StageStyle.UNDECORATED);
+            dialog.initOwner(ctx.getMainScene().getWindow());
+            dialog.getDialogPane().setStyle("-fx-background-color: #9584E0;");
+            VBox vBox = new VBox();
+            vBox.setAlignment(Pos.CENTER);
+            vBox.setPadding(new Insets(25));
+            vBox.setSpacing(35);
+            Text text = new Text("Не правильное имя или пароль");
+            Text text1 = new Text("Попробуйте ещё раз");
+            HBox hBox = new HBox();
+            hBox.setAlignment(Pos.CENTER);
+            hBox.setSpacing(25);
+            Button btnOk = new Button("  OK  ");
+            btnOk.setPrefWidth(200);
+            btnOk.setStyle("-fx-background-color: #554BA3; -fx-text-fill: white");
+            btnOk.setOnAction(event1 -> {
+                dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+                dialog.close();
+            });
+            hBox.getChildren().addAll(btnOk);
+            vBox.getChildren().addAll(text, text1, hBox);
+            dialog.getDialogPane().setContent(vBox);
+            dialog.showAndWait();
         }
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         txtPassword.setOnAction(actionEvent -> {
-            handleBtnEnter(actionEvent);
-            stage.close();
+            processBtnEnter(actionEvent);
+        });
+
+        btnEnter.addEventFilter(ActionEvent.ACTION, event -> {
+            processBtnEnter(event);
+            event.consume();
         });
     }
 }

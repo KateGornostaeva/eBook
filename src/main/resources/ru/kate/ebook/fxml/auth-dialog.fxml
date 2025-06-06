@@ -15,7 +15,7 @@
         <PasswordField styleClass="auth-dialog-text-field" prefWidth="650" fx:id="txtPassword" alignment="CENTER"
                        promptText="Пароль">
         </PasswordField>
-        <Button mnemonicParsing="false" prefWidth="350" onAction="#handleBtnEnter" text="Войти"/>
+        <Button fx:id="btnEnter" mnemonicParsing="false" prefWidth="350" text="Войти"/>
         <Label text=""/>
         <Button fx:id="exitButton" prefWidth="490" mnemonicParsing="false" onAction="#handleBtnReg"
                 text="Зарегистрироваться"/>

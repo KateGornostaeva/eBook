@@ -111,28 +111,69 @@ public class TileBook extends AnchorPane {
             icon = new ImageView(new Image(getClass().getResourceAsStream("onServer.png")));
 
             paneIcon.setOnMouseClicked(e -> {
+                e.consume();
                 Dialog<ButtonType> dialog = new Dialog<>();
+                dialog.initOwner(controller.getCtx().getMainScene().getWindow());
                 dialog.initStyle(StageStyle.UNDECORATED);
-                dialog.setTitle("(!)");
-                dialog.setHeaderText("Вы уверены, что хотите скачать\nучебник?");
-                dialog.setContentText("Учебник будет сохранён\nлокально");
-                dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-                Optional<ButtonType> result = dialog.showAndWait();
-                if (result.get() == ButtonType.OK) {
+                dialog.getDialogPane().setStyle("-fx-background-color: #9584E0;");
+                VBox vBox = new VBox();
+                vBox.setAlignment(Pos.CENTER);
+                vBox.setPadding(new Insets(25));
+                vBox.setSpacing(35);
+                Text text = new Text("Вы уверены, что хотите скачать учебник?");
+                Text text1 = new Text("Учебник будет сохранён локально");
+                HBox hBox = new HBox();
+                hBox.setAlignment(Pos.CENTER);
+                hBox.setSpacing(25);
+                Button btnOk = new Button("  OK  ");
+                btnOk.setPrefWidth(200);
+                btnOk.setStyle("-fx-background-color: #554BA3; -fx-text-fill: white");
+                btnOk.setOnAction(event1 -> {
                     try {
                         File downloadedZipFile = controller.getCtx().getNetwork().downloadZipFile(meta.getId());
                         Files.copy(downloadedZipFile.toPath(), Path.of(LocalStore.PATH + downloadedZipFile.getName()), StandardCopyOption.REPLACE_EXISTING);
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setHeaderText("Учебник успешно скопирован");
-                        alert.showAndWait();
+                        Dialog<ButtonType> dialog2 = new Dialog<>();
+                        dialog2.initOwner(controller.getCtx().getMainScene().getWindow());
+                        dialog2.initStyle(StageStyle.UNDECORATED);
+                        dialog2.getDialogPane().setStyle("-fx-background-color: #9584E0;");
+                        VBox vBox2 = new VBox();
+                        vBox2.setAlignment(Pos.CENTER);
+                        vBox2.setPadding(new Insets(25));
+                        vBox2.setSpacing(35);
+                        Text text7 = new Text("Учебник успешно скачен");
+                        HBox hBox2 = new HBox();
+                        hBox2.setAlignment(Pos.CENTER);
+                        hBox2.setSpacing(25);
+                        Button btnOk2 = new Button("  OK  ");
+                        btnOk2.setPrefWidth(200);
+                        btnOk2.setStyle("-fx-background-color: #554BA3; -fx-text-fill: white");
+                        btnOk2.setOnAction(event2 -> {
+                            dialog2.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+                            dialog2.close();
+                        });
+                        hBox2.getChildren().addAll(btnOk2);
+                        vBox2.getChildren().addAll(text7, hBox2);
+                        dialog2.getDialogPane().setContent(vBox2);
+                        dialog2.showAndWait();
                         controller.drawMainPane();
                     } catch (URISyntaxException | IOException | InterruptedException ex) {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setHeaderText(ex.getMessage());
                         alert.showAndWait();
                     }
-                }
-                e.consume();
+                    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+                    dialog.close();
+                });
+                Button btnCancel = new Button("  Cancel  ");
+                btnCancel.setPrefWidth(200);
+                btnCancel.setOnAction(event1 -> {
+                    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+                    dialog.close();
+                });
+                hBox.getChildren().addAll(btnCancel, btnOk);
+                vBox.getChildren().addAll(text, text1, hBox);
+                dialog.getDialogPane().setContent(vBox);
+                dialog.showAndWait();
             });
 
         }
@@ -145,7 +186,7 @@ public class TileBook extends AnchorPane {
                 Dialog<ButtonType> dialog = new Dialog<>();
                 dialog.initStyle(StageStyle.UNDECORATED);
                 dialog.initOwner(controller.getCtx().getMainScene().getWindow());
-                dialog.getDialogPane().setPrefWidth(200);
+                //dialog.getDialogPane().setPrefWidth(200);
                 dialog.getDialogPane().setStyle("-fx-background-color: #9584E0;");
                 VBox vBox = new VBox();
                 vBox.setAlignment(Pos.CENTER);
