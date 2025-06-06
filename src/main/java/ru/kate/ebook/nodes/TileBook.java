@@ -8,6 +8,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import javafx.stage.StageStyle;
 import lombok.Getter;
 import ru.kate.ebook.configuration.Role;
 import ru.kate.ebook.controllers.MainWindowController;
@@ -111,6 +112,7 @@ public class TileBook extends AnchorPane {
 
             paneIcon.setOnMouseClicked(e -> {
                 Dialog<ButtonType> dialog = new Dialog<>();
+                dialog.initStyle(StageStyle.UNDECORATED);
                 dialog.setTitle("(!)");
                 dialog.setHeaderText("Вы уверены, что хотите скачать\nучебник?");
                 dialog.setContentText("Учебник будет сохранён\nлокально");
@@ -141,6 +143,7 @@ public class TileBook extends AnchorPane {
 
             paneIcon.setOnMouseClicked(e -> {
                 Dialog<ButtonType> dialog = new Dialog<>();
+                dialog.initStyle(StageStyle.UNDECORATED);
                 dialog.initOwner(controller.getCtx().getMainScene().getWindow());
                 dialog.getDialogPane().setPrefWidth(200);
                 dialog.getDialogPane().setStyle("-fx-background-color: #9584E0;");
@@ -267,6 +270,7 @@ public class TileBook extends AnchorPane {
             btnDel.setOnAction(e -> {
                 try {
                     Dialog<ButtonType> dialog = new Dialog<>();
+                    dialog.initStyle(StageStyle.UNDECORATED);
                     dialog.setTitle("(!)");
                     dialog.setHeaderText("Вы уверены, что хотите удалить\nчерновик?");
                     dialog.setContentText("После удаления его нельзя будет\nвосстановить");

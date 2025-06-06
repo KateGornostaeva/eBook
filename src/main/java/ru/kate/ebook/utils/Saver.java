@@ -2,12 +2,12 @@ package ru.kate.ebook.utils;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.PopupControl;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.StageStyle;
 import lombok.extern.slf4j.Slf4j;
 import ru.kate.ebook.Context;
 import ru.kate.ebook.localStore.BookMeta;
@@ -25,6 +25,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class Saver {
@@ -49,17 +50,55 @@ public class Saver {
             meta.setIsTestIn(Boolean.TRUE);
         }
 
-        TextInputDialog textInputDialog;
+        AtomicBoolean terminate = new AtomicBoolean(false);
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.initStyle(StageStyle.UNDECORATED);
+        //dialog.initOwner(ctx.getMainScene().getWindow());
+        dialog.getDialogPane().setStyle("-fx-background-color: #9584E0; -fx-font-size: 24px;\n" +
+                "    -fx-background-radius: 10;");
+        VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setPadding(new Insets(25));
+        vBox.setSpacing(35);
+        Text text = new Text("Для сохранения черновика");
+        Text text1 = new Text("введите название");
+        TextField textField = new TextField();
+        textField.setStyle("-fx-background-radius: 10; -fx-prompt-text-fill: #FBFBFD80;");
         if (meta.getTitle() != null && !meta.getTitle().isEmpty()) {
-            textInputDialog = new TextInputDialog(meta.getTitle());
+            textField.setPromptText(meta.getTitle());
         } else {
-            textInputDialog = new TextInputDialog("Название черновика");
+            textField.setPromptText("Название черновика");
         }
-        textInputDialog.setHeaderText("Для сохранения черновика\nвведите название");
-        textInputDialog.getEditor().setPrefWidth(300);
-        Optional<String> result = textInputDialog.showAndWait();
+        HBox hBox = new HBox();
+        hBox.setAlignment(Pos.CENTER);
+        hBox.setSpacing(25);
+        Button btnOk = new Button(" Сохранить ");
+        btnOk.setPrefWidth(200);
+        btnOk.setStyle("-fx-background-color: #554BA3; -fx-text-fill: white; -fx-background-radius: 10;");
+        btnOk.setOnAction(event1 -> {
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+            dialog.close();
+        });
+        Button btnCancel = new Button("   Отмена   ");
+        btnCancel.setPrefWidth(200);
+        btnCancel.setStyle("-fx-background-radius: 10;");
+        btnCancel.setOnAction(event1 -> {
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+            dialog.close();
+            terminate.set(true);
+        });
+        hBox.getChildren().addAll(btnCancel, btnOk);
+        vBox.getChildren().addAll(text, text1, textField, hBox);
+        dialog.getDialogPane().setContent(vBox);
+        dialog.showAndWait();
+
+        if (terminate.get()) {
+            return;
+        }
+
         //запись названия учебника
-        result.ifPresent(meta::setTitle);
+        meta.setTitle(textField.getText());
 
         try {
             File fileCover = Path.of(Objects.requireNonNull(Saver.class.getResource("draft.png")).toURI()).toFile();
@@ -77,11 +116,31 @@ public class Saver {
 
         Test test = getTest(testsBox);
         if (test == null || !test.isCompleted()) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setContentText("Учебник не может быть опубликован на сервер\n" +
-                    "\n" +
-                    "Пожалуйста, проверьте все ли вопросы доделаны и все ли ответы отмечены ");
-            alert.showAndWait();
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.initStyle(StageStyle.UNDECORATED);
+            dialog.initOwner(ctx.getMainScene().getWindow());
+            //dialog.getDialogPane().setPrefWidth(500);
+            dialog.getDialogPane().setStyle("-fx-background-color: #9584E0;");
+            VBox vBox = new VBox();
+            vBox.setAlignment(Pos.CENTER);
+            vBox.setPadding(new Insets(25));
+            vBox.setSpacing(35);
+            Text text = new Text("Учебник не может быть опубликован на сервер");
+            Text text1 = new Text("Пожалуйста, проверьте все ли вопросы доделаны и все ли ответы отмечены");
+            HBox hBox = new HBox();
+            hBox.setAlignment(Pos.CENTER);
+            hBox.setSpacing(25);
+            Button btnOk = new Button("  OK  ");
+            btnOk.setPrefWidth(200);
+            btnOk.setStyle("-fx-background-color: #554BA3; -fx-text-fill: white");
+            btnOk.setOnAction(event1 -> {
+                dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+                dialog.close();
+            });
+            hBox.getChildren().addAll(btnOk);
+            vBox.getChildren().addAll(text, text1, hBox);
+            dialog.getDialogPane().setContent(vBox);
+            dialog.showAndWait();
             return;
         }
 

@@ -68,7 +68,9 @@ public class ProcessBook {
                         if (images != null) {
                             for (Image image : images) {
                                 String name = image.getValue().replace("#", "");
+                                sb.append("<div align=\"center\">");
                                 sb.append("<img src=\"file:" + File.separator + File.separator + tempDir.toString() + File.separator + name + "\">");
+                                sb.append("</div>");
                             }
                         } else {
                             sb.append("<p>");
@@ -186,6 +188,9 @@ public class ProcessBook {
         sb.append("<title>");
         sb.append(title);
         sb.append("</title>");
+        sb.append("<style type=\"text/css\">");
+        sb.append("body {font-size: 200%;}");
+        sb.append("</style>");
         sb.append("</head>");
         sb.append("<body>");
         return sb.toString();

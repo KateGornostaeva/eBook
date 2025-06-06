@@ -23,6 +23,7 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -125,17 +126,18 @@ public class MainWindowController implements Initializable {
         mainVBox.getChildren().remove(sPane);
         sPane = new ScrollPane();
         sPane.setPrefWidth(mainVBox.getWidth());
+        sPane.setPrefHeight(mainVBox.getHeight() - 100);
         mainVBox.getChildren().add(sPane);
         VBox.setVgrow(sPane, Priority.ALWAYS);
 
         if (grid) {
             FlowPane flowPane = new FlowPane();
-            flowPane.setOrientation(Orientation.VERTICAL);
+            flowPane.setOrientation(Orientation.HORIZONTAL);
             flowPane.setVgap(50);
             flowPane.setHgap(50);
             flowPane.setPadding(new Insets(50, 50, 50, 85));
-            flowPane.setPrefWidth(sPane.getWidth());
-            flowPane.setPrefHeight(sPane.getHeight());
+            flowPane.setPrefWidth(1890);
+            //flowPane.setPrefHeight(900);
             addBookToPane(flowPane);
             sPane.setContent(flowPane);
             btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("list.png"))));
@@ -473,6 +475,7 @@ public class MainWindowController implements Initializable {
 
             if (CheckTest.finishCheck(runTestSectionBoxes)) {
                 Dialog<ButtonType> dialog = new Dialog<>();
+                dialog.initStyle(StageStyle.UNDECORATED);
                 dialog.initOwner(ctx.getMainScene().getWindow());
                 dialog.getDialogPane().setPrefWidth(500);
                 dialog.getDialogPane().setStyle("-fx-background-color: #9584E0;");
@@ -505,6 +508,7 @@ public class MainWindowController implements Initializable {
                 dialog.showAndWait();
             } else {
                 Dialog<ButtonType> dialog2 = new Dialog<>();
+                dialog2.initStyle(StageStyle.UNDECORATED);
                 dialog2.getDialogPane().setPrefWidth(500);
                 dialog2.getDialogPane().setStyle("-fx-background-color: #9584E0;");
                 dialog2.initOwner(ctx.getMainScene().getWindow());
@@ -556,13 +560,45 @@ public class MainWindowController implements Initializable {
         returnButton.setPrefWidth(100);
         returnButton.setPrefHeight(61);
         returnButton.setOnAction(event -> {
-            mainVBox.getChildren().clear();
-            try {
-                readMode(file, meta);
-            } catch (IOException | NotSupportedExtension | SQLException | WrongFileFormat e) {
-                throw new RuntimeException(e);
-            }
 
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.initOwner(ctx.getMainScene().getWindow());
+            dialog.initStyle(StageStyle.UNDECORATED);
+            dialog.getDialogPane().setStyle("-fx-background-color: #9584E0;");
+            VBox vBox = new VBox();
+            vBox.setAlignment(Pos.CENTER);
+            vBox.setPadding(new Insets(25));
+            vBox.setSpacing(25);
+            Text text = new Text("Вы уверены, что хотите выйти на");
+            Text text1 = new Text("главный экран?");
+            Label text2 = new Label("Все выбранные ответы сбросятся");
+            text2.setStyle("-fx-font-size: 20;");
+            HBox hBox = new HBox();
+            hBox.setAlignment(Pos.CENTER);
+            hBox.setSpacing(25);
+            Button btnOk = new Button("   Выйти   ");
+            btnOk.setPrefWidth(200);
+            btnOk.setStyle("-fx-background-color: #554BA3; -fx-text-fill: white");
+            btnOk.setOnAction(event1 -> {
+                dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+                dialog.close();
+                mainVBox.getChildren().clear();
+                try {
+                    readMode(file, meta);
+                } catch (IOException | NotSupportedExtension | SQLException | WrongFileFormat e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            Button btnNo = new Button("  Отмена  ");
+            btnNo.setPrefWidth(200);
+            btnNo.setOnAction(event1 -> {
+                dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+                dialog.close();
+            });
+            hBox.getChildren().addAll(btnNo, btnOk);
+            vBox.getChildren().addAll(text, text1, text2, hBox);
+            dialog.getDialogPane().setContent(vBox);
+            dialog.showAndWait();
         });
 
         Pane pane = new Pane();
@@ -673,7 +709,7 @@ public class MainWindowController implements Initializable {
         rightPane.setFitToWidth(true);
         rightPane.setFitToHeight(true);
 
-        Label label = new Label("Редактирование теста");
+        Label label = new Label("Создание теста");
         label.setStyle("-fx-font-weight: bold");
         label.setStyle("-fx-font-size: 32px;");
         testsBox.getChildren().add(label);
@@ -687,14 +723,19 @@ public class MainWindowController implements Initializable {
         }
 
         Button delAllTest = new Button("Удалить весь тест");
+        delAllTest.setPrefWidth(350);
+        delAllTest.setStyle("-fx-background-color: #336666; -fx-text-fill: #FBFBFD");
         delAllTest.setOnAction(event -> {
             drawEditTestPane(rightPane, null);
         });
 
-        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("plus.png")));
+        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream("addNew.png")));
         imageView.setPreserveRatio(true);
         imageView.setFitHeight(32);
         Button newQuestionButton = new Button("Добавить вопрос");
+        newQuestionButton.setPrefWidth(960);
+        newQuestionButton.setAlignment(Pos.CENTER_LEFT);
+        newQuestionButton.setStyle("-fx-background-color: #66999933;");
         newQuestionButton.setContentDisplay(ContentDisplay.LEFT);
         newQuestionButton.setGraphic(imageView);
         newQuestionButton.setOnAction(event1 -> {

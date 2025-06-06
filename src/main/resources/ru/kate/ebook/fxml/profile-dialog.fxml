@@ -7,12 +7,12 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-      prefHeight="650.0" prefWidth="450.0" spacing="15.0" xmlns="http://javafx.com/javafx/22"
+      prefHeight="650.0" prefWidth="550.0" spacing="15.0" xmlns="http://javafx.com/javafx/22"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.kate.ebook.controllers.ProfileDialogController">
     <children>
-        <VBox spacing="20.0" styleClass="profile-top-box">
+        <VBox spacing="5.0" styleClass="profile-top-box">
             <children>
-                <HBox alignment="BASELINE_LEFT">
+                <HBox alignment="CENTER_LEFT">
                     <children>
                         <ImageView>
                             <Image url="@profile.png"/>
@@ -26,14 +26,14 @@
                 <Label fx:id="email"/>
             </children>
             <padding>
-                <Insets left="30.0" right="30.0" top="20.0" bottom="10.0"/>
+                <Insets left="30.0" right="30.0" top="30.0" bottom="30.0"/>
             </padding>
         </VBox>
 
-        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" text="Редактировать профиль"/>
-        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" text="Вход и безопасность"/>
-        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" text="Уведомления"/>
-        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="350.0" onAction="#exitHandler"
+        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="500.0" text="Редактировать профиль"/>
+        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="500.0" text="Вход и безопасность"/>
+        <Button styleClass="profile-button" mnemonicParsing="false" prefWidth="500.0" text="Уведомления"/>
+        <Button styleClass="profile-button-exit" mnemonicParsing="false" prefWidth="500.0" onAction="#exitHandler"
                 text="Выйти"/>
     </children>
     <padding>

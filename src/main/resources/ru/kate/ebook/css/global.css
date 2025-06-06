@@ -51,10 +51,16 @@
     -fx-background-radius: 10;
     -fx-background-color: #669999;
     -fx-text-fill: black;
+    -fx-font-weight: bold;
 }
 
 .profile-button {
     -fx-background-color: #9584E0;
+}
+
+.profile-button-exit {
+    -fx-background-color: #554BA3;
+    -fx-text-fill: #FBFBFD;
 }
 
 
