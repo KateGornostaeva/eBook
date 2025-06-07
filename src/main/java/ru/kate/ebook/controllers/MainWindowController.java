@@ -678,6 +678,9 @@ public class MainWindowController implements Initializable {
         serverSaveButton.setMaxHeight(60);
         serverSaveButton.setOnAction(event -> {
             serverSaveAction(file, ctx, testsBox);
+            mainVBox.getChildren().clear();
+            mainVBox.getChildren().add(mainToolBar);
+            drawMainPane();
         });
         if (ctx.isConnected()) {
             serverSaveButton.setDisable(false);

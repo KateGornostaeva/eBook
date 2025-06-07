@@ -302,7 +302,7 @@ public class Saver {
             PopupControl popup = new PopupControl();
             popup.setAutoFix(true);
             popup.setAutoHide(true);
-            popup.setPrefWidth(150);
+            popup.setPrefWidth(250);
             popup.getScene().setRoot(vbox);
             popup.show(ctx.getMainScene().getWindow());
         } catch (Exception e) {
