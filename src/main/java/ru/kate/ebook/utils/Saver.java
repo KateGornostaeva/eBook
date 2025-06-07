@@ -23,7 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -66,9 +65,9 @@ public class Saver {
         TextField textField = new TextField();
         textField.setStyle("-fx-background-radius: 10; -fx-prompt-text-fill: #FBFBFD80;");
         if (meta.getTitle() != null && !meta.getTitle().isEmpty()) {
-            textField.setPromptText(meta.getTitle());
+            textField.setText(meta.getTitle());
         } else {
-            textField.setPromptText("Название черновика");
+            textField.setText("Название черновика");
         }
         HBox hBox = new HBox();
         hBox.setAlignment(Pos.CENTER);
@@ -153,22 +152,141 @@ public class Saver {
             throw new RuntimeException(e);
         }
 
-        TextInputDialog textInputDialog = new TextInputDialog("Название учебника");
-        textInputDialog.setHeaderText("Для сохранения учебника\nвведите название");
-        textInputDialog.getEditor().setPrefWidth(300);
-        Optional<String> result = textInputDialog.showAndWait();
-        result.ifPresent(meta::setTitle);
+        AtomicBoolean terminate = new AtomicBoolean(false);
 
-        TextInputDialog textInputDialog1 = new TextInputDialog("Краткое описание");
-        textInputDialog1.setHeaderText("Введите краткое описание учебника");
-        textInputDialog1.getEditor().setPrefWidth(300);
-        Optional<String> result1 = textInputDialog1.showAndWait();
-        result1.ifPresent(meta::setDescription);
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.initStyle(StageStyle.UNDECORATED);
+        dialog.getDialogPane().setStyle("-fx-background-color: #9584E0; -fx-font-size: 24px;\n" +
+                "    -fx-background-radius: 10;");
+        VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setPadding(new Insets(25));
+        vBox.setSpacing(35);
+        Text text = new Text("Для сохранения учебника");
+        Text text1 = new Text("введите название");
+        TextField textField = new TextField();
+        textField.setStyle("-fx-background-radius: 10; -fx-prompt-text-fill: #FBFBFD80;");
+        if (meta.getTitle() != null && !meta.getTitle().isEmpty()) {
+            textField.setText(meta.getTitle());
+        } else {
+            textField.setText("Название учебника");
+        }
+        HBox hBox = new HBox();
+        hBox.setAlignment(Pos.CENTER);
+        hBox.setSpacing(25);
+        Button btnOk = new Button(" Сохранить ");
+        btnOk.setPrefWidth(200);
+        btnOk.setStyle("-fx-background-color: #554BA3; -fx-text-fill: white; -fx-background-radius: 10;");
+        btnOk.setOnAction(event1 -> {
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+            dialog.close();
+        });
+        Button btnCancel = new Button("   Отмена   ");
+        btnCancel.setPrefWidth(200);
+        btnCancel.setStyle("-fx-background-radius: 10;");
+        btnCancel.setOnAction(event1 -> {
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+            dialog.close();
+            terminate.set(true);
+        });
+        hBox.getChildren().addAll(btnCancel, btnOk);
+        vBox.getChildren().addAll(text, text1, textField, hBox);
+        dialog.getDialogPane().setContent(vBox);
+        dialog.showAndWait();
+
+        if (terminate.get()) {
+            return;
+        }
+        meta.setTitle(textField.getText());
+
+        Dialog<ButtonType> dialog2 = new Dialog<>();
+        dialog2.initStyle(StageStyle.UNDECORATED);
+        dialog2.getDialogPane().setStyle("-fx-background-color: #9584E0; -fx-font-size: 24px;\n" +
+                "    -fx-background-radius: 10;");
+        VBox vBox2 = new VBox();
+        vBox2.setAlignment(Pos.CENTER);
+        vBox2.setPadding(new Insets(25));
+        vBox2.setSpacing(35);
+        Text text2 = new Text("Краткое описание");
+        Text text3 = new Text("Введите краткое описание учебника");
+        TextField textField2 = new TextField();
+        textField2.setStyle("-fx-background-radius: 10; -fx-prompt-text-fill: #FBFBFD80;");
+        HBox hBox2 = new HBox();
+        hBox2.setAlignment(Pos.CENTER);
+        hBox2.setSpacing(25);
+        Button btnOk2 = new Button(" Сохранить ");
+        btnOk2.setPrefWidth(200);
+        btnOk2.setStyle("-fx-background-color: #554BA3; -fx-text-fill: white; -fx-background-radius: 10;");
+        btnOk2.setOnAction(event1 -> {
+            dialog2.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+            dialog2.close();
+        });
+        Button btnCancel2 = new Button("   Отмена   ");
+        btnCancel2.setPrefWidth(200);
+        btnCancel2.setStyle("-fx-background-radius: 10;");
+        btnCancel2.setOnAction(event1 -> {
+            dialog2.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+            dialog2.close();
+            terminate.set(true);
+        });
+        hBox2.getChildren().addAll(btnCancel2, btnOk2);
+        vBox2.getChildren().addAll(text2, text3, textField2, hBox2);
+        dialog2.getDialogPane().setContent(vBox2);
+        dialog2.showAndWait();
+
+        meta.setDescription(textField2.getText());
+
+        if (terminate.get()) {
+            return;
+        }
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Загрузить обложку");
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Изображение обложки", "*.png"));
         File fileCover = fileChooser.showOpenDialog(ctx.getMainScene().getWindow());
+
+        Dialog<ButtonType> dialog21 = new Dialog<>();
+        dialog21.initStyle(StageStyle.UNDECORATED);
+        dialog21.getDialogPane().setStyle("-fx-background-color: #9584E0; -fx-font-size: 24px;\n" +
+                "    -fx-background-radius: 10;");
+        VBox vBox21 = new VBox();
+        vBox21.setAlignment(Pos.CENTER);
+        vBox21.setPadding(new Insets(25));
+        vBox21.setSpacing(25);
+        Text text21 = new Text("Вы уверены, что хотите продолжить?");
+        Text text31 = new Text("После публикации книг на сервер их нельзя будет");
+        text31.setStyle("-fx-font-size: 18;");
+        Text text4 = new Text("удалять и изменять название, но можно будет");
+        text4.setStyle("-fx-font-size: 18;");
+        Text text5 = new Text("редактировать тесты");
+        text5.setStyle("-fx-font-size: 18;");
+        HBox hBox21 = new HBox();
+        hBox21.setAlignment(Pos.CENTER);
+        hBox21.setSpacing(25);
+        Button btnOk21 = new Button("Опубликовать");
+        btnOk21.setPrefWidth(250);
+        btnOk21.setStyle("-fx-background-color: #554BA3; -fx-text-fill: white; -fx-background-radius: 10;");
+        btnOk21.setOnAction(event1 -> {
+            dialog21.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+            dialog21.close();
+        });
+        Button btnCancel21 = new Button("   Отмена   ");
+        btnCancel21.setPrefWidth(250);
+        btnCancel21.setStyle("-fx-background-radius: 10; -fx-background-color: #FBFBFD;");
+        btnCancel21.setOnAction(event1 -> {
+            dialog21.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+            dialog21.close();
+            terminate.set(true);
+        });
+        hBox21.getChildren().addAll(btnCancel21, btnOk21);
+        vBox21.getChildren().addAll(text21, text31, text4, text5, hBox21);
+        dialog21.getDialogPane().setContent(vBox21);
+        dialog21.showAndWait();
+
+        if (terminate.get()) {
+            return;
+        }
+
         try {
             Path path = zipAll(file, test, fileCover, meta);
             String code = ctx.getNetwork().upLoadBook("/books/addBook", path.toFile());

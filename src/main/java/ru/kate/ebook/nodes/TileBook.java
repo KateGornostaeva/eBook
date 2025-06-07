@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
-import java.util.Optional;
 
 import static javafx.geometry.Pos.TOP_CENTER;
 
@@ -309,22 +308,43 @@ public class TileBook extends AnchorPane {
             vBox.getChildren().add(btnDel);
 
             btnDel.setOnAction(e -> {
-                try {
-                    Dialog<ButtonType> dialog = new Dialog<>();
-                    dialog.initStyle(StageStyle.UNDECORATED);
-                    dialog.setTitle("(!)");
-                    dialog.setHeaderText("Вы уверены, что хотите удалить\nчерновик?");
-                    dialog.setContentText("После удаления его нельзя будет\nвосстановить");
-                    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-                    Optional<ButtonType> result = dialog.showAndWait();
-                    if (result.get() == ButtonType.OK) {
+                Dialog<ButtonType> dialog = new Dialog<>();
+                dialog.initOwner(controller.getCtx().getMainScene().getWindow());
+                dialog.initStyle(StageStyle.UNDECORATED);
+                dialog.getDialogPane().setStyle("-fx-background-color: #9584E0;");
+                VBox vBox2 = new VBox();
+                vBox2.setAlignment(Pos.CENTER);
+                vBox2.setPadding(new Insets(25));
+                vBox2.setSpacing(35);
+                Text text = new Text("Вы уверены, что хотите удалить черновик?");
+                Text text1 = new Text("После удаления его нельзя будет восстановить");
+                HBox hBox = new HBox();
+                hBox.setAlignment(Pos.CENTER);
+                hBox.setSpacing(25);
+                Button btnOk = new Button("  OK  ");
+                btnOk.setPrefWidth(200);
+                btnOk.setStyle("-fx-background-color: #554BA3; -fx-text-fill: white");
+                btnOk.setOnAction(event1 -> {
+                    try {
                         Files.deleteIfExists(meta.getPath());
-                        ((Pane) getParent()).getChildren().remove(this);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
                     }
-                    popupControl.hide();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
+                    ((Pane) getParent()).getChildren().remove(this);
+                    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+                    dialog.close();
+                });
+                Button btnCancel = new Button("  Отмена  ");
+                btnCancel.setPrefWidth(200);
+                btnCancel.setOnAction(event1 -> {
+
+                });
+                hBox.getChildren().addAll(btnCancel, btnOk);
+                vBox2.getChildren().addAll(text, text1, hBox);
+                dialog.getDialogPane().setContent(vBox2);
+                dialog.showAndWait();
+
+                popupControl.hide();
             });
         }
 
