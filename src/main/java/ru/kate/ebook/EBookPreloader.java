@@ -10,14 +10,24 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+
 @Slf4j
 public class EBookPreloader extends Preloader {
 
     private Stage stage;
 
     public static void main(final String[] args) {
-        System.setProperty("javafx.preloader", "ru.kate.ebook.EBookPreloader");
-        Application.launch(EBookMain.class, args);
+        try {
+            PrintStream fileOut = new PrintStream("./out.txt");
+            System.setOut(fileOut);
+            System.setErr(fileOut);
+            System.setProperty("javafx.preloader", "ru.kate.ebook.EBookPreloader");
+            Application.launch(EBookMain.class, args);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
