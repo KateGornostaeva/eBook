@@ -55,6 +55,9 @@ import java.util.ResourceBundle;
 import static ru.kate.ebook.utils.Saver.localSaveAction;
 import static ru.kate.ebook.utils.Saver.serverSaveAction;
 
+/**
+ * главный контроллер в котором почти всё делается
+ */
 @Slf4j
 public class MainWindowController implements Initializable {
 
@@ -99,6 +102,12 @@ public class MainWindowController implements Initializable {
         drawMainPane();
     }
 
+    /**
+     * дорисовка главного меню
+     *
+     * @param url
+     * @param resourceBundle
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -130,6 +139,7 @@ public class MainWindowController implements Initializable {
         mainVBox.getChildren().add(sPane);
         VBox.setVgrow(sPane, Priority.ALWAYS);
 
+        // если квадратики, то рисуем так
         if (grid) {
             FlowPane flowPane = new FlowPane();
             flowPane.setOrientation(Orientation.HORIZONTAL);
@@ -141,7 +151,7 @@ public class MainWindowController implements Initializable {
             addBookToPane(flowPane);
             sPane.setContent(flowPane);
             btnListOrGrid.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("list.png"))));
-        } else {
+        } else { // если строки, то так
             VBox vBox = new VBox();
             vBox.setPrefWidth(sPane.getScene().getWidth() - 10);
             vBox.setPrefHeight(sPane.getHeight());
@@ -236,7 +246,7 @@ public class MainWindowController implements Initializable {
             wait.play();
             return;
         }
-        if (bookDtos.isEmpty()) {
+        if (bookDtos.isEmpty()) { // если на сервере не нашли ни чего, то рисуем предупреждение
             PopupControl popup = new PopupControl();
             popup.setMinHeight(64);
             popup.setAutoHide(true);
@@ -262,7 +272,7 @@ public class MainWindowController implements Initializable {
             popup.getScene().setRoot(label);
             popup.show(txtSearch.getScene().getWindow());
             wait.play();
-        } else {
+        } else { // если с сервера пришёл список найденых книг, то рисуем этот список
             List<BookMeta> metas = new ArrayList<>();
             for (BookDto bookDto : bookDtos) {
                 BookMeta bookMeta = new BookMeta(bookDto);
@@ -296,10 +306,12 @@ public class MainWindowController implements Initializable {
 
         List<BookMeta> books = new ArrayList<>();
 
+        // для учителя добавляем черновики
         if (ctx.getRole().equals(Role.ROLE_TEACHER)) {
             addAddTail(pane);
             books.addAll(ctx.getLocalStore().getBooks().stream().filter(BookMeta::getIsDraft).toList());
         }
+        // для студента и учителя добавляем то, что было скачено
         if (ctx.getRole().equals(Role.ROLE_STUDENT) || ctx.getRole().equals(Role.ROLE_TEACHER)) {
             books.addAll(ctx.getLocalStore().getBooks().stream().filter(BookMeta::getIsNotDraft).toList());
         }
@@ -311,8 +323,8 @@ public class MainWindowController implements Initializable {
         });
 
         books.forEach(book -> {
-            TileBook tileBook = new TileBook(book, this);
-            pane.getChildren().add(tileBook);
+            TileBook tileBook = new TileBook(book, this); //создаём плитки-книги
+            pane.getChildren().add(tileBook); // и добавляем их на панель
         });
     }
 
@@ -326,6 +338,7 @@ public class MainWindowController implements Initializable {
         pane.getChildren().add(addTail);
     }
 
+    // режим редактирования тестов
     public void editMode(File file, BookMeta meta) {
         mainVBox.getChildren().remove(mainToolBar);
         mainVBox.getChildren().add(buildEditTestToolBar(file, meta));
@@ -420,7 +433,6 @@ public class MainWindowController implements Initializable {
         btnZoomOut.setOnAction(event -> {
 
         });
-        //readModeToolBar.getItems().add(btnZoomOut);
 
         Pane pane = new Pane();
         HBox.setHgrow(pane, Priority.ALWAYS);
@@ -443,7 +455,7 @@ public class MainWindowController implements Initializable {
             btnRunTest.setDisable(true);
             test = null;
         }
-        btnRunTest.setOnAction(event -> {
+        btnRunTest.setOnAction(event -> { // реакция на запуск теста
             mainVBox.getChildren().remove(webView);
             mainVBox.getChildren().remove(readModeToolBar);
             ToolBar runTestToolBar = buildRunTestToolBar(file, meta);
@@ -462,6 +474,7 @@ public class MainWindowController implements Initializable {
         return readModeToolBar;
     }
 
+    // нажимаем мышкой на кнопки чужого отображения PDF
     private void virtualPress(int x, int y, MouseEvent event) {
         Point2D localToScreen = webView.localToScreen(x, y);
         int oldX = (int) event.getScreenX();
@@ -478,6 +491,7 @@ public class MainWindowController implements Initializable {
         }
     }
 
+    // строим панель с прохождением теста
     private ScrollPane buildRunTestPane(Test test) {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToHeight(true);
@@ -499,12 +513,12 @@ public class MainWindowController implements Initializable {
 
         Button btnEndTest = new Button("Завершить тест");
         btnEndTest.getStyleClass().add("btn-end");
-        btnEndTest.setOnAction(event -> {
+        btnEndTest.setOnAction(event -> { // реакция на кнопку окончания теста
 
             List<RunTestSectionBox> runTestSectionBoxes = runTestBox.getChildren().stream()
                     .filter(RunTestSectionBox.class::isInstance).map(RunTestSectionBox.class::cast).toList();
 
-            if (CheckTest.finishCheck(runTestSectionBoxes)) {
+            if (CheckTest.finishCheck(runTestSectionBoxes)) { // проверяем, что прошли весь тест
                 Dialog<ButtonType> dialog = new Dialog<>();
                 dialog.initStyle(StageStyle.UNDECORATED);
                 dialog.initOwner(ctx.getMainScene().getWindow());
@@ -523,7 +537,7 @@ public class MainWindowController implements Initializable {
                 Button btnOk = new Button("Завершить");
                 btnOk.setPrefWidth(200);
                 btnOk.setStyle("-fx-background-color: #554BA3; -fx-text-fill: #FBFBFD");
-                btnOk.setOnAction(event1 -> {
+                btnOk.setOnAction(event1 -> { // если согласен закончить тест, то выводим результат
                     dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
                     dialog.close();
                     runTestSectionBoxes.forEach(RunTestSectionBox::finish);
@@ -581,7 +595,7 @@ public class MainWindowController implements Initializable {
         return scrollPane;
     }
 
-
+    // строим главное меню для прохождения теста
     private ToolBar buildRunTestToolBar(File file, BookMeta meta) {
         ToolBar toolBar = new ToolBar();
         toolBar.getStyleClass().add("run-test-tool-bar");
@@ -590,7 +604,7 @@ public class MainWindowController implements Initializable {
         returnButton.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("back.png"))));
         returnButton.setPrefWidth(100);
         returnButton.setPrefHeight(61);
-        returnButton.setOnAction(event -> {
+        returnButton.setOnAction(event -> { // реакция на выход из теста
 
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.initOwner(ctx.getMainScene().getWindow());
@@ -734,6 +748,7 @@ public class MainWindowController implements Initializable {
 
     }
 
+    // наполняем панель редактирования теста данными из сохранённого ранее
     private void fillEditTestPane(ScrollPane rightPane, Test test) {
         testsBox = new VBox();
         testsBox.setFillWidth(true);
@@ -785,9 +800,81 @@ public class MainWindowController implements Initializable {
         testsBox.setAlignment(Pos.CENTER);
     }
 
+    // востановить вид приложения по умолчанию
     public void handleHome(ActionEvent actionEvent) {
+        mainVBox.getChildren().clear();
+        mainVBox.getChildren().add(mainToolBar);
+        drawMainPane();
     }
 
+    // нарисовать вид для преподавателя с черновиками и опубликованными им книгами
     public void handleDraftAndPublished(ActionEvent actionEvent) {
+        mainVBox.getChildren().clear();
+        mainVBox.getChildren().add(mainToolBar);
+        sPane = new ScrollPane();
+        sPane.setPrefWidth(mainVBox.getWidth());
+        sPane.setPrefHeight(mainVBox.getHeight() - 100);
+        VBox.setVgrow(sPane, Priority.ALWAYS);
+        mainVBox.getChildren().add(sPane);
+        VBox vBox = new VBox();
+        vBox.setPadding(new Insets(0, 0, 0, 85));
+
+        Text text = new Text("Черновики");
+        text.setStyle("-fx-font-weight: bold");
+        vBox.getChildren().add(text);
+
+        FlowPane flowPaneDraft = new FlowPane();
+        vBox.getChildren().add(flowPaneDraft);
+        flowPaneDraft.setOrientation(Orientation.HORIZONTAL);
+        flowPaneDraft.setVgap(50);
+        flowPaneDraft.setHgap(50);
+        flowPaneDraft.setPadding(new Insets(50, 50, 50, 0));
+        flowPaneDraft.setPrefWidth(1890);
+        addBookToDraftPane(flowPaneDraft);
+
+        Text text1 = new Text("Мои опубликованные книги");
+        text1.setStyle("-fx-font-weight: bold");
+        vBox.getChildren().add(text1);
+
+        FlowPane flowPanePublish = new FlowPane();
+        vBox.getChildren().add(flowPanePublish);
+        flowPanePublish.setOrientation(Orientation.HORIZONTAL);
+        flowPanePublish.setVgap(50);
+        flowPanePublish.setHgap(50);
+        flowPanePublish.setPadding(new Insets(50, 50, 50, 0));
+        flowPanePublish.setPrefWidth(1890);
+        addBookToPublishPane(flowPanePublish);
+
+        sPane.setContent(vBox);
+    }
+
+    // добавить черновики на панель с черновиками
+    private void addBookToDraftPane(Pane pane) {
+
+        List<BookMeta> books = new ArrayList<>();
+
+        books.addAll(ctx.getLocalStore().getBooks().stream().filter(BookMeta::getIsDraft).toList());
+
+        books.forEach(book -> {
+            TileBook tileBook = new TileBook(book, this);
+            pane.getChildren().add(tileBook);
+        });
+    }
+
+    // добавить опубликованные на панель с опубликованными
+    private void addBookToPublishPane(Pane pane) {
+
+        List<BookMeta> books = new ArrayList<>();
+
+        Page page = ctx.getNetwork().getPageBooks();
+        page.getContent().forEach(dto -> {
+            BookMeta bookMeta = new BookMeta(dto);
+            books.add(bookMeta);
+        });
+
+        books.forEach(book -> {
+            TileBook tileBook = new TileBook(book, this);
+            pane.getChildren().add(tileBook);
+        });
     }
 }

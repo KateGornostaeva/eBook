@@ -1,5 +1,8 @@
 package ru.kate.ebook.configuration;
 
+/**
+ * Список ролей в системе
+ */
 public enum Role {
     ROLE_STUDENT("Студент"),
     ROLE_TEACHER("Педагог"),

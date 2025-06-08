@@ -3,6 +3,9 @@ package ru.kate.ebook.configuration;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * хотела сделать что то оригинальное но не получилось
+ */
 @Data
 @Builder
 public class GraphicsConfig {

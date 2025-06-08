@@ -23,6 +23,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Контроллер привязанный к диалогу авторизации
+ */
 @Slf4j
 public class AuthDialogController extends EbController {
 
@@ -57,10 +60,12 @@ public class AuthDialogController extends EbController {
             ctx.setRole(ctx.getNetwork().getRole());
 
             if (ctx.getRole().equals(Role.ROLE_TEACHER)) {
+                // высвечивам кнопку для учителя
                 Button btnDraftAndPublished = (Button) ctx.getMainScene().lookup("#btnDraftAndPublished");
                 btnDraftAndPublished.setVisible(true);
             }
 
+            // меняем кнопку Войти на кнопку профиля
             Button btnUser = (Button) ctx.getMainScene().lookup("#btnUser");
             btnUser.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("user.png"))));
             btnUser.setText("");
@@ -70,6 +75,7 @@ public class AuthDialogController extends EbController {
             log.error(e.getLocalizedMessage());
             e.printStackTrace();
         } catch (WrongAuthorisation e) {
+            // если не смогла войти на сервер, то показываю окошко с предупреждением
             event.consume();
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.initStyle(StageStyle.UNDECORATED);
@@ -100,10 +106,11 @@ public class AuthDialogController extends EbController {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // это что бы после ввода пароля реагировало на Энтер
         txtPassword.setOnAction(actionEvent -> {
             processBtnEnter(actionEvent);
         });
-
+// перехват закрытия диалога, что бы при возврате из регистрации, диалог авторизации был на месте
         btnEnter.addEventFilter(ActionEvent.ACTION, event -> {
             processBtnEnter(event);
             event.consume();

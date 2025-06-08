@@ -18,20 +18,20 @@ public class Context {
     private LocalStore localStore;
     //private Role role = Role.ROLE_TEACHER;
     //private Role role = Role.ROLE_STUDENT;
-    private Role role = Role.ROLE_GUEST;
+    private Role role = Role.ROLE_GUEST; // Роль по умолчанию при запуске
 
-    private Scene mainScene;
-    private MainWindowController mainWindowController;
-    private WebView webView;
+    private Scene mainScene; // главная сцена к которой привязываются диалоги
+    private MainWindowController mainWindowController; // главный контролер, через эту ссылку доступ к функциям контролера из других контролеров
+    private WebView webView; // главное окно отображения книги (фактически встроенный браузер)
 
     private final Configurator configurator;
     private Network network;
-    private Locale locale;
-    private MainConfig mc;
-    private NetworkConfig nc;
-    private GraphicsConfig gc;
+    private Locale locale; // на будущее для мультиязычности
+    private MainConfig mc; // тоже на будущее различные конфигурации
+    private NetworkConfig nc; // здесь настройки сети, адрес сервера
+    private GraphicsConfig gc; // на будущее
 
-    private boolean connected = false;
+    private boolean connected = false; // признак подключения к серверу
 
     public Context(EBookMain eBookMain) {
         this.eBookMain = eBookMain;
