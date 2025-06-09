@@ -12,6 +12,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Контроллер привязанный к форме регистрации нового пользователя
+ */
 public class RegDialogController extends EbController {
 
     @FXML
@@ -59,12 +62,13 @@ public class RegDialogController extends EbController {
             txtLastName.getScene().getWindow().hide();
 
         } else {
-            //показываем всплывашку алерт
+            //показываем всплывашку алерт если какое то поле не заполнено
         }
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // в выпадашку добавляем роли
         chbRole.getItems().addAll("Студент", "Преподаватель                      ");
         chbRole.setValue("Студент");
     }

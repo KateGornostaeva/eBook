@@ -15,13 +15,16 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.UUID;
 
+/**
+ * Самый главный формат файла с храниением учебника
+ */
 @Data
 @NoArgsConstructor
 public class BookMeta {
 
-    public final static String META_NAME = "bookMeta.json";
-    public final static String COVER_NAME = "cover.png";
-    public final static String TEST_NAME = "test.json";
+    public final static String META_NAME = "bookMeta.json"; // имя файла с метаданными
+    public final static String COVER_NAME = "cover.png"; // имя файла обложки
+    public final static String TEST_NAME = "test.json"; // имя файла тестов
     private final static ObjectMapper mapper = new ObjectMapper();
 
     private UUID id;
@@ -51,6 +54,7 @@ public class BookMeta {
     //признак черновика
     private Boolean isDraft = false;
 
+    // конвертируем вещ с сервера в формат приложения
     public BookMeta(BookDto dto) {
         id = dto.getId();
         title = dto.getTitle();

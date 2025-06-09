@@ -14,6 +14,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Контроллер привязаный к диалогу профиля
+ */
 public class ProfileDialogController extends EbController {
     @FXML
     public Label role;
@@ -33,6 +36,7 @@ public class ProfileDialogController extends EbController {
 
         role.setText("  " + ctx.getRole().getValue());
 
+        // заполняем шапку данными из профиля из данных с сервера
         ProfileDto profileDto = ctx.getNetwork().getProfile();
         family.setText(profileDto.getLastName());
         name.setText(profileDto.getName());
