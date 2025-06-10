@@ -15,7 +15,8 @@ public class EBookPreloader extends Preloader {
 
     private Stage stage;
 
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws InterruptedException {
+        Thread.sleep(1000);
         System.setProperty("javafx.preloader", "ru.kate.ebook.EBookPreloader");
         Application.launch(EBookMain.class, args);
     }

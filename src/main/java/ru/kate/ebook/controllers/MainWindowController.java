@@ -649,7 +649,7 @@ public class MainWindowController implements Initializable {
         Pane pane = new Pane();
         HBox.setHgrow(pane, Priority.ALWAYS);
 
-        Button resetButton = new Button("Сбросить тест и вернуться к книге");
+        Button resetButton = new Button("Выйти в главное меню");
         resetButton.getStyleClass().add("btn-reset");
         resetButton.setPrefHeight(61);
         resetButton.setOnAction(event -> {
@@ -805,6 +805,12 @@ public class MainWindowController implements Initializable {
     public void handleHome(ActionEvent actionEvent) {
         mainVBox.getChildren().clear();
         mainVBox.getChildren().add(mainToolBar);
+        Button btnDraft = (Button) ctx.getMainScene().lookup("#btnDraftAndPublished");
+        btnDraft.setStyle("-fx-background-color: #FBFBFD;");
+        btnDraft.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("draftAndPublished.png"))));
+        Button btnHome = (Button) ctx.getMainScene().lookup("#btnHome");
+        btnHome.setStyle("-fx-background-color: #554BA3;");
+        btnHome.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("home.png"))));
         drawMainPane();
     }
 
@@ -812,6 +818,12 @@ public class MainWindowController implements Initializable {
     public void handleDraftAndPublished(ActionEvent actionEvent) {
         mainVBox.getChildren().clear();
         mainVBox.getChildren().add(mainToolBar);
+        Button btnDraft = (Button) ctx.getMainScene().lookup("#btnDraftAndPublished");
+        btnDraft.setStyle("-fx-background-color: #554BA3;");
+        btnDraft.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("draftAndPublishedWhite.png"))));
+        Button btnHome = (Button) ctx.getMainScene().lookup("#btnHome");
+        btnHome.setStyle("-fx-background-color: #FBFBFD;");
+        btnHome.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("homeBlack.png"))));
         sPane = new ScrollPane();
         sPane.setPrefWidth(mainVBox.getWidth());
         sPane.setPrefHeight(mainVBox.getHeight() - 100);
