@@ -108,7 +108,8 @@ public class Saver {
 
     }
 
-    public static void serverSaveAction(File file, Context ctx, VBox testsBox) {
+    public static boolean serverSaveAction(File file, Context ctx, VBox testsBox) {
+
         BookMeta meta = new BookMeta();
         meta.setBookFileName(file.getName());
         meta.setIsDraft(false);
@@ -118,7 +119,6 @@ public class Saver {
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.initStyle(StageStyle.UNDECORATED);
             dialog.initOwner(ctx.getMainScene().getWindow());
-            //dialog.getDialogPane().setPrefWidth(500);
             dialog.getDialogPane().setStyle("-fx-background-color: #9584E0;");
             VBox vBox = new VBox();
             vBox.setAlignment(Pos.CENTER);
@@ -140,7 +140,7 @@ public class Saver {
             vBox.getChildren().addAll(text, text1, hBox);
             dialog.getDialogPane().setContent(vBox);
             dialog.showAndWait();
-            return;
+            return false;
         }
 
         meta.setIsTestIn(Boolean.TRUE);
@@ -195,7 +195,7 @@ public class Saver {
         dialog.showAndWait();
 
         if (terminate.get()) {
-            return;
+            return false;
         }
         meta.setTitle(textField.getText());
 
@@ -237,7 +237,7 @@ public class Saver {
         meta.setDescription(textField2.getText());
 
         if (terminate.get()) {
-            return;
+            return false;
         }
 
         FileChooser fileChooser = new FileChooser();
@@ -284,7 +284,7 @@ public class Saver {
         dialog21.showAndWait();
 
         if (terminate.get()) {
-            return;
+            return false;
         }
 
         try {
@@ -308,6 +308,7 @@ public class Saver {
         } catch (Exception e) {
             log.error(e.getMessage());
         }
+        return true;
     }
 
     /**

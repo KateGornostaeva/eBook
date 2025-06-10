@@ -10,12 +10,12 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -691,10 +691,11 @@ public class MainWindowController implements Initializable {
         serverSaveButton.setPadding(new Insets(0, 20, 0, 20));
         serverSaveButton.setMaxHeight(60);
         serverSaveButton.setOnAction(event -> {
-            serverSaveAction(file, ctx, testsBox);
-            mainVBox.getChildren().clear();
-            mainVBox.getChildren().add(mainToolBar);
-            drawMainPane();
+            if (serverSaveAction(file, ctx, testsBox)) {
+                mainVBox.getChildren().clear();
+                mainVBox.getChildren().add(mainToolBar);
+                drawMainPane();
+            }
         });
         if (ctx.isConnected()) {
             serverSaveButton.setDisable(false);

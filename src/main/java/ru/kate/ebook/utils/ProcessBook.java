@@ -177,6 +177,7 @@ public class ProcessBook {
         return new BigInteger(1, hash).toString(16);
     }
 
+    //для формирования заголовка FB2
     private String getHtmlHead(String lang, String title) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html>");
